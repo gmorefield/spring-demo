@@ -3,6 +3,11 @@ spring:
         name: spring-demo
     lifecycle:
         timeout-per-shutdown-phase: 20s
+    datasource: 
+        # driver-class-name: com.mysql.jdbc.Driver
+        # url: jdbc:mysql://localhost/test
+        # username: dbuser
+        # password: dbpass
 
 management:
     cloudfoundry:
