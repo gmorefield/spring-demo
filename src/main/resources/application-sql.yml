@@ -1,0 +1,7 @@
+spring:
+    datasource: 
+        driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+        # url: jdbc:sqlserver://localhost;databaseName=model
+        url: jdbc:sqlserver://localhost
+        username: sa
+        # password: redacted
