@@ -1,0 +1,49 @@
+spring:
+    application:
+        name: spring-demo
+    lifecycle:
+        timeout-per-shutdown-phase: 20s
+
+management:
+    cloudfoundry:
+        enabled: false
+    security:
+        enabled: false
+    endpoints:
+        enabled-by-default: true
+        web:
+            exposure:
+                include: "*"
+            #     - health
+            #     - metrics
+            #     - env
+            #     - info
+            # cors:
+            #     allowed-origins: http://example.com
+            #     allowed-methods: GET,POST
+    endpoint:
+        info:
+            enabled: true
+        metrics:
+            enabled: true
+        env:
+            enabled: true
+        health:
+            enabled: true
+            show-details: always
+            show-components: always
+            probes:
+                enabled: true
+    health:
+        livenessState:
+            enabled: true
+        readinessState:
+            enabled: true
+
+server:
+    shutdown: graceful
+    compression:
+        enabled: true
+    http2:
+        enabled: true
+    port: 8080
