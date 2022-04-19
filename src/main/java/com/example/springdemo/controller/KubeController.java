@@ -1,4 +1,6 @@
-package com.example.springdemo;
+package com.example.springdemo.controller;
+
+import com.example.springdemo.service.AvailabilityService;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

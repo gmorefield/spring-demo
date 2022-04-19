@@ -1,9 +1,11 @@
-package com.example.springdemo;
+package com.example.springdemo.data;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+
+import com.example.springdemo.model.Person;
 
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,10 +14,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PersonService {
+public class PersonRepository {
     private JdbcTemplate jdbcTemplate;
 
-    public PersonService(JdbcTemplate jdbcTemplate) {
+    public PersonRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -32,16 +34,16 @@ public class PersonService {
                 }, keyHolder);
 
         Number key = keyHolder.getKey();
-        return get(key.longValue());
+        return findById(key.longValue());
     }
 
-    public List<Person> loadAll() {
+    public List<Person> findAll() {
         return jdbcTemplate.query("select * from Person", (resultSet, i) -> {
             return toPerson(resultSet);
         });
     }
 
-    public Person get(long id) {
+    public Person findById(long id) {
         try {
             return jdbcTemplate.queryForObject(
                     "select * from Person where ID = ?",

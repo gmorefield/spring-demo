@@ -1,37 +1,45 @@
 spring:
     application:
         name: spring-demo
+        admin:
+            enabled: false
     lifecycle:
         timeout-per-shutdown-phase: 20s
-    # datasource: 
-        # driver-class-name: com.mysql.jdbc.Driver
-        # url: jdbc:mysql://localhost/test
-        # username: dbuser
-        # password: dbpass
+    sql:
+        init:
+            mode: embedded
+    jmx:
+        enabled: false
+    main:
+        banner-mode: console
+    datasource:
+        hikari:
+            maximum-pool-size: 30
+            auto-commit: true
 
+logging:
+  level:
+    root: info
+    org.springframework: info
+    
 management:
     cloudfoundry:
         enabled: false
     security:
         enabled: false
     endpoints:
-        enabled-by-default: true
+        enabled-by-default: false
         web:
             exposure:
-                include: "*"
-            #     - health
-            #     - metrics
-            #     - env
-            #     - info
+                # include: 
+                include:
+                - health
+                - info
             # cors:
             #     allowed-origins: http://example.com
             #     allowed-methods: GET,POST
     endpoint:
         info:
-            enabled: true
-        metrics:
-            enabled: true
-        env:
             enabled: true
         health:
             enabled: true
@@ -52,3 +60,5 @@ server:
     http2:
         enabled: true
     port: 8080
+    session-timeout: 1800
+    max-threads: 50

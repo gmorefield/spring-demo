@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: spring-demo-app
-        image: spring-demo:0.0.1
+        image: spring-demo:0.0.3
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -31,14 +31,24 @@ spec:
           httpGet:
             path: /actuator/health/readiness
             port: 8080
+            scheme: HTTP
           initialDelaySeconds: 3
           periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 3
         livenessProbe:
           httpGet:
             path: /actuator/health/liveness
             port: 8080
+            scheme: HTTP
           initialDelaySeconds: 15
           periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 3
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
 ---
 apiVersion: v1
 kind: Service

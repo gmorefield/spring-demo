@@ -1,0 +1,10 @@
+spring:
+    application:
+        admin:
+            enabled: false
+    jmx:
+        enabled: false
+
+sample:
+    commandLine:
+        delay: 0

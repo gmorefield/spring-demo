@@ -1,4 +1,4 @@
-package com.example.springdemo;
+package com.example.springdemo.service;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +23,6 @@ public class AvailabilityService {
             TimeUnit.SECONDS.sleep(seconds);
         } catch (Exception ignored) {
         }
-        ;
         AvailabilityChangeEvent.publish(eventPublisher, this, ReadinessState.ACCEPTING_TRAFFIC);
     }
 }
