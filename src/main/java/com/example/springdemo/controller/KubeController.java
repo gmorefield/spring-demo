@@ -1,7 +1,15 @@
 package com.example.springdemo.controller;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+
 import com.example.springdemo.service.AvailabilityService;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController()
 @RequestMapping("kube")
+@Validated
 public class KubeController {
     private AvailabilityService availabilityService;
 
@@ -17,8 +26,13 @@ public class KubeController {
     }
 
     @PostMapping("ignore")
-    public String ignoreTraffic(@RequestBody int seconds) {
+    public String ignoreTraffic(@RequestBody @Validated @Min(0) @Max(30) int seconds) {
         availabilityService.ignoreTraffic(seconds);
-        return String.format("Ignoring traffic for %x seconds", seconds);
+        return String.format("Ignoring traffic for %d seconds", seconds);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<String> onValidationError(Exception ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }

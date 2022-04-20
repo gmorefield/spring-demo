@@ -1,4 +1,4 @@
-package com.example.springdemo;
+package com.example.springdemo.controllers;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.MediaType.APPLICATION_JSON;

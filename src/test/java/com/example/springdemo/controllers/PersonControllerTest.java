@@ -1,4 +1,4 @@
-package com.example.springdemo;
+package com.example.springdemo.controllers;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

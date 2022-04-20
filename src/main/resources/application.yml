@@ -62,3 +62,7 @@ server:
     port: 8080
     session-timeout: 1800
     max-threads: 50
+
+sample:
+    commandLine:
+        delay: 5

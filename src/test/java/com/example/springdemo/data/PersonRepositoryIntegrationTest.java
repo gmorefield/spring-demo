@@ -1,8 +1,7 @@
-package com.example.springdemo;
+package com.example.springdemo.data;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.example.springdemo.data.PersonRepository;
 import com.example.springdemo.model.Person;
 
 import org.junit.jupiter.api.Test;

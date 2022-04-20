@@ -5,6 +5,14 @@ spring:
     jmx:
         enabled: false
 
+logging:
+    level:
+        root: info
+        "[org.springframework]": warn
+        "[org.springframework.test]": warn
+        "[org.springframework.test.context.cache]": warn    # useful for tracking Application Context caching
+        "[org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate]": warn
+
 sample:
-    commandLine:
+    command-line:
         delay: 0

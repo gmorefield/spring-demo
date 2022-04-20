@@ -1,0 +1,7 @@
+<!-- used to control test bootstrap logging levels -->
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+    <logger name="com.example" level="info" />
+    <logger name="org.springframework" level="error" />
+    <logger name="org.springframework.test" level="error" />
+</configuration>

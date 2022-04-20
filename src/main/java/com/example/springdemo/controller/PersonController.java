@@ -1,13 +1,14 @@
 package com.example.springdemo.controller;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.util.List;
 
 import com.example.springdemo.data.PersonRepository;
 import com.example.springdemo.model.Person;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,12 +26,12 @@ public class PersonController {
     }
 
     @GetMapping(path = "/person/{id}")
-    public Person getOne(@PathVariable("id") long id) {
+    public ResponseEntity<Person> getOne(@PathVariable("id") long id) {
         Person p = personRepository.findById(id);
         if (p == null) {
-            throw new ResponseStatusException(NOT_FOUND, "Person " + id + " not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        return p;
+        return ResponseEntity.ok(p);
     }
 
     @GetMapping(path = "/person")

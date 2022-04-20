@@ -1,4 +1,4 @@
-package com.example.springdemo;
+package com.example.springdemo.controllers;
 
 import com.example.springdemo.controller.KubeController;
 import com.example.springdemo.controller.PersonController;
