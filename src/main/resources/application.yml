@@ -13,14 +13,23 @@ spring:
     main:
         banner-mode: console
     datasource:
+        driver-class-name: org.h2.Driver
+        url: jdbc:h2:mem:props
+        username: sa
+        # jdbc-url is needed for Hikari
+        jdbc-url: ${spring.datasource.url}
+        pool-size: 30
+        maximum-pool-size: 30
         hikari:
             maximum-pool-size: 30
             auto-commit: true
+    profiles:
+        default: custom
 
 logging:
   level:
     root: info
-    org.springframework: info
+    "[org.springframework]": info
     
 management:
     cloudfoundry:
@@ -66,3 +75,19 @@ server:
 sample:
     commandLine:
         delay: 5
+    datasource:
+        driver-class-name: org.h2.Driver
+        url: jdbc:h2:mem:custom
+        username: sa
+        # jdbc-url is needed for Hikari
+        jdbc-url: ${sample.datasource.url}
+        maximum-pool-size: 30
+    hikari:
+        datasource:
+            driver-class-name: org.h2.Driver
+            url: jdbc:h2:mem:hikari
+            username: sa
+            # jdbc-url is needed for Hikari
+            jdbc-url: ${sample.hikari.datasource.url}
+            maximum-pool-size: 30
+    

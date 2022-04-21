@@ -8,10 +8,12 @@ spring:
 logging:
     level:
         root: info
-        "[org.springframework]": warn
+        "[org.springframework]": info
         "[org.springframework.test]": warn
         "[org.springframework.test.context.cache]": warn    # useful for tracking Application Context caching
         "[org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate]": warn
+        "[com.zaxxer.hikari.HikariConfig]": ${logging.level.root}
+        "[com.zaxxer.hikari]": ${logging.level.root}
 
 sample:
     command-line:
