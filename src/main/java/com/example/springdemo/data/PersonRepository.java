@@ -1,6 +1,5 @@
 package com.example.springdemo.data;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -8,16 +7,18 @@ import java.util.List;
 import com.example.springdemo.model.Person;
 
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PersonRepository {
-    private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate jdbcTemplate;
 
-    public PersonRepository(JdbcTemplate jdbcTemplate) {
+    public PersonRepository(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -25,13 +26,10 @@ public class PersonRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         int rowsUpdated = jdbcTemplate.update(
-                connection -> {
-                    PreparedStatement ps = connection.prepareStatement(
-                            "insert into Person (first_Name, Last_Name) values (?, ?)", new String[] { "ID" });
-                    ps.setString(1, person.getFirstName());
-                    ps.setString(2, person.getLastName());
-                    return ps;
-                }, keyHolder);
+            "insert into Person (first_Name, Last_Name) values (:firstName, :lastName)",
+            new BeanPropertySqlParameterSource(person),
+            keyHolder,
+            new String[] { "ID" });
 
         Number key = keyHolder.getKey();
         return findById(key.longValue());
@@ -46,11 +44,11 @@ public class PersonRepository {
     public Person findById(long id) {
         try {
             return jdbcTemplate.queryForObject(
-                    "select * from Person where ID = ?",
-                    new Object[] { id }, new int[] { java.sql.Types.INTEGER },
-                    (resultSet, row) -> {
-                        return toPerson(resultSet);
-                    });
+                "select * from Person where ID = :id",
+                new MapSqlParameterSource().addValue("id", id),
+                (resultSet, row) -> {
+                    return toPerson(resultSet);
+                });
         } catch (IncorrectResultSizeDataAccessException e) {
             if (e.getActualSize() == 0) {
                 return null;
