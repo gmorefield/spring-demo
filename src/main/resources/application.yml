@@ -17,21 +17,26 @@ spring:
         url: jdbc:h2:mem:props
         username: sa
         password: ${DB_PASSWORD}
-        # jdbc-url is needed for Hikari
-        jdbc-url: ${spring.datasource.url}
         pool-size: 30
+
+        # jdbc-url and maximum-pool-size used by HikariDataSource
+        jdbc-url: ${spring.datasource.url}
         maximum-pool-size: 30
+
+        # hikari settings only used by default spring profile
         hikari:
             maximum-pool-size: 30
             auto-commit: true
     profiles:
         default: custom
 
+# control logging levels
 logging:
   level:
     root: info
     "[org.springframework]": info
-    
+
+# management properties to control actuators exposed
 management:
     cloudfoundry:
         enabled: false
@@ -61,7 +66,18 @@ management:
             enabled: true
         readinessState:
             enabled: true
+    info:
+        build:
+            enabled: true
+        git:
+            enabled: true
+            mode: simple
+        env:
+            enabled: true
+        java:
+            enabled: true
 
+# properties to control tomcat server
 server:
     shutdown: graceful
     compression:
@@ -72,6 +88,13 @@ server:
     session-timeout: 1800
     max-threads: 50
 
+# all info.* properties show in /actuator/info
+info:
+    app:
+        name: ${spring.application.name}
+        type: demo
+
+# custom application configuration
 sample:
     commandLine:
         delay: 5

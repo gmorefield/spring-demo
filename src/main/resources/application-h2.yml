@@ -3,8 +3,8 @@ spring:
         driver-class-name: org.h2.Driver
         url: jdbc:h2:mem:testdb
         username: sa
-        # jdbc-url is needed for Hikari
+        # jdbc-url is needed for HikariDataSource
         jdbc-url: ${spring.datasource.url}
     h2:
         console:
-            enabled: false
+            enabled: true
