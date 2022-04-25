@@ -16,6 +16,7 @@ spring:
         driver-class-name: org.h2.Driver
         url: jdbc:h2:mem:props
         username: sa
+        password: ${DB_PASSWORD}
         # jdbc-url is needed for Hikari
         jdbc-url: ${spring.datasource.url}
         pool-size: 30
@@ -40,7 +41,6 @@ management:
         enabled-by-default: false
         web:
             exposure:
-                # include: 
                 include:
                 - health
                 - info
@@ -79,6 +79,7 @@ sample:
         driver-class-name: org.h2.Driver
         url: jdbc:h2:mem:custom
         username: sa
+        password: ${DB_PASSWORD}
         # jdbc-url is needed for Hikari
         jdbc-url: ${sample.datasource.url}
         maximum-pool-size: 30
@@ -87,7 +88,8 @@ sample:
             driver-class-name: org.h2.Driver
             url: jdbc:h2:mem:hikari
             username: sa
-            # jdbc-url is needed for Hikari
+            password: ${DB_PASSWORD}
+           # jdbc-url is needed for Hikari
             jdbc-url: ${sample.hikari.datasource.url}
             maximum-pool-size: 30
     

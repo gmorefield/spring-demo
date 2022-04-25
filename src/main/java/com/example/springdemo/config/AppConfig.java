@@ -54,7 +54,7 @@ public class AppConfig implements ApplicationContextAware {
         DataSource ds = applicationContext.getBean(DataSource.class);
         if (ds instanceof HikariDataSource) {
             HikariDataSource hds = (HikariDataSource) ds;
-            LoggerFactory.getLogger(DataSourceConfig.class).info("maximum-pool-size: {}", hds.getMaximumPoolSize());
+            logger.info("maximum-pool-size: {}", hds.getMaximumPoolSize());
         }
     }
 }
