@@ -12,7 +12,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
-@Profile("basic-security")
+/**
+ * Simple example using Basic Authentication allowing:
+ *   anonymous access to Health and Info actuator, favicon, and error response
+ *   authenticated access to all other calls
+ */
+@Profile("basic")
 @Configuration
 @EnableWebSecurity
 public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -26,7 +31,7 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
                 .requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll()
                 .antMatchers("/favicon.ico", "/error").permitAll()
                 .anyRequest().authenticated()
-                .and()
-                .httpBasic();
+                .and().httpBasic()
+                .and().csrf().disable();
     }
 }

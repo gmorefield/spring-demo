@@ -7,8 +7,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 
-@Profile("!basic-security")
+/**
+ * Simple example allowing anonymous access to all calls
+ */
+@Profile("!basic")
 @Configuration
 @EnableWebSecurity
 public class AnonymousSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -16,6 +20,8 @@ public class AnonymousSecurityConfig extends WebSecurityConfigurerAdapter {
 
     protected void configure(HttpSecurity http) throws Exception {
         logger.info("AnonymousSecurity configured");
-        http.authorizeRequests().anyRequest().permitAll();
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().authorizeRequests().anyRequest().permitAll()
+                .and().csrf().disable();
     }
 }
