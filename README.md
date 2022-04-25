@@ -65,3 +65,23 @@ java -jar target/*.jar --spring.security.user.password=changeit --spring.profile
 ./mvnw package
 SPRING_PROFILES_ACTIVE=basic SPRING_SECURITY_USER_PASSWORD=changeit java -jar target/*.jar
 ````
+
+## Commands to Run
+
+```sh
+# add a person
+curl -X POST http://localhost:8080/person -H "Content-Type: application/json" -d "{\"firstName\":\"john\",\"lastName\":\"doe\"}"
+
+# find all persons
+curl http://localhost:8080/person
+
+# health
+curl http://localhost:8080/actuator/health
+
+# info
+curl http://localhost:8080/actuator/info
+```
+
+Notes:
+  - If the `basic` profile is enabled, add `-u sample-client` to the curl commands for /person urls and enter the password when prompted. The user is also needed for any actuator other than info and health 
+  - On Windows, you may need to add `winpty` in front of `curl` command, eg. ```winpty curl http://localhost:8080/actuator/info```
