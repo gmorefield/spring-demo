@@ -42,4 +42,14 @@ public class PersonRepositoryIntegrationTest {
         assertEquals(expected.getFirstName(), actual.getFirstName());
         assertEquals(expected.getLastName(), actual.getLastName());
     }
+
+    @Test
+    public void testSave_withNewPerson_returnsUpdatedPerson() {
+        Person expected = new Person(2, "Hans", "Solo");
+
+        Person actual = personRepository.save(expected);
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getFirstName(), actual.getFirstName());
+        assertEquals(expected.getLastName(), actual.getLastName());
+    }
 }
