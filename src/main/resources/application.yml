@@ -27,8 +27,8 @@ spring:
         hikari:
             maximum-pool-size: 30
             auto-commit: true
-    profiles:
-        default: custom
+    autoconfigure:
+        exclude: "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration,org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration"
 
 # control logging levels
 logging:
