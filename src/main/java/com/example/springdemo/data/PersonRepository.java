@@ -23,16 +23,28 @@ public class PersonRepository {
     }
 
     public Person save(Person person) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+        int rowsUpdated = 0;
+        long id = person.getId();
 
-        int rowsUpdated = jdbcTemplate.update(
-            "insert into Person (first_Name, Last_Name) values (:firstName, :lastName)",
-            new BeanPropertySqlParameterSource(person),
-            keyHolder,
-            new String[] { "ID" });
+        if (person.getId() > 0) {
+            rowsUpdated = jdbcTemplate.update(
+                    "update Person set first_name = :firstName, last_name = :lastName Where id = :id",
+                    new BeanPropertySqlParameterSource(person));
+        }
 
-        Number key = keyHolder.getKey();
-        return findById(key.longValue());
+        if (rowsUpdated == 0) {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            rowsUpdated = jdbcTemplate.update(
+                    "insert into Person (FIRST_NAME, LAST_NAME) values (:firstName, :lastName)",
+                    new BeanPropertySqlParameterSource(person),
+                    keyHolder,
+                    new String[] { "ID" });
+
+            Number key = keyHolder.getKey();
+            id = key.longValue();
+        }
+
+        return findById(id);
     }
 
     public List<Person> findAll() {
@@ -44,11 +56,11 @@ public class PersonRepository {
     public Person findById(long id) {
         try {
             return jdbcTemplate.queryForObject(
-                "select * from Person where ID = :id",
-                new MapSqlParameterSource().addValue("id", id),
-                (resultSet, row) -> {
-                    return toPerson(resultSet);
-                });
+                    "select * from Person where ID = :id",
+                    new MapSqlParameterSource().addValue("id", id),
+                    (resultSet, row) -> {
+                        return toPerson(resultSet);
+                    });
         } catch (IncorrectResultSizeDataAccessException e) {
             if (e.getActualSize() == 0) {
                 return null;

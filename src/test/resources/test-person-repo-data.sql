@@ -1,1 +1,2 @@
-insert into PERSON (ID, FIRST_NAME, LAST_NAME) VALUES (1,'Luke','Skywalker');
+insert into PERSON (ID, FIRST_NAME, LAST_NAME) VALUES (1, 'Luke','Skywalker');
+ALTER TABLE PERSON ALTER COLUMN ID RESTART WITH 2;
