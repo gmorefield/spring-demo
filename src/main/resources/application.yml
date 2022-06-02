@@ -21,11 +21,11 @@ spring:
 
         # jdbc-url and maximum-pool-size used by HikariDataSource
         jdbc-url: ${spring.datasource.url}
-        maximum-pool-size: 30
+        maximum-pool-size: ${spring.datasource.pool-size}
 
         # hikari settings only used by default spring profile
         hikari:
-            maximum-pool-size: 30
+            maximum-pool-size: ${spring.datasource.pool-size}
             auto-commit: true
     autoconfigure:
         exclude: "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration,org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration"
@@ -114,5 +114,5 @@ sample:
             password: ${DB_PASSWORD}
            # jdbc-url is needed for Hikari
             jdbc-url: ${sample.hikari.datasource.url}
-            maximum-pool-size: 30
+            maximum-pool-size: ${sample.datasource.maximum-pool-size}
     
