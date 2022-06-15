@@ -8,10 +8,12 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.availability.AvailabilityChangeEvent;
 import org.springframework.boot.availability.LivenessState;
 import org.springframework.boot.availability.ReadinessState;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -73,5 +75,6 @@ public class AppConfig implements ApplicationContextAware {
             HikariDataSource hds = (HikariDataSource) ds;
             logger.info("maximum-pool-size: {}", hds.getMaximumPoolSize());
         }
+        logger.info("cache-manager-exists: {}", applicationContext.containsBean("cacheManager"));
     }
 }

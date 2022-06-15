@@ -6,6 +6,9 @@ import java.util.List;
 
 import com.example.springdemo.model.Person;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -22,6 +25,8 @@ public class PersonRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @CachePut(cacheNames = "person", key = "#result.id")
+    @CacheEvict(cacheNames = "persons", allEntries = true)
     public Person save(Person person) {
         int rowsUpdated = 0;
         long id = person.getId();
@@ -47,12 +52,14 @@ public class PersonRepository {
         return findById(id);
     }
 
+    @Cacheable("persons")
     public List<Person> findAll() {
         return jdbcTemplate.query("select * from Person", (resultSet, i) -> {
             return toPerson(resultSet);
         });
     }
 
+    @Cacheable(cacheNames = "person", key = "#id")
     public Person findById(long id) {
         try {
             return jdbcTemplate.queryForObject(

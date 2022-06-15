@@ -85,3 +85,10 @@ curl http://localhost:8080/actuator/info
 Notes:
   - If the `basic` profile is enabled, add `-u sample-client` to the curl commands for /person urls and enter the password when prompted. The user is also needed for any actuator other than info and health 
   - On Windows, you may need to add `winpty` in front of `curl` command, eg. ```winpty curl http://localhost:8080/actuator/info```
+
+## Change Log
+
+| Version | Description |
+| ----- | ------ |
+| 0.0.1-SNAPSHOT | initial version |
+| 0.0.2 | minor config cleanup; added Spring Cache based on ```sample.cache.enabled=true``` |
