@@ -51,3 +51,34 @@ Authorization: Basic {{user}} {{password}}
 
 30
 
+###
+
+GET {{host}}/message/xml
+
+###
+
+GET {{host}}/message/xmlInJson
+
+###
+
+GET {{host}}/message/getXml
+Accept: application/xml
+
+###
+
+GET {{host}}/message/getXmlInJson
+
+###
+
+GET {{host}}/person/echo?id=456&firstName=John&lastName=Doe
+
+###
+
+POST {{host}}/person/echo
+Content-Type: application/json
+
+{
+    "id": 123,
+    "firstName": "John",
+    "lastName": "Doe"
+}

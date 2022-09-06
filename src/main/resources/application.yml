@@ -30,6 +30,15 @@ spring:
     autoconfigure:
         exclude: "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration,org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration"
 
+    cloud:
+        kubernetes:
+            reload:
+                enabled: true
+                strategy: refresh #shutdown
+                mode: event
+                # namespaces:
+                # - my-namespace
+
 # control logging levels
 logging:
   level:
@@ -49,6 +58,7 @@ management:
                 include:
                 - health
                 - info
+                - refresh
             # cors:
             #     allowed-origins: http://example.com
             #     allowed-methods: GET,POST
@@ -61,6 +71,8 @@ management:
             show-components: always
             probes:
                 enabled: true
+        refresh:
+            enabled: true
     health:
         livenessState:
             enabled: true

@@ -1,18 +1,99 @@
+
 apiVersion: v1
 kind: Namespace
 metadata:
   name: spring-demo
   labels:
     name: spring-demo
+
 ---
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: spring-demo
+  name: namespace-reader
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "pods", "services", "endpoints", "secrets"]
+    verbs: ["get", "list", "watch"]
+
+---
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: spring-demo
+  name: namespace-leader
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch", "update"]
+
+---
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: namespace-reader-binding
+  namespace: spring-demo
+subjects:
+- kind: ServiceAccount
+  name: default
+  apiGroup: ""
+roleRef:
+  kind: Role
+  name: namespace-reader
+  apiGroup: ""
+
+---
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: namespace-leader-binding
+  namespace: spring-demo
+subjects:
+- kind: ServiceAccount
+  name: default
+  apiGroup: ""
+roleRef:
+  kind: Role
+  name: namespace-leader
+  apiGroup: ""
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spring-demo
+  namespace: spring-demo
+data:
+  info.kube.prop: Sourced from ConfigMap
+  info.kube.prop2: another prop from ConfigMap
+  # application-kubernetes.properties: |-
+  #   info.kube.prop=Sourced from ConfigMap
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spring-demo-leader
+  namespace: spring-demo
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: spring-demo-app
   labels:
     app: spring-demo-app
+  namespace: spring-demo
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: spring-demo-app
@@ -23,7 +104,10 @@ spec:
     spec:
       containers:
       - name: spring-demo-app
-        image: spring-demo:0.0.3
+        image: spring-demo:0.0.1
+        env:
+        - name: BPL_JAVA_NMT_ENABLED
+          value: "false"
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -47,19 +131,23 @@ spec:
           timeoutSeconds: 3
         resources:
           limits:
-            cpu: 500m
-            memory: 512Mi
+            cpu: 1.0
+            memory: 1024Mi
+
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
   name: spring-demo-app
   labels:
     name: spring-demo-app
+  namespace: spring-demo
 spec:
   type: NodePort
   ports:
     - port: 8080
       name: http
+      nodePort: 30005
   selector:
     app: spring-demo-app
