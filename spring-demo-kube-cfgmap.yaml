@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spring-demo   
+  namespace: spring-demo
+data:
+  info.kube.prop: oh-io
+  info.kube.prop2: another prop from ConfigMap
+  # application-kubernetes.properties: |-
+  #   info.kube.prop=Updated from ConfigMap
+  #   info.kube.prop2: "k8s"

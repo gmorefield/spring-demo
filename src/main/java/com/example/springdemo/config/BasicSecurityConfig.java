@@ -1,5 +1,7 @@
 package com.example.springdemo.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
@@ -35,7 +37,7 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
                 .requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll()
                 .antMatchers("/favicon.ico", "/error").permitAll()
                 .anyRequest().authenticated()
-                .and().httpBasic()
+                .and().httpBasic().realmName("spring-demo")
                 .and()
                 .csrf().disable()
                 .headers().frameOptions().sameOrigin();

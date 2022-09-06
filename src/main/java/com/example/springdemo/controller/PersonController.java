@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController()
 public class PersonController {
@@ -47,4 +51,15 @@ public class PersonController {
     public @ResponseBody Person save(@RequestBody Person newPerson) {
         return personRepository.save(newPerson);
     }
+
+    @RequestMapping(value="/person/echo", method={RequestMethod.GET})
+    public Person getEcho(Person person) {
+        return person;
+    }
+
+    @RequestMapping(value="/person/echo", method={RequestMethod.POST})
+    public Person postEcho(@RequestBody Person person) {
+        return person;
+    }
+
 }
