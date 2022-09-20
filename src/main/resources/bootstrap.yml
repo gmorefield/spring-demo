@@ -26,6 +26,7 @@ spring:
         name: spring-demo
     cloud:
         kubernetes:
+            enabled: false
             config:
                 enabled: true
                 # name: ${spring.application.name}
