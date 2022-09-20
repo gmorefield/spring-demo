@@ -82,3 +82,8 @@ Content-Type: application/json
     "firstName": "John",
     "lastName": "Doe"
 }
+
+###
+
+POST {{host}}/authorize
+Authorization: Basic testuser:testpass
