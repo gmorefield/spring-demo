@@ -15,6 +15,6 @@ public class FileController {
 
     @PostMapping("/document/storeWithMeta")
     public String storeDocument(@RequestPart("meta") String info, @RequestPart("file") MultipartFile multipartFile) {
-        return info + ":" + multipartFile.toString();
+        return info + ":" + multipartFile.getOriginalFilename();
     }
 }
