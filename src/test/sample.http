@@ -87,3 +87,19 @@ Content-Type: application/json
 
 POST {{host}}/authorize
 Authorization: Basic testuser:testpass
+
+###
+
+POST {{host}}/document/storeWithMeta
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="meta"
+
+sample-meta
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="README2.md"
+Content-Type: text/markdown
+
+< ./README.md
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
