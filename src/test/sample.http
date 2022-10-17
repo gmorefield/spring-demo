@@ -67,6 +67,17 @@ Accept: application/xml
 ###
 
 GET {{host}}/message/getXmlInJson
+# Accept: application/json
+
+###
+
+GET {{host}}/message/getXmlFlux
+Accept: application/xml
+
+###
+
+GET {{host}}/message/getXmlInJsonFlux
+# Accept: application/json
 
 ###
 
@@ -86,7 +97,7 @@ Content-Type: application/json
 ###
 
 POST {{host}}/authorize
-Authorization: Basic testuser:testpass
+Authorization: Basic testuser testpass
 
 ###
 

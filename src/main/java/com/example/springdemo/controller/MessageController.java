@@ -1,46 +1,45 @@
 package com.example.springdemo.controller;
 
-import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.example.springdemo.model.Person;
 
 @RestController
 @RequestMapping("message")
 public class MessageController {
-    public RestTemplate restClient;
+    private RestTemplate restClient;
+    private WebClient webClient;
 
-    public MessageController(RestTemplate msgRestTemplate) {
-        this.restClient = msgRestTemplate;
+    public MessageController(RestTemplate restClient, WebClient webClient) {
+        this.restClient = restClient;
+        this.webClient = webClient;
     }
 
-    @GetMapping("xml")
+    @GetMapping(path = "xml", produces = { MediaType.APPLICATION_XML_VALUE })
     public String xml() {
         return "<person><id>123</id><firstName>John</firstName><lastName>Doe</lastName></person>";
     }
 
-    @GetMapping("xmlInJson")
+    @GetMapping(path = "xmlInJson", produces = { MediaType.APPLICATION_JSON_VALUE })
     public String xmlInJson() {
         return "{\"return\": \"" + xml() + "\" }";
     }
 
-    @GetMapping("getXmlInJson")
+    @GetMapping(path = "getXmlInJson", produces = { MediaType.APPLICATION_XML_VALUE })
     public String getXmlInJson() {
-        ResponseEntity<Map> response = restClient.getForEntity("/message/xmlInJson", Map.class);
-        return (String) response.getBody().get("return");
+        Map<?, ?> response = restClient.getForObject("/message/xmlInJson", Map.class);
+        return response == null ? "" : (String) response.get("return");
     }
 
-    @GetMapping("getXml")
+    @GetMapping(path = "getXml", produces = { MediaType.APPLICATION_XML_VALUE })
     public Person getXml() {
         // HttpHeaders headers = new HttpHeaders();
         // headers.setAccept(List.of(MediaType.APPLICATION_XML));
@@ -48,6 +47,28 @@ public class MessageController {
         // HttpMethod.GET, new HttpEntity(headers), Person.class);
 
         ResponseEntity<Person> response = restClient.getForEntity("/message/xml", Person.class);
+        return response.getBody();
+    }
+
+    @GetMapping(path = "getXmlInJsonFlux", produces = { MediaType.APPLICATION_XML_VALUE })
+    public String getXmlInJsonUsingFlux() {
+        Map<?, ?> response = webClient.get()
+                .uri("/message/xmlInJson")
+                .retrieve()
+                .bodyToMono(Map.class)
+                .block();
+
+        return response == null ? "" : (String) response.get("return");
+    }
+
+    @GetMapping(path = "getXmlFlux", produces = { MediaType.APPLICATION_XML_VALUE })
+    public Person getXmlUsingFlux() {
+        ResponseEntity<Person> response = webClient.get()
+                .uri("/message/xml")
+                .retrieve()
+                .toEntity(Person.class)
+                .block();
+
         return response.getBody();
     }
 }

@@ -1,13 +1,9 @@
 package com.example.springdemo.config;
 
-import java.util.List;
-
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
-import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,9 +19,9 @@ public class RestClientConfig {
         // };
 
         return builder
-                .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
+                // .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
                 .additionalInterceptors((HttpRequest request, byte[] body, ClientHttpRequestExecution execution) -> {
-                    request.getHeaders().setAccept(List.of(MediaType.APPLICATION_XML));
+                    // request.getHeaders().setAccept(List.of(MediaType.APPLICATION_XML));
                     return execution.execute(request, body);
                 })
                 .rootUri("http://localhost:8080")

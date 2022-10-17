@@ -91,6 +91,7 @@ public class AppConfig implements ApplicationContextAware {
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         DataSource ds = applicationContext.getBean(DataSource.class);
         if (ds instanceof HikariDataSource) {
+            @SuppressWarnings("resource")   // DataSource lifecyle managed by Spring
             HikariDataSource hds = (HikariDataSource) ds;
             logger.info("maximum-pool-size: {}", hds.getMaximumPoolSize());
         }
