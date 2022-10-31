@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -48,6 +49,16 @@ public class MessageController {
 
         ResponseEntity<Person> response = restClient.getForEntity("/message/xml", Person.class);
         return response.getBody();
+    }
+
+    @GetMapping(path = "getError")
+    public ResponseEntity getError() throws Exception {
+        try {
+            ResponseEntity<Person> response = restClient.getForEntity("/message/DoesNotExist", Person.class);
+            return response;
+        } catch (RestClientResponseException e) {
+            return ResponseEntity.status(e.getRawStatusCode()).body(e.getResponseBodyAsString());
+        }
     }
 
     @GetMapping(path = "getXmlInJsonFlux", produces = { MediaType.APPLICATION_XML_VALUE })
