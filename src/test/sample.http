@@ -66,6 +66,10 @@ Accept: application/xml
 
 ###
 
+GET {{host}}/message/getError
+
+###
+
 GET {{host}}/message/getXmlInJson
 # Accept: application/json
 
