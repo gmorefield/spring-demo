@@ -6,3 +6,7 @@ spring:
         username: sa
         maximum-pool-size: 30
         # password: redacted
+    sql:
+        init:
+            platform: mssql
+    #         schema-locations: classpath:schema-mssql.sql

@@ -53,35 +53,43 @@ Authorization: Basic {{user}} {{password}}
 
 ###
 
-GET {{host}}/message/xml
+GET {{host}}/client/xml
 
 ###
 
-GET {{host}}/message/xmlInJson
+GET {{host}}/client/xmlInJson
 
 ###
 
-GET {{host}}/message/getXml
+GET {{host}}/client/getXml
 Accept: application/xml
 
 ###
 
-GET {{host}}/message/getError
+GET {{host}}/client/getError
 
 ###
 
-GET {{host}}/message/getXmlInJson
+GET {{host}}/client/getXmlInJson
 # Accept: application/json
 
 ###
 
-GET {{host}}/message/getXmlFlux
+GET {{host}}/client/getXmlFlux
 Accept: application/xml
 
 ###
 
-GET {{host}}/message/getXmlInJsonFlux
+GET {{host}}/client/getXmlInJsonFlux
 # Accept: application/json
+
+###
+
+GET {{host}}/message/sendNow
+
+###
+
+GET {{host}}/message/getOne
 
 ###
 
