@@ -85,11 +85,48 @@ GET {{host}}/client/getXmlInJsonFlux
 
 ###
 
+GET {{host}}/message/publishNow
+x-count: 15
+
+###
+
 GET {{host}}/message/sendNow
+x-count: 50
+
+###
+
+GET {{host}}/message/sendLater
+
+###
+
+GET {{host}}/message/sendBackoff
 
 ###
 
 GET {{host}}/message/getOne
+
+###
+
+GET {{host}}/message/getAll
+###
+
+GET {{host}}/message/getAllSubscriptions
+
+###
+
+GET {{host}}/message/count
+
+###
+
+GET {{host}}/message/registry/listeners
+
+###
+
+GET {{host}}/message/registry/start
+
+###
+
+GET {{host}}/message/registry/stop
 
 ###
 
