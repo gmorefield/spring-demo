@@ -24,37 +24,33 @@ public class ClientController {
         this.webClient = webClient;
     }
 
-    @GetMapping(path = "xml", produces = { MediaType.APPLICATION_XML_VALUE })
-    public String xml() {
-        return "<person><id>123</id><firstName>John</firstName><lastName>Doe</lastName></person>";
-    }
-
-    @GetMapping(path = "xmlInJson", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public String xmlInJson() {
-        return "{\"return\": \"" + xml() + "\" }";
-    }
-
     @GetMapping(path = "getXmlInJson", produces = { MediaType.APPLICATION_XML_VALUE })
     public String getXmlInJson() {
-        Map<?, ?> response = restClient.getForObject("/message/xmlInJson", Map.class);
+        Map<?, ?> response = restClient.getForObject("/data/xmlInJson", Map.class);
         return response == null ? "" : (String) response.get("return");
     }
 
     @GetMapping(path = "getXml", produces = { MediaType.APPLICATION_XML_VALUE })
-    public Person getXml() {
+    public String getXml() {
+        ResponseEntity<String> response = restClient.getForEntity("/data/xml", String.class);
+        return response.getBody();
+    }
+
+    @GetMapping(path = "getPerson", produces = { MediaType.APPLICATION_XML_VALUE })
+    public Person getPerson() {
         // HttpHeaders headers = new HttpHeaders();
         // headers.setAccept(List.of(MediaType.APPLICATION_XML));
-        // ResponseEntity<Person> response = restClient.exchange("/message/xml",
+        // ResponseEntity<Person> response = restClient.exchange("/data/xml",
         // HttpMethod.GET, new HttpEntity(headers), Person.class);
 
-        ResponseEntity<Person> response = restClient.getForEntity("/message/xml", Person.class);
+        ResponseEntity<Person> response = restClient.getForEntity("/data/xml", Person.class);
         return response.getBody();
     }
 
     @GetMapping(path = "getError")
     public ResponseEntity getError() throws Exception {
         try {
-            ResponseEntity<Person> response = restClient.getForEntity("/message/DoesNotExist", Person.class);
+            ResponseEntity<Person> response = restClient.getForEntity("/data/DoesNotExist", Person.class);
             return response;
         } catch (RestClientResponseException e) {
             return ResponseEntity.status(e.getRawStatusCode()).body(e.getResponseBodyAsString());
@@ -64,7 +60,7 @@ public class ClientController {
     @GetMapping(path = "getXmlInJsonFlux", produces = { MediaType.APPLICATION_XML_VALUE })
     public String getXmlInJsonUsingFlux() {
         Map<?, ?> response = webClient.get()
-                .uri("/message/xmlInJson")
+                .uri("/data/xmlInJson")
                 .retrieve()
                 .bodyToMono(Map.class)
                 .block();
@@ -75,7 +71,7 @@ public class ClientController {
     @GetMapping(path = "getXmlFlux", produces = { MediaType.APPLICATION_XML_VALUE })
     public Person getXmlUsingFlux() {
         ResponseEntity<Person> response = webClient.get()
-                .uri("/message/xml")
+                .uri("/data/xml")
                 .retrieve()
                 .toEntity(Person.class)
                 .block();

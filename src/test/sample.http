@@ -53,15 +53,20 @@ Authorization: Basic {{user}} {{password}}
 
 ###
 
-GET {{host}}/client/xml
+GET {{host}}/data/xml
 
 ###
 
-GET {{host}}/client/xmlInJson
+GET {{host}}/data/xmlInJson
 
 ###
 
 GET {{host}}/client/getXml
+Accept: application/xml
+
+###
+
+GET {{host}}/client/getPerson
 Accept: application/xml
 
 ###
