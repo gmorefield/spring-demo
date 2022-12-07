@@ -2,11 +2,6 @@ package com.example.springdemo.config;
 
 import javax.sql.DataSource;
 
-import com.example.springdemo.filter.RequestLoggingFilter;
-import com.zaxxer.hikari.HikariDataSource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.availability.AvailabilityChangeEvent;
 import org.springframework.boot.availability.LivenessState;
@@ -23,11 +18,15 @@ import org.springframework.integration.leader.event.OnRevokedEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import com.example.springdemo.filter.RequestLoggingFilter;
+import com.zaxxer.hikari.HikariDataSource;
+
+import lombok.extern.slf4j.Slf4j;
+
 @Configuration
 @EnableAsync
+@Slf4j
 public class AppConfig implements ApplicationContextAware {
-    private static Logger logger = LoggerFactory.getLogger(AppConfig.class);
-
     /** 
      * The easiest approach is to add @Component to Filter definition, but a FilterRegistrationBean
      * can also be used to register Filters with customization (eg. url patterns)
@@ -37,6 +36,7 @@ public class AppConfig implements ApplicationContextAware {
         FilterRegistrationBean<RequestLoggingFilter> registrationBean = new FilterRegistrationBean<>();
         RequestLoggingFilter customFilter = new RequestLoggingFilter();
 
+        log.info("Registering person filter");
         registrationBean.setFilter(customFilter);
         registrationBean.addUrlPatterns("/person");
         return registrationBean;
@@ -45,14 +45,15 @@ public class AppConfig implements ApplicationContextAware {
     @Async
     @EventListener
     public void onEvent(AvailabilityChangeEvent<LivenessState> event) {
+        // comment
         switch (event.getState()) {
             case BROKEN:
                 // notify others
-                logger.warn("Availability broken");
+                log.warn("Availability broken");
                 break;
             case CORRECT:
                 // we're back
-                logger.info("Availability restored");
+                log.info("Availability restored");
         }
     }
 
@@ -61,10 +62,10 @@ public class AppConfig implements ApplicationContextAware {
     public void onStateChange(AvailabilityChangeEvent<ReadinessState> event) {
         switch (event.getState()) {
             case ACCEPTING_TRAFFIC:
-                logger.warn("Accepting traffic");
+                log.warn("Accepting traffic");
                 break;
             case REFUSING_TRAFFIC:
-                logger.warn("Refusing traffic");
+                log.warn("Refusing traffic");
                 break;
         }
     }
@@ -72,17 +73,17 @@ public class AppConfig implements ApplicationContextAware {
     @Async
     @EventListener
     public void onEnvironmentChange(EnvironmentChangeEvent event) {
-        logger.info("Environment Changed for keys={}", event.getKeys().toString());
+        log.info("Environment Changed for keys={}", event.getKeys().toString());
     }
     @Async
     @EventListener
     public void onLeaderGranted(OnGrantedEvent event) {
-        logger.info("Leader Granted with role={}", event.getRole());
+        log.info("Leader Granted with role={}", event.getRole());
     }
     @Async
     @EventListener
     public void onLeaderRevoked(OnRevokedEvent event) {
-        logger.info("Leader Revoked with keys={}", event.getRole());
+        log.info("Leader Revoked with keys={}", event.getRole());
     }
 
 
@@ -93,7 +94,13 @@ public class AppConfig implements ApplicationContextAware {
         if (ds instanceof HikariDataSource) {
             @SuppressWarnings("resource")   // DataSource lifecyle managed by Spring
             HikariDataSource hds = (HikariDataSource) ds;
-            logger.info("maximum-pool-size: {}", hds.getMaximumPoolSize());
+            log.info("maximum-pool-size: {}", hds.getMaximumPoolSize());
         }
     }
+
+
+    // @Bean
+    // public HttpMessageConverter<CloudEvent> cloudEventHttpMessageConverter() {
+    //     return new CloudEventHttpMessageConverter();
+    // }
 }
