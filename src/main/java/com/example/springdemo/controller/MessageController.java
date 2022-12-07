@@ -1,11 +1,13 @@
 package com.example.springdemo.controller;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -15,6 +17,7 @@ import javax.jms.TextMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jms.annotation.JmsListener;
@@ -39,6 +42,7 @@ public class MessageController {
     private Queue<String> messages = new ConcurrentLinkedQueue<>();
     private Queue<String> subMessages = new ConcurrentLinkedQueue<>();
     private JmsListenerEndpointRegistry registry;
+    private Random random = new SecureRandom();
 
     public MessageController(JmsTemplate jmsTemplate,
             @Value("${springdemo.default.queueName}") String defaultQueueName,
@@ -46,6 +50,7 @@ public class MessageController {
         this.jmsTemplate = jmsTemplate;
         this.defaultQueueName = defaultQueueName;
         this.registry = registry;
+        MDC.put("random", String.valueOf(Math.random()));
         log.info("MessageController initialized");
     }
 
@@ -124,7 +129,7 @@ public class MessageController {
         }
         return allMessages;
     }
-    
+
     @GetMapping("count")
     public int countPendingMessages() {
         // to an Integer because the response of .browse may be null
@@ -163,13 +168,15 @@ public class MessageController {
         log.info("now session [transacted={}],[acknowledgeMode={}]", session.getTransacted(),
                 session.getAcknowledgeMode());
         // if (message.getJMSRedelivered()) {
-        messages.add(message.getText() + " -- Received at " + LocalDateTime.now()
-                + " [t-" + Thread.currentThread().getId() + "]");
-        session.commit();
-        // } else {
-        // session.rollback();
-        // }
-        // message.acknowledge();
+        String msg = message.getText() + " -- Received at " + LocalDateTime.now()
+                + " [t-" + Thread.currentThread().getId() + "]";
+        messages.add(msg);
+        jmsTemplate.convertAndSend("sampleMessage", msg);
+        if (random.nextInt(100) > 90) {
+            session.rollback();
+        } else {
+            session.commit();
+        }
     }
 
     @JmsListener(id = "subscribeListener", destination = "sampleTopic", concurrency = "1")

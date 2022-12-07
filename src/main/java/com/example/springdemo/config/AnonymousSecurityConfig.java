@@ -1,7 +1,5 @@
 package com.example.springdemo.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -11,6 +9,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Simple example allowing anonymous access to all calls
  */
@@ -18,11 +18,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @Configuration
 @EnableWebSecurity
 @Import(SecurityAutoConfiguration.class) // needed because autoconfig excluded in application.yml
+@Slf4j
 public class AnonymousSecurityConfig extends WebSecurityConfigurerAdapter {
-    Logger logger = LoggerFactory.getLogger(AnonymousSecurityConfig.class);
-
     protected void configure(HttpSecurity http) throws Exception {
-        logger.info("AnonymousSecurity configured");
+        log.info("AnonymousSecurity configured");
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authorizeRequests().anyRequest().permitAll()
                 .and()

@@ -150,6 +150,11 @@ Content-Type: application/json
 
 ###
 
+GET {{host}}/state/demo
+Content-Type: application/json
+
+###
+
 POST {{host}}/authorize
 Authorization: Basic testuser testpass
 
@@ -168,3 +173,53 @@ Content-Type: text/markdown
 
 < ./README.md
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+POST {{host}}/cloud/event/echo
+Content-Type: application/cloudevents+json
+
+{
+    "specversion" : "1.0",
+    "type" : "com.dapr.cloudevent.sent",
+    "source" : "testcloudeventspubsub",
+    "subject" : "Cloud Events Test",
+    "id" : "someCloudEventId",
+    "time" : "2021-08-02T09:00:00Z",
+    "datacontenttype" : "application/cloudevents+json",
+    "data" : { "orderId": "100" }
+}
+
+###
+
+POST {{host}}/cloud/event/echo
+# Content-Type: application/cloudevents+json
+Content-Type: application/json
+Ce-time: 2021-07-21T08:00:07.46Z
+Ce-specversion: 1.0
+Ce-primaryobjectid: pc:5
+Ce-primaryobjecttype: Data
+Ce-transactionid: f6e64758-ecc0-4f54-9adc-0b0366fbd1a3
+Ce-version: 1.1
+Ce-primaryeventcount: 28
+Ce-source: server:url:
+Ce-id: 33dd6cec-6d8c-4e95-bcb6-f59f17b2191c
+Ce-type: com.example.Claim
+Ce-objectid: obj:1
+Ce-objecttype: Claim
+Ce-language: en-US
+Ce-subject: 
+Ce-worksetid: DEFAULT
+Ce-partitionkey: obj:3
+
+{
+  "notes": {},
+  "policyNumber": "123",
+  "description": "Bicyclist hit door of car.",
+  "lossCause": {
+    "code": "bikecollision",
+    "name": "Collision with bicycle"
+  },
+  "id": "id:001",
+  "claimNumber": "000-00-00001"
+}

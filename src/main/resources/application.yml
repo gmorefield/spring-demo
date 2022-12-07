@@ -44,7 +44,8 @@ spring:
 logging:
   level:
     root: info
-    "[org.springframework]": info
+    "[org.springframework]": debug
+    "[org.springframework.boot.autoconfigure.logging]": info
 
 # management properties to control actuators exposed
 management:
