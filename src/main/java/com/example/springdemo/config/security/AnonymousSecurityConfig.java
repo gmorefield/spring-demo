@@ -1,4 +1,4 @@
-package com.example.springdemo.config;
+package com.example.springdemo.config.security;
 
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
