@@ -22,7 +22,7 @@ CREATE TABLE DOCUMENT(
     CONTENT_LEN int,
     FILE_NM varchar(255),
     DOC_BIN varbinary(max),
-    CREATE_DT datetime,
+    CREATE_DT datetime
 );
 GO
 

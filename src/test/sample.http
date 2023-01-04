@@ -225,7 +225,11 @@ Content-Type: text/markdown
 
 ###
 
-GET {{host}}/document/17311236-2D47-4BD5-BDDC-39E35BCBBD7D/binary
+GET {{host}}/document/3af0017d-e60b-4d8d-a27a-e1b609281ba2/binary
+
+###
+
+GET {{host}}/document/3af0017d-e60b-4d8d-a27a-e1b609281ba2/binary?transform=true
 
 ###
 
