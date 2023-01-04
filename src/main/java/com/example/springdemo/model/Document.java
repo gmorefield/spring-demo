@@ -12,15 +12,15 @@ public class Document {
     @Id
     private String id;
     
-    @Column("Content_Type")
+    @Column("CONTENT_TYPE")
     private String contentType;
     
-    @Column("Content_Len")
+    @Column("CONTENT_LEN")
     private long contentLength;
     
-    @Column("File_Nm")
+    @Column("FILE_NM")
     private String fileName;
     
-    @Column("Create_Dt")
+    @Column("CREATE_DT")
     private LocalDateTime createDateTime;
 }

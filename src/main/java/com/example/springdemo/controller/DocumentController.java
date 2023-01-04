@@ -45,9 +45,10 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 import com.example.springdemo.data.DocumentPagingAndSortingRepository;
 import com.example.springdemo.model.Document;
+import com.example.springdemo.util.JsonConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Profile("mssql")
+@Profile({ "mssql", "H2" })
 @RestController
 @RequestMapping("/document")
 public class DocumentController {
@@ -67,15 +68,25 @@ public class DocumentController {
 
     @PostMapping("/store")
     public ResponseEntity<String> storeDocument(@RequestPart(name = "meta", required = false) Optional<Map<?, ?>> meta,
-            @RequestPart("file") MultipartFile multipartFile) throws IOException {
+            @RequestPart("file") MultipartFile multipartFile,
+            @RequestParam(value = "transform", required = false) Optional<Boolean> transform) throws IOException {
+
+        boolean convertToXml = transform.orElse(false) &&
+                Optional.ofNullable(multipartFile.getContentType()).orElse("").contains("json");
 
         Map<String, Object> params = new HashMap<>();
         UUID docUid = UUID.randomUUID();
         params.put("id", docUid);
         params.put("createDt", LocalDateTime.now());
-        params.put("contentType", multipartFile.getContentType());
-        params.put("size", multipartFile.getSize());
-        params.put("fileName", multipartFile.getOriginalFilename());
+        if (convertToXml) {
+            params.put("contentType", multipartFile.getContentType().replace("json", "xml"));
+            params.put("fileName", multipartFile.getOriginalFilename().replace("json", "xml"));
+            params.put("size", -1);
+        } else {
+            params.put("contentType", multipartFile.getContentType());
+            params.put("fileName", multipartFile.getOriginalFilename());
+            params.put("size", multipartFile.getSize());
+        }
 
         final PipedOutputStream pout = new PipedOutputStream();
         PipedInputStream pin = new PipedInputStream(pout, 1024);
@@ -88,10 +99,14 @@ public class DocumentController {
                 gzout = new GZIPOutputStream(pout);
                 cout = new CountingOutputStream(gzout);
 
-                Map<?,?> event = objectMapper.readValue(multipartFile.getInputStream(), Map.class);
-                InputStream test = multipartFile.getInputStream();
-                System.out.println("markSupported: " + test.markSupported());
-                StreamUtils.copy(multipartFile.getInputStream(), cout);
+                // Map<?, ?> event = objectMapper.readValue(
+                // multipartFile.getInputStream(),
+                // Map.class);
+                if (convertToXml) {
+                    new JsonConverter().root("root").streamToXml(multipartFile.getInputStream(), cout);
+                } else {
+                    StreamUtils.copy(multipartFile.getInputStream(), cout);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -159,12 +174,13 @@ public class DocumentController {
 
     @GetMapping("/{docId}/binary")
     public ResponseEntity<StreamingResponseBody> getDocument(@PathVariable("docId") String docId,
-            @RequestHeader(name = HttpHeaders.ACCEPT_ENCODING, required = false) @DefaultValue("identity") String acceptEncodingHeader) {
+            @RequestHeader(name = HttpHeaders.ACCEPT_ENCODING, required = false) @DefaultValue("identity") String acceptEncodingHeader,
+            @RequestParam(value = "transform", required = false) Optional<Boolean> transform) {
 
-        boolean useGzip = acceptEncodingHeader != null && acceptEncodingHeader.contains("gzip");
+        final boolean useGzip = acceptEncodingHeader != null && acceptEncodingHeader.contains("gzip");
 
         Document doc = jdbcTemplate.queryForObject(
-                "select CONTENT_TYPE, CONTENT_LEN, FILE_NM, DATALENGTH(DOC_BIN) as BIN_LEN from DOCUMENT where ID = :id",
+                "select CONTENT_TYPE, CONTENT_LEN, FILE_NM, -1 as BIN_LEN from DOCUMENT where ID = :id",
                 new MapSqlParameterSource("id", docId),
                 (ResultSet rs, int rowNum) -> {
                     Document d = new Document();
@@ -179,6 +195,9 @@ public class DocumentController {
             return ResponseEntity.notFound().build();
         }
 
+        final boolean convertToXml = transform.orElse(false) &&
+                Optional.ofNullable(doc.getContentType()).orElse("").contains("json");
+
         StreamingResponseBody body = outputStream -> {
             jdbcTemplate.query("select Doc_Bin from DOCUMENT where ID = :id",
                     new MapSqlParameterSource("id", docId),
@@ -187,10 +206,14 @@ public class DocumentController {
                             InputStream inputStream = resultSet.getBinaryStream("Doc_Bin");
 
                             try {
-                                if (!useGzip) {
+                                if (!useGzip || convertToXml) {
                                     inputStream = new GZIPInputStream(inputStream);
                                 }
-                                StreamUtils.copy(inputStream, outputStream);
+                                if (convertToXml) {
+                                    new JsonConverter().root("root").streamToXml(inputStream, outputStream);
+                                } else {
+                                    StreamUtils.copy(inputStream, outputStream);
+                                }
                             } catch (IOException e) {
                                 throw new SQLException(e);
                             }
@@ -198,15 +221,24 @@ public class DocumentController {
                     });
         };
 
+        long contentLength = doc.getContentLength();
+        String fileName = doc.getFileName();
+        String contentType = doc.getContentType();
+        if (convertToXml) {
+            contentType = contentType.replace("json", "xml");
+            fileName = fileName.replace("json", "xml");
+            contentLength = -1;
+        }
+
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.valueOf(doc.getContentType()));
-        headers.add("Content-Disposition", "attachment; filename=" + doc.getFileName());
-        if (doc.getContentLength() > 0) {
+        headers.setContentType(MediaType.valueOf(contentType));
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
+        if (contentLength > 0) {
             // headers.setContentLength(doc.getContentLength());
         }
         // headers.add("Pragma", "no-cache");
         // headers.add("Cache-Control", "no-cache");
-        if (useGzip) {
+        if (useGzip && !convertToXml) {
             headers.add(HttpHeaders.CONTENT_ENCODING, "gzip");
         }
         return ResponseEntity.ok()

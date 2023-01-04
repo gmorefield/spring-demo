@@ -3,3 +3,19 @@ CREATE TABLE PERSON(
     FIRST_NAME VARCHAR(255),
     LAST_NAME VARCHAR(255)
 );
+
+CREATE TABLE APP_EVENT(
+    ID varchar(36) PRIMARY KEY,
+    CREATE_DT datetime,
+    EVENT_BODY varchar(max),
+    EVENT_BIN BLOB
+);
+
+CREATE TABLE DOCUMENT(
+    ID varchar(36) PRIMARY KEY,
+    CONTENT_TYPE varchar(255),
+    CONTENT_LEN int,
+    FILE_NM varchar(255),
+    DOC_BIN BLOB,
+    CREATE_DT datetime
+);
