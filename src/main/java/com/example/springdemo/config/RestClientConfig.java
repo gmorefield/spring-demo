@@ -10,8 +10,8 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class RestClientConfig {
 
-    @Bean("msgRestClient")
-    public RestTemplate messageRestClient(RestTemplateBuilder builder) {
+    @Bean("dataRestClient")
+    public RestTemplate dataRestClient(RestTemplateBuilder builder) {
         // ClientHttpRequestInterceptor interceptor = (HttpRequest request, byte[] body,
         // ClientHttpRequestExecution execution) -> {
         // request.getHeaders().setAccept(List.of(MediaType.APPLICATION_XML));

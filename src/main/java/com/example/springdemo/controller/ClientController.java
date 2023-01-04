@@ -2,6 +2,7 @@ package com.example.springdemo.controller;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +20,7 @@ public class ClientController {
     private RestTemplate restClient;
     private WebClient webClient;
 
-    public ClientController(RestTemplate restClient, WebClient webClient) {
+    public ClientController(@Qualifier("dataRestClient") RestTemplate restClient, WebClient webClient) {
         this.restClient = restClient;
         this.webClient = webClient;
     }

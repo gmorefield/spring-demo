@@ -1,4 +1,4 @@
-package com.example.springdemo.config;
+package com.example.springdemo.config.security;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 

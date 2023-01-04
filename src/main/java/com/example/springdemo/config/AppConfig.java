@@ -16,7 +16,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.integration.leader.event.OnGrantedEvent;
 import org.springframework.integration.leader.event.OnRevokedEvent;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 
 import com.example.springdemo.filter.RequestLoggingFilter;
 import com.zaxxer.hikari.HikariDataSource;
@@ -24,7 +23,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
-@EnableAsync
 @Slf4j
 public class AppConfig implements ApplicationContextAware {
     /** 
@@ -86,8 +84,6 @@ public class AppConfig implements ApplicationContextAware {
         log.info("Leader Revoked with keys={}", event.getRole());
     }
 
-
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         DataSource ds = applicationContext.getBean(DataSource.class);
@@ -97,7 +93,6 @@ public class AppConfig implements ApplicationContextAware {
             log.info("maximum-pool-size: {}", hds.getMaximumPoolSize());
         }
     }
-
 
     // @Bean
     // public HttpMessageConverter<CloudEvent> cloudEventHttpMessageConverter() {

@@ -3,6 +3,7 @@ package com.example.springdemo.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,8 +29,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
     Logger logger = LoggerFactory.getLogger(BasicSecurityConfig.class);
 
+    private final String basicUser;
+    private final String basicPassword;
+
 	// @Autowired
 	// private AuthenticationEntryPoint authEntryPoint;
+
+    public BasicSecurityConfig(@Value("${basic.user}") String user, @Value("${basic.password}") String password) {
+        super();
+        basicUser = user;
+        basicPassword = password;
+    }
 
     protected void configure(HttpSecurity http) throws Exception {
         logger.info("BasicSecurity configured");
@@ -59,8 +69,8 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
             throws Exception
     {
         authentication.inMemoryAuthentication()
-                .withUser("testuser")
-                .password(new BCryptPasswordEncoder().encode("testpass"))
+                .withUser(basicUser)
+                .password(new BCryptPasswordEncoder().encode(basicPassword))
                 .authorities("ROLE_USER");
     }
 

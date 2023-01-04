@@ -1,6 +1,25 @@
 @host = http://localhost:8080
-@user = sample-client
-@password = redacted
+@user = {{basicUser}}
+@password = {{basicPass}}
+
+###
+
+# @name github
+POST https://github.com/login/oauth/authorize HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic {{github-id}} {{github-secret}}
+
+grant_type=client_credentials&scope=example.scope&client_id=myappid
+
+###
+
+GET {{host}}/authorize
+Authorization: Basic {{user}} {{password}}
+
+###
+
+GET {{host}}/authorize
+Authorization: Bearer {{github-pat}}
 
 ###
 
@@ -20,6 +39,11 @@ GET {{host}}/actuator/health/liveness
 ###
 
 GET {{host}}/actuator/health/readiness
+# Authorization: Basic {{user}} {{password}}
+
+###
+
+GET {{host}}/actuator/mappings
 # Authorization: Basic {{user}} {{password}}
 
 ###
@@ -160,13 +184,21 @@ Authorization: Basic testuser testpass
 
 ###
 
-POST {{host}}/document/storeWithMeta
+GET {{host}}/document?sortBy=createDateTime&sortOrder=desc
+
+###
+
+GET {{host}}/document?size=1&page=2&sortBy=fileName
+
+###
+
+GET {{host}}/document/17311236-2D47-4BD5-BDDC-39E35BCBBD7D
+
+###
+
+POST {{host}}/document/store
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
-------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="meta"
-
-sample-meta
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="file"; filename="README2.md"
 Content-Type: text/markdown
@@ -176,7 +208,47 @@ Content-Type: text/markdown
 
 ###
 
-POST {{host}}/cloud/event/echo
+POST {{host}}/document/store
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="meta"
+Content-Type: application/json
+
+{"prop1":"value1"}
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="README2.md"
+Content-Type: text/markdown
+
+< ./README.md
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+GET {{host}}/document/17311236-2D47-4BD5-BDDC-39E35BCBBD7D/binary
+
+###
+
+POST {{host}}/cloud/entity/echo/shell
+Content-Type: application/cloudevents+json
+
+{
+    "specversion" : "1.0",
+    "type" : "com.dapr.cloudevent.sent",
+    "source" : "testcloudeventspubsub",
+    "subject" : "Cloud Events Test",
+    "id" : "someCloudEventId",
+    "time" : "2021-08-02T09:00:00Z",
+    "datacontenttype" : "application/json",
+    "data" : { "orderId": "100" },
+    "ce-data" : { "orderId2": "200" },
+    "oneMore" : "test",
+    "ce-test2" : "anotherprop"
+}
+
+###
+
+POST {{host}}/cloud/event/echo/data
 Content-Type: application/cloudevents+json
 
 {
@@ -192,21 +264,21 @@ Content-Type: application/cloudevents+json
 
 ###
 
-POST {{host}}/cloud/event/echo
+POST {{host}}/cloud/entity/echo/shell
 # Content-Type: application/cloudevents+json
 Content-Type: application/json
 Ce-time: 2021-07-21T08:00:07.46Z
 Ce-specversion: 1.0
-Ce-primaryobjectid: pc:5
-Ce-primaryobjecttype: Data
+Ce-primaryobjectid: rec:5
+Ce-primaryobjecttype: Book
 Ce-transactionid: f6e64758-ecc0-4f54-9adc-0b0366fbd1a3
 Ce-version: 1.1
 Ce-primaryeventcount: 28
 Ce-source: server:url:
 Ce-id: 33dd6cec-6d8c-4e95-bcb6-f59f17b2191c
-Ce-type: com.example.Claim
+Ce-type: com.example.Book
 Ce-objectid: obj:1
-Ce-objecttype: Claim
+Ce-objecttype: Book
 Ce-language: en-US
 Ce-subject: 
 Ce-worksetid: DEFAULT
@@ -214,12 +286,29 @@ Ce-partitionkey: obj:3
 
 {
   "notes": {},
-  "policyNumber": "123",
-  "description": "Bicyclist hit door of car.",
-  "lossCause": {
-    "code": "bikecollision",
-    "name": "Collision with bicycle"
+  "description": "Tale of two cities",
+  "author": {
+    "first": "Charles",
+    "last": "Dickens"
   },
   "id": "id:001",
-  "claimNumber": "000-00-00001"
+  "deweydecimal": "823.8"
 }
+
+###
+GET {{host}}/data/sampleJson
+
+###
+GET {{host}}/data/parseJson
+
+###
+GET {{host}}/data/saveJson
+
+###
+GET {{host}}/data/loadJson/D73D2DDA-C1A5-4D48-8523-4BDBA5F7B588
+
+###
+GET {{host}}/data/parseJson?useNodeName=false
+
+###
+GET {{host}}/data/json2xml

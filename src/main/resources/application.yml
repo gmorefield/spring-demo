@@ -44,8 +44,8 @@ spring:
 logging:
   level:
     root: info
-    "[org.springframework]": debug
-    "[org.springframework.boot.autoconfigure.logging]": info
+    "[org.springframework]": info
+    # "[org.springframework.boot.autoconfigure.logging]": info
 
 # management properties to control actuators exposed
 management:
@@ -129,3 +129,5 @@ sample:
            # jdbc-url is needed for Hikari
             jdbc-url: ${sample.hikari.datasource.url}
             maximum-pool-size: 30
+
+# debug: true
