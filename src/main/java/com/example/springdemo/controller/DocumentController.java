@@ -1,5 +1,7 @@
 package com.example.springdemo.controller;
 
+import static org.apache.commons.io.IOUtils.closeQuietly;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
@@ -17,7 +19,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.output.CountingOutputStream;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Page;
@@ -69,7 +70,8 @@ public class DocumentController {
     @PostMapping("/store")
     public ResponseEntity<String> storeDocument(@RequestPart(name = "meta", required = false) Optional<Map<?, ?>> meta,
             @RequestPart("file") MultipartFile multipartFile,
-            @RequestParam(value = "transform", required = false) Optional<Boolean> transform) throws IOException {
+            @RequestParam(required = false) Optional<Boolean> transform,
+            @RequestParam(required = false) Optional<Boolean> compactFormat) throws IOException {
 
         boolean convertToXml = transform.orElse(false) &&
                 Optional.ofNullable(multipartFile.getContentType()).orElse("").contains("json");
@@ -81,7 +83,7 @@ public class DocumentController {
         if (convertToXml) {
             params.put("contentType", multipartFile.getContentType().replace("json", "xml"));
             params.put("fileName", multipartFile.getOriginalFilename().replace("json", "xml"));
-            params.put("size", -1);
+            params.put("size", -1); // don't know size of converted file
         } else {
             params.put("contentType", multipartFile.getContentType());
             params.put("fileName", multipartFile.getOriginalFilename());
@@ -95,27 +97,25 @@ public class DocumentController {
         taskExecutor.submit(() -> {
             CountingOutputStream cout = null;
             GZIPOutputStream gzout = null;
+            InputStream mpout = null;
             try {
                 gzout = new GZIPOutputStream(pout);
                 cout = new CountingOutputStream(gzout);
+                mpout = multipartFile.getInputStream();
 
-                // Map<?, ?> event = objectMapper.readValue(
-                // multipartFile.getInputStream(),
-                // Map.class);
                 if (convertToXml) {
-                    new JsonConverter().root("root").streamToXml(multipartFile.getInputStream(), cout);
+                    new JsonConverter().root("root").useCompactFormat(compactFormat.orElse(true)).streamToXml(mpout,
+                            cout);
                 } else {
-                    StreamUtils.copy(multipartFile.getInputStream(), cout);
+                    StreamUtils.copy(mpout, cout);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                try {
-                    if (gzout != null)
-                        gzout.close();
-                    pout.close();
-                } catch (Exception ignored) {
-                }
+                closeQuietly(cout);
+                closeQuietly(gzout);
+                closeQuietly(pout);
+                closeQuietly(mpout);
             }
         });
 
@@ -142,9 +142,9 @@ public class DocumentController {
             @RequestParam("page") final int page,
             @RequestParam("size") final int size,
             @RequestParam("sortBy") final String sortBy,
-            @RequestParam(name = "sortOrder", required = false) @DefaultValue("asc") final String sortOrder) {
+            @RequestParam(name = "sortOrder", required = false) final Optional<String> sortOrder) {
 
-        PageRequest pageable = PageRequest.of(page, size, Direction.fromString(sortOrder), sortBy);
+        PageRequest pageable = PageRequest.of(page, size, Direction.fromString(sortOrder.orElse("asc")), sortBy);
         Page<Document> result = documentRepository.findAll(pageable);
 
         return result.isEmpty() ? Collections.emptyList() : result.getContent();
@@ -166,7 +166,7 @@ public class DocumentController {
     @GetMapping(params = { "sortBy" })
     public List<Document> findAllBySort(
             @RequestParam("sortBy") final String sortBy,
-            @RequestParam(name = "sortOrder", required = false) @DefaultValue("asc") final Optional<String> sortOrder) {
+            @RequestParam(name = "sortOrder", required = false) final Optional<String> sortOrder) {
 
         Sort sort = Sort.by(Direction.fromString(sortOrder.orElse("asc")), sortBy);
         return (List<Document>) documentRepository.findAll(sort);
@@ -174,10 +174,11 @@ public class DocumentController {
 
     @GetMapping("/{docId}/binary")
     public ResponseEntity<StreamingResponseBody> getDocument(@PathVariable("docId") String docId,
-            @RequestHeader(name = HttpHeaders.ACCEPT_ENCODING, required = false) @DefaultValue("identity") String acceptEncodingHeader,
-            @RequestParam(value = "transform", required = false) Optional<Boolean> transform) {
+            @RequestHeader(name = HttpHeaders.ACCEPT_ENCODING, required = false) Optional<String> acceptEncodingHeader,
+            @RequestParam(required = false) Optional<Boolean> transform,
+            @RequestParam(required = false) Optional<Boolean> compactFormat) {
 
-        final boolean useGzip = acceptEncodingHeader != null && acceptEncodingHeader.contains("gzip");
+        final boolean useGzip = acceptEncodingHeader.orElse("identity").contains("gzip");
 
         Document doc = jdbcTemplate.queryForObject(
                 "select CONTENT_TYPE, CONTENT_LEN, FILE_NM, -1 as BIN_LEN from DOCUMENT where ID = :id",
@@ -210,12 +211,15 @@ public class DocumentController {
                                     inputStream = new GZIPInputStream(inputStream);
                                 }
                                 if (convertToXml) {
-                                    new JsonConverter().root("root").streamToXml(inputStream, outputStream);
+                                    new JsonConverter().root("root").useCompactFormat(compactFormat.orElse(true))
+                                            .streamToXml(inputStream, outputStream);
                                 } else {
                                     StreamUtils.copy(inputStream, outputStream);
                                 }
                             } catch (IOException e) {
                                 throw new SQLException(e);
+                            } finally {
+                                closeQuietly(inputStream);
                             }
                         }
                     });
