@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 public class JsonConverter {
     private boolean omitXmlDeclaration = true;
+    private boolean useCompactFormat = true;
 
     private String nodeNameRoot = "root";
     private String nodeNameObject = "object";
@@ -31,6 +32,11 @@ public class JsonConverter {
 
     public JsonConverter root(String rootName) {
         this.nodeNameRoot = rootName;
+        return this;
+    }
+
+    public JsonConverter useCompactFormat(boolean useCompactFormat) {
+        this.useCompactFormat = useCompactFormat;
         return this;
     }
 
@@ -101,7 +107,11 @@ public class JsonConverter {
     }
 
     private void startElement(XMLStreamWriter writer, String objectType, String objectName) throws XMLStreamException {
-        writer.writeStartElement(objectType);
-        writer.writeAttribute("name", objectName);
+        if (useCompactFormat) {
+            writer.writeStartElement(objectName);
+        } else {
+            writer.writeStartElement(objectType);
+            writer.writeAttribute("name", objectName);
+        }
     }
 }
