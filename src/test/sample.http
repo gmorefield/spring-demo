@@ -23,6 +23,14 @@ Authorization: Bearer {{github-pat}}
 
 ###
 
+GET {{host}}/swagger-ui/index.html
+
+###
+
+GET {{host}}/v3/api-docs
+
+###
+
 GET {{host}}/actuator/info
 # Authorization: Basic {{user}} {{password}}
 
@@ -111,6 +119,11 @@ Accept: application/xml
 
 GET {{host}}/client/getXmlInJsonFlux
 # Accept: application/json
+
+###
+
+GET {{host}}/client/getPersonFlux
+Accept: application/xml
 
 ###
 

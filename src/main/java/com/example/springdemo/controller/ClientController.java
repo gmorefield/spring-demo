@@ -49,13 +49,23 @@ public class ClientController {
     }
 
     @GetMapping(path = "getError")
-    public ResponseEntity getError() throws Exception {
+    public ResponseEntity<?> getError() throws Exception {
         try {
             ResponseEntity<Person> response = restClient.getForEntity("/data/DoesNotExist", Person.class);
             return response;
         } catch (RestClientResponseException e) {
             return ResponseEntity.status(e.getRawStatusCode()).body(e.getResponseBodyAsString());
         }
+    }
+
+    @GetMapping(path = "getXmlFlux", produces = { MediaType.APPLICATION_XML_VALUE })
+    public String getXmlUsingFlux() {
+        ResponseEntity<String> response = webClient.get()
+                .uri("/data/xml")
+                .retrieve()
+                .toEntity(String.class)
+                .block();
+        return response.getBody();
     }
 
     @GetMapping(path = "getXmlInJsonFlux", produces = { MediaType.APPLICATION_XML_VALUE })
@@ -69,8 +79,8 @@ public class ClientController {
         return response == null ? "" : (String) response.get("return");
     }
 
-    @GetMapping(path = "getXmlFlux", produces = { MediaType.APPLICATION_XML_VALUE })
-    public Person getXmlUsingFlux() {
+    @GetMapping(path = "getPersonFlux", produces = { MediaType.APPLICATION_XML_VALUE })
+    public Person getPersonUsingFlux() {
         ResponseEntity<Person> response = webClient.get()
                 .uri("/data/xml")
                 .retrieve()

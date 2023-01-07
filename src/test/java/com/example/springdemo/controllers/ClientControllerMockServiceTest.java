@@ -7,6 +7,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.ExpectedCount;
@@ -16,13 +17,16 @@ import org.springframework.web.client.RestTemplate;
 import com.example.springdemo.controller.ClientController;
 import com.example.springdemo.model.Person;
 
-public class ClientControllerTest {
+public class ClientControllerMockServiceTest {
     private RestTemplate restTemplate;
     private MockRestServiceServer mockServer;
     private ClientController clientController;
 
     private final Person expectedPerson = new Person(123, "John", "Doe");
     private final String MOCK_XML_RESPONSE = "<person><id>123</id><firstName>John</firstName><lastName>Doe</lastName></person>";
+
+    @Value("${wiremock.server.httpsPort}")
+    String wireMockServerPort;
 
     @BeforeEach
     public void setup() {
@@ -36,7 +40,6 @@ public class ClientControllerTest {
         mockServer.expect(ExpectedCount.once(), requestTo("/data/xml"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(MOCK_XML_RESPONSE, MediaType.APPLICATION_XML));
-
         String actualXml = clientController.getXml();
 
         mockServer.verify();
@@ -49,6 +52,24 @@ public class ClientControllerTest {
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(MOCK_XML_RESPONSE, MediaType.APPLICATION_XML));
 
+        Person actualPerson = clientController.getPerson();
+
+        mockServer.verify();
+        assertThat(actualPerson)
+                .usingRecursiveComparison()
+                .isEqualTo(expectedPerson);
+    }
+
+    @Test
+    public void getXml_returns_Xml_UsingStubs() {
+        String actualXml = clientController.getXml();
+
+        mockServer.verify();
+        assertThat(actualXml).isEqualTo(MOCK_XML_RESPONSE);
+    }
+
+    @Test
+    public void getPerson_returns_Person_UsingStubs() {
         Person actualPerson = clientController.getPerson();
 
         mockServer.verify();
