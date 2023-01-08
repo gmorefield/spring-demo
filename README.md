@@ -85,3 +85,27 @@ curl http://localhost:8080/actuator/info
 Notes:
   - If the `basic` profile is enabled, add `-u sample-client` to the curl commands for /person urls and enter the password when prompted. The user is also needed for any actuator other than info and health 
   - On Windows, you may need to add `winpty` in front of `curl` command, eg. ```winpty curl http://localhost:8080/actuator/info```
+
+
+## Docker setup for misc profile features
+### mssql
+```sh
+docker run --cap-add SYS_PTRACE -e 'ACCEPT_EULA=1' -e 'MSSQL_SA_PASSWORD={password}' -p 1433:1433 --rm --name sqledge --detach mcr.microsoft.com/azure-sql-edge
+```
+
+### activemq: 
+```sh
+docker run --name activemq --rm --detach -p 61616:61616 -p 8161:8161 symptoma/activemq:latest
+```
+
+### mq: (IBM MQ)
+- Docker Container: [Get an IBM MQ queue for development in a container](https://developer.ibm.com/tutorials/mq-connect-app-queue-manager-containers/)
+- Administration: [Web Console](https://{ip}:9443/ibmmq/console/)
+  - [Getting started with the web console](https://www.ibm.com/docs/en/ibm-mq/9.1?topic=console-getting-started-web)
+```sh
+sudo docker run --rm --name QM1 --env LICENSE=accept --env MQ_QMGR_NAME=QM1 --publish 1414:1414 --publish 9443:9443 --detach icr.io/ibm-messaging/mq:latest
+```
+Note: UTM required on mac silicon
+```sh
+ip addr show
+```

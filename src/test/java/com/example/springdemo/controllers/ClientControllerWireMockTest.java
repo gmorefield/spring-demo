@@ -14,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.cloud.contract.wiremock.WireMockConfiguration;
 import org.springframework.cloud.contract.wiremock.WireMockRestServiceServer;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -28,6 +30,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 @ActiveProfiles("test")
@@ -116,5 +119,20 @@ public class ClientControllerWireMockTest {
         // THEN
         wireMockServer.verify(1, getRequestedFor(urlEqualTo("/data/xml")));
         assertThat(actualPerson).usingRecursiveComparison().isEqualTo(expectedPerson);
+    }
+
+    @Test
+    public void getStatus() {
+        String url = "/data/getStatus?code=400";
+        // WHEN
+        ResponseEntity<?> responseEntity = msgWebClient.get()
+                .uri(wireMockServer.baseUrl() + url)
+                .retrieve()
+                .onStatus(status -> status.value() == 400, clientResponse -> Mono.empty())
+                .toEntity(Void.class).block();
+
+        // THEN
+        wireMockServer.verify(1, getRequestedFor(urlEqualTo(url)));
+        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 }
