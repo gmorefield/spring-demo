@@ -59,22 +59,4 @@ public class ClientControllerMockServiceTest {
                 .usingRecursiveComparison()
                 .isEqualTo(expectedPerson);
     }
-
-    @Test
-    public void getXml_returns_Xml_UsingStubs() {
-        String actualXml = clientController.getXml();
-
-        mockServer.verify();
-        assertThat(actualXml).isEqualTo(MOCK_XML_RESPONSE);
-    }
-
-    @Test
-    public void getPerson_returns_Person_UsingStubs() {
-        Person actualPerson = clientController.getPerson();
-
-        mockServer.verify();
-        assertThat(actualPerson)
-                .usingRecursiveComparison()
-                .isEqualTo(expectedPerson);
-    }
 }

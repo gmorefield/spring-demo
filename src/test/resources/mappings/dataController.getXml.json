@@ -1,0 +1,13 @@
+{
+    "request": {
+        "method": "GET",
+        "url": "/data/xml"
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Type": "application/xml"
+        },
+        "body": "<person><id>123</id><firstName>John</firstName><lastName>Doe</lastName></person>"
+    }
+}

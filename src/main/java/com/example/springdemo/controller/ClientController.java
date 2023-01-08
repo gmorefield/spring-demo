@@ -1,14 +1,17 @@
 package com.example.springdemo.controller;
 
+import static org.springframework.http.HttpStatus.OK;
+
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -48,14 +51,11 @@ public class ClientController {
         return response.getBody();
     }
 
-    @GetMapping(path = "getError")
-    public ResponseEntity<?> getError() throws Exception {
-        try {
-            ResponseEntity<Person> response = restClient.getForEntity("/data/DoesNotExist", Person.class);
-            return response;
-        } catch (RestClientResponseException e) {
-            return ResponseEntity.status(e.getRawStatusCode()).body(e.getResponseBodyAsString());
-        }
+    @GetMapping(path = "getStatus")
+    public ResponseEntity<?> getStatus(@RequestParam(name = "code", required = false) Optional<Integer> statusCode)
+            throws Exception {
+
+        return ResponseEntity.status(statusCode.orElse(OK.value())).build();
     }
 
     @GetMapping(path = "getXmlFlux", produces = { MediaType.APPLICATION_XML_VALUE })
