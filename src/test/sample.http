@@ -133,7 +133,8 @@ x-count: 15
 ###
 
 GET {{host}}/message/sendNow
-x-count: 50
+x-count: 5
+x-env: poc
 
 ###
 

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.springdemo.config.InfoProps;
 import com.example.springdemo.model.CloudEventDto;
+import com.example.springdemo.model.SampleDto;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,5 +58,10 @@ public class CloudController {
     public CloudEventDto echoEntityShell( @RequestHeader HttpHeaders headers, InputStream body) throws StreamReadException, DatabindException, IOException {
         CloudEventDto event = new ObjectMapper().readValue(body, CloudEventDto.class);
         return event;
+    }
+
+    @PostMapping("sample")
+    public SampleDto sampleEcho(@RequestBody SampleDto input) {
+        return input;
     }
 }

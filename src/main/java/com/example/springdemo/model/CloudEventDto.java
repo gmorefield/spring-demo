@@ -1,6 +1,5 @@
 package com.example.springdemo.model;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +27,8 @@ public class CloudEventDto {
     private String subject;
     @JsonAlias({"id","ce-id"})
     private String id;
-    @JsonAlias({"time","ce-time"})
-    private LocalDateTime time;
+    // @JsonAlias({"time","ce-time"})
+    // private LocalDateTime time;
     @JsonAlias({"datacontenttype","ce-datacontenttype"})
     private String datacontenttype;
 

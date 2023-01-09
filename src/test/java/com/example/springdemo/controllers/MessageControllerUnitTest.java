@@ -1,6 +1,7 @@
 package com.example.springdemo.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,9 +46,9 @@ public class MessageControllerUnitTest {
 
     @Test
     public void testSendNow_sendsMessage() throws JMSException {
-        controller.sendNow(1);
+        controller.sendNow(1, "test");
         verify(jmsTemplate, times(1))
-                .convertAndSend(eq("testQueue"), objectMessage.capture());
+                .convertAndSend(eq("testQueue"), objectMessage.capture(), any());
 
         assertThat(objectMessage.getValue())
                 .isInstanceOfSatisfying(String.class, val -> {
