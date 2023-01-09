@@ -55,7 +55,8 @@ public class MessageController {
     }
 
     @GetMapping("sendNow")
-    public String sendNow(@RequestHeader(name = "x-count", defaultValue = "1") int count) {
+    public String sendNow(@RequestHeader(name = "x-count", defaultValue = "1") int count,
+    @RequestHeader(name="x-env", defaultValue = "${sample.env}") String env) {
         // jmsTemplate.setDeliveryDelay(30000L);
         IntStream.rangeClosed(1, count)
                 .parallel()
@@ -63,7 +64,11 @@ public class MessageController {
                     jmsTemplate.convertAndSend(defaultQueueName, "Message"
                             + (count == 1 ? "" : " (" + i + "/" + count + ")")
                             + " at " + LocalDateTime.now()
-                            + " [t-" + Thread.currentThread().getId() + "]");
+                            + " [t-" + Thread.currentThread().getId() + "]",
+                            message -> {
+                                message.setStringProperty("env", env);;
+                                return message;
+                            });
                 });
 
         return "success";
@@ -163,16 +168,17 @@ public class MessageController {
         return "success";
     }
 
-    @JmsListener(id = "nowListener", destination = "${springdemo.default.queueName}")
+    @JmsListener(id = "nowListener", destination = "${springdemo.default.queueName}", selector = "env = '${sample.env}'")
     public void activeMqListener(TextMessage message, Session session) throws Exception {
-        log.info("now session [transacted={}],[acknowledgeMode={}]", session.getTransacted(),
-                session.getAcknowledgeMode());
+        log.info("now session [transacted={}],[acknowledgeMode={}],[redelivered={},[priority={}]]", session.getTransacted(),
+                session.getAcknowledgeMode(), message.getJMSRedelivered(), message.getJMSPriority());
         // if (message.getJMSRedelivered()) {
         String msg = message.getText() + " -- Received at " + LocalDateTime.now()
                 + " [t-" + Thread.currentThread().getId() + "]";
         messages.add(msg);
         jmsTemplate.convertAndSend("sampleMessage", msg);
         if (random.nextInt(100) > 90) {
+            log.warn("message {} rolled back", message.getJMSMessageID());
             session.rollback();
         } else {
             session.commit();

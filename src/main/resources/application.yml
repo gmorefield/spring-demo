@@ -110,6 +110,7 @@ info:
 
 # custom application configuration
 sample:
+    env: poc
     commandLine:
         delay: 5
     datasource:
