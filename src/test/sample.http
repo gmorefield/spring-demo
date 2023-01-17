@@ -23,6 +23,18 @@ Authorization: Bearer {{github-pat}}
 
 ###
 
+# @name jwtUser
+POST {{host}}/token
+Authorization: Basic user password
+
+###
+
+# @name jwtAdmin
+POST {{host}}/token
+Authorization: Basic admin password
+
+###
+
 GET {{host}}/swagger-ui/index.html
 
 ###
@@ -32,6 +44,7 @@ GET {{host}}/v3/api-docs
 ###
 
 GET {{host}}/actuator/info
+# Authorization: Bearer {{jwt.response.body.*}}
 # Authorization: Basic {{user}} {{password}}
 
 ###
@@ -52,6 +65,13 @@ GET {{host}}/actuator/health/readiness
 ###
 
 GET {{host}}/actuator/mappings
+Authorization: Bearer {{jwtUser.response.body.*}}
+# Authorization: Basic {{user}} {{password}}
+
+###
+
+GET {{host}}/actuator/mappings
+Authorization: Bearer {{jwtAdmin.response.body.*}}
 # Authorization: Basic {{user}} {{password}}
 
 ###
@@ -68,7 +88,8 @@ Authorization: Basic {{user}} {{password}}
 ###
 
 GET {{host}}/person
-Authorization: Basic {{user}} {{password}}
+Authorization: Bearer {{jwtUser.response.body.*}}
+# Authorization: Basic {{user}} {{password}}
 
 ###
 
