@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="SpringDemo-jwt" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.example.springdemo.SpringDemoApplication" />
+    <module name="spring-demo" />
+    <option name="PROGRAM_PARAMETERS" value="--spring.profiles.active=jwt,local --debug" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
