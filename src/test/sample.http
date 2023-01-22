@@ -1,10 +1,14 @@
 @host = http://localhost:8080
-@user = {{basicUser}}
-@password = {{basicPass}}
+@user = {{$dotenv BASIC_USER}}
+@admin = {{$dotenv BASIC_ADMIN}}
+@password = {{$dotenv BASIC_PASSWORD}}
+
+@github-id = {{$dotenv github-id}}
+@github-secret = {{$dotenv github-secret}}
 
 ###
-
 # @name github
+
 POST https://github.com/login/oauth/authorize HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
 Authorization: Basic {{github-id}} {{github-secret}}
@@ -22,16 +26,16 @@ GET {{host}}/authorize
 Authorization: Bearer {{github-pat}}
 
 ###
-
 # @name jwtUser
+
 POST {{host}}/token
-Authorization: Basic user password
+Authorization: Basic {{user}} {{password}}
 
 ###
-
 # @name jwtAdmin
+
 POST {{host}}/token
-Authorization: Basic admin password
+Authorization: Basic {{admin}} {{password}}
 
 ###
 
@@ -154,8 +158,14 @@ x-count: 15
 ###
 
 GET {{host}}/message/sendNow
-x-count: 5
+x-count: 1
 x-env: poc
+
+###
+
+GET {{host}}/message/messaging/sendNow
+x-count: 1
+x-env: msg
 
 ###
 

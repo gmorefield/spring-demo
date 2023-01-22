@@ -4,6 +4,9 @@ spring:
             enabled: false
     jmx:
         enabled: false
+    sql:
+        init:
+            continue-on-error: false
 
 logging:
     level:
@@ -19,3 +22,8 @@ logging:
 sample:
     command-line:
         delay: 0
+
+basic:
+    user: testuser
+    admin: testAdmin
+    password: testPass

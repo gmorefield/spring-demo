@@ -12,6 +12,7 @@ import java.security.interfaces.RSAPublicKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -74,14 +75,17 @@ public class TokenConfig {
 	}
 
 	@Bean
-	UserDetailsService users() {
+	UserDetailsService users(@Value("${basic.user}") String basicUser,
+			@Value("${basic.admin}") String basicAdmin,
+			@Value("${basic.password}") String basicPassword) {
+
 		return new InMemoryUserDetailsManager(
-				User.withUsername("user")
-						.password("{noop}password")
+				User.withUsername(basicUser)
+						.password("{noop}" + basicPassword)
 						.authorities("execute")
 						.build(),
-				User.withUsername("admin")
-						.password("{noop}password")
+				User.withUsername(basicAdmin)
+						.password("{noop}" + basicPassword)
 						.authorities("execute", "admin")
 						.build());
 	}

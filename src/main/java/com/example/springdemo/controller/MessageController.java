@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -22,10 +23,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.config.JmsListenerEndpointRegistry;
+import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import org.springframework.jms.support.JmsHeaders;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,16 +43,18 @@ public class MessageController {
     private static Logger log = LoggerFactory.getLogger(MessageController.class);
 
     private JmsTemplate jmsTemplate;
+    private JmsMessagingTemplate jmsMessagingTemplate;
     private String defaultQueueName;
     private Queue<String> messages = new ConcurrentLinkedQueue<>();
     private Queue<String> subMessages = new ConcurrentLinkedQueue<>();
     private JmsListenerEndpointRegistry registry;
     private Random random = new SecureRandom();
 
-    public MessageController(JmsTemplate jmsTemplate,
+    public MessageController(JmsMessagingTemplate jmsMessagingTemplate,
             @Value("${springdemo.default.queueName}") String defaultQueueName,
             JmsListenerEndpointRegistry registry) {
-        this.jmsTemplate = jmsTemplate;
+        this.jmsTemplate = jmsMessagingTemplate.getJmsTemplate();
+        this.jmsMessagingTemplate = jmsMessagingTemplate;
         this.defaultQueueName = defaultQueueName;
         this.registry = registry;
         MDC.put("random", String.valueOf(Math.random()));
@@ -56,8 +63,7 @@ public class MessageController {
 
     @GetMapping("sendNow")
     public String sendNow(@RequestHeader(name = "x-count", defaultValue = "1") int count,
-    @RequestHeader(name="x-env", defaultValue = "${sample.env}") String env) {
-        // jmsTemplate.setDeliveryDelay(30000L);
+            @RequestHeader(name = "x-env", defaultValue = "msg") String env) {
         IntStream.rangeClosed(1, count)
                 .parallel()
                 .forEach(i -> {
@@ -66,9 +72,30 @@ public class MessageController {
                             + " at " + LocalDateTime.now()
                             + " [t-" + Thread.currentThread().getId() + "]",
                             message -> {
-                                message.setStringProperty("env", env);;
+                                message.setStringProperty("env", env);
                                 return message;
                             });
+                });
+
+        return "success";
+    }
+
+    @GetMapping("messaging/sendNow")
+    public String messagingSendNow(@RequestHeader(name = "x-count", defaultValue = "1") int count,
+            @RequestHeader(name = "x-env", defaultValue = "${sample.env}") String env) {
+        IntStream.rangeClosed(1, count)
+                .parallel()
+                .forEach(i -> {
+                    Message<String> message = MessageBuilder.withPayload(
+                            "Message"
+                                    + (count == 1 ? "" : " (" + i + "/" + count + ")")
+                                    + " at " + LocalDateTime.now()
+                                    + " [t-" + Thread.currentThread().getId() + "]")
+                            .setHeader("env", env)
+                            .setHeader("transactionId", UUID.randomUUID().toString())
+                            .build();
+                    log.info("messaging/sendNow [id={}]", message.getHeaders().getId());
+                    jmsMessagingTemplate.send(defaultQueueName, message);
                 });
 
         return "success";
@@ -168,9 +195,35 @@ public class MessageController {
         return "success";
     }
 
+    @JmsListener(id = "nowMessagingListener", destination = "${springdemo.default.queueName}", selector = "env = 'msg'")
+    public void activeMessagingMqListener(Message<String> message, Session session) throws Exception {
+        log.info("now session [id={}],[messageId={}],[transactionId={}],[transacted={}],[acknowledgeMode={}],[redelivered={},[priority={}]]",
+                message.getHeaders().getId(),
+                message.getHeaders().get(JmsHeaders.MESSAGE_ID),
+                message.getHeaders().get("transactionId"),
+                session.getTransacted(),
+                session.getAcknowledgeMode(), message.getHeaders().get(JmsHeaders.REDELIVERED),
+                message.getHeaders().get(JmsHeaders.PRIORITY));
+        // if (message.getJMSRedelivered()) {
+        String msg = message.getPayload() + "[" + message.getHeaders().getId() + "] -- Received at " + LocalDateTime.now()
+                + " [t-" + Thread.currentThread().getId() + "]";
+        messages.add(msg);
+        jmsMessagingTemplate.send("sampleMessage",
+                MessageBuilder.withPayload(msg).copyHeaders(message.getHeaders()).build());
+
+        if (random.nextInt(100) > 90) {
+            log.warn("message {} {} rolled back", message.getHeaders().getId(),
+                    message.getHeaders().get(JmsHeaders.MESSAGE_ID));
+            session.rollback();
+        } else {
+            session.commit();
+        }
+    }
+
     @JmsListener(id = "nowListener", destination = "${springdemo.default.queueName}", selector = "env = '${sample.env}'")
     public void activeMqListener(TextMessage message, Session session) throws Exception {
-        log.info("now session [transacted={}],[acknowledgeMode={}],[redelivered={},[priority={}]]", session.getTransacted(),
+        log.info("now session [transacted={}],[acknowledgeMode={}],[redelivered={},[priority={}]]",
+                session.getTransacted(),
                 session.getAcknowledgeMode(), message.getJMSRedelivered(), message.getJMSPriority());
         // if (message.getJMSRedelivered()) {
         String msg = message.getText() + " -- Received at " + LocalDateTime.now()

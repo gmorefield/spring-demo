@@ -3,8 +3,7 @@ package com.example.springdemo.controllers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -17,6 +16,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jms.config.JmsListenerEndpointRegistry;
+import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.example.springdemo.controller.MessageController;
@@ -31,6 +31,8 @@ public class MessageControllerUnitTest {
     @Mock
     private JmsListenerEndpointRegistry mockRegistry;
     @Mock
+    private JmsMessagingTemplate jmsMessagingTemplate;
+    @Mock
     private JmsTemplate jmsTemplate;
 
     @Captor
@@ -41,7 +43,8 @@ public class MessageControllerUnitTest {
         // mockConnectionFactory = mock(ConnectionFactory.class);
         // mockRegistry = mock(JmsListenerEndpointRegistry.class);
         // JmsTemplate jmsTemplate = new JmsTemplate(mockConnectionFactory);
-        controller = new MessageController(jmsTemplate, "testQueue", mockRegistry);
+        when(jmsMessagingTemplate.getJmsTemplate()).thenReturn(jmsTemplate);
+        controller = new MessageController(jmsMessagingTemplate, "testQueue", mockRegistry);
     }
 
     @Test
