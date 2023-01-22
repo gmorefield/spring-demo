@@ -9,13 +9,18 @@ import javax.jms.Session;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
+import org.springframework.boot.context.properties.PropertyMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
+import org.springframework.jms.support.converter.MessageConverter;
+import org.springframework.jms.support.converter.MessageType;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
 import org.springframework.lang.Nullable;
 import org.springframework.util.backoff.ExponentialBackOff;
@@ -65,9 +70,22 @@ public class JmsConfig {
     }
 
     @Bean
+    public MessageConverter jacksonJmsMessageConverter() {
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        converter.setTargetType(MessageType.TEXT);
+        converter.setTypeIdPropertyName("_type");
+        return converter;
+    }
+
+    @Bean
     public JmsTemplate delayedJmsTemplate(ConnectionFactory connectionFactory,
-            DynamicDestinationResolver dynamicDestinationResolver) {
-        return new DelayedJmsTemplate(connectionFactory, dynamicDestinationResolver());
+            DynamicDestinationResolver dynamicDestinationResolver,
+            ObjectProvider<MessageConverter> messageConverter) {
+
+        PropertyMapper map = PropertyMapper.get();
+        JmsTemplate template = new DelayedJmsTemplate(connectionFactory, dynamicDestinationResolver());
+        map.from(messageConverter::getIfUnique).whenNonNull().to(template::setMessageConverter);
+        return template;
     }
 
     // @Component
