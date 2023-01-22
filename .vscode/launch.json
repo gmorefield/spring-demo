@@ -1,0 +1,92 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-SpringDemoApplication<spring-demo>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.example.springdemo.SpringDemoApplication",
+            "projectName": "spring-demo",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SpringDemoApplication<spring-demo>-Basic",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.example.springdemo.SpringDemoApplication",
+            "projectName": "spring-demo",
+            "args": "--spring.profiles.active=basic",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SpringDemoApplication<spring-demo>-Jwt",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.example.springdemo.SpringDemoApplication",
+            "projectName": "spring-demo",
+            "args": "--spring.profiles.active=jwt,local",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SpringDemoApplication<spring-demo>-GitHub",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.example.springdemo.SpringDemoApplication",
+            "projectName": "spring-demo",
+            "args": "--spring.profiles.active=github",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SpringDemoApplication<spring-demo>-ActiveMq",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.example.springdemo.SpringDemoApplication",
+            "projectName": "spring-demo",
+            "args": "--spring.profiles.active=activemq,local --debug",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SpringDemoApplication<spring-demo>-IbmMq",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.example.springdemo.SpringDemoApplication",
+            "projectName": "spring-demo",
+            "args": "--spring.profiles.active=mssql,mq,local",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SpringDemoApplication<spring-demo>-MSSQL",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.example.springdemo.SpringDemoApplication",
+            "projectName": "spring-demo",
+            "args": "--spring.profiles.active=mssql,local",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SpringDemoApplication<spring-demo>-H2",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.example.springdemo.SpringDemoApplication",
+            "projectName": "spring-demo",
+            "args": "--spring.profiles.active=H2,local",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
