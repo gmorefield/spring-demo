@@ -152,6 +152,10 @@ Accept: application/xml
 
 ###
 
+GET {{host}}/client/flux/document/binary/9abb4957-c7cf-471c-8684-25e93a4a8dd9
+
+###
+
 GET {{host}}/message/publishNow
 x-count: 15
 

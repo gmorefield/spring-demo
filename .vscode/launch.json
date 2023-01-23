@@ -75,6 +75,7 @@
             "mainClass": "com.example.springdemo.SpringDemoApplication",
             "projectName": "spring-demo",
             "args": "--spring.profiles.active=mssql,local",
+            "vmArgs": "-Xmx1g",
             "envFile": "${workspaceFolder}/.env"
         },
         {

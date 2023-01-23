@@ -2,23 +2,36 @@ package com.example.springdemo.controller;
 
 import static org.springframework.http.HttpStatus.OK;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.example.springdemo.model.Person;
 
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 @RestController
 @RequestMapping("client")
+@Slf4j
 public class ClientController {
     private RestTemplate restClient;
     private WebClient webClient;
@@ -88,5 +101,45 @@ public class ClientController {
                 .block();
 
         return response.getBody();
+    }
+
+    @GetMapping(path = "flux/document/binary/{docId}")
+    public ResponseEntity<StreamingResponseBody> getDocumentUsingFlux(@PathVariable String docId,
+            @RequestHeader(name = HttpHeaders.ACCEPT_ENCODING, required = false) Optional<String> acceptEncodingHeader) {
+
+        final ResponseEntity<Flux<DataBuffer>> fluxEntity = webClient.get()
+                .uri("/document/{docId}/binary", docId)
+                .header(HttpHeaders.ACCEPT_ENCODING, acceptEncodingHeader.orElse("identity"))
+                .retrieve()
+                .onStatus(HttpStatus::isError, response -> {
+                    return response.bodyToMono(String.class)
+                            .flatMap(body -> {
+                                log.debug("Body is {}", body);
+                                return Mono.error(new RuntimeException(
+                                        "Client call failed with response: " + response.rawStatusCode()));
+                            });
+                })
+                // .bodyToFlux(DataBuffer.class);
+                .toEntityFlux(DataBuffer.class)
+                // .timeout(Duration.ofSeconds(30))
+                .block(Duration.ofSeconds(30));
+
+        StreamingResponseBody body = outputStream -> {
+            Flux<DataBuffer> flux = fluxEntity.getBody();
+
+            DataBufferUtils
+                    .write(flux, outputStream)
+                    .map(DataBufferUtils::release)
+                    .blockLast();
+
+            // DataBufferUtils
+            // .write(flux, Paths.get("destination"),
+            // StandardOpenOption.CREATE)
+            // .block();
+        };
+
+        return ResponseEntity.ok()
+                .headers(fluxEntity.getHeaders())
+                .body(body);
     }
 }
