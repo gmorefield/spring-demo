@@ -1,4 +1,4 @@
-package com.example.springdemo.config;
+package com.example.springdemo.config.data;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
