@@ -61,10 +61,8 @@ public class ClientControllerWireMockTest {
                 .trustManager(InsecureTrustManagerFactory.INSTANCE)
                 .build();
         HttpClient httpClient = HttpClient.create().secure(t -> t.sslContext(sslContext));
-        WebClient.Builder webClientBuilder = WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient));
 
-        msgWebClient = new WebClientConfig().messageWebClient(webClientBuilder, wireMockServer.baseUrl());
+        msgWebClient = new WebClientConfig().messageWebClient(WebClient.builder(), httpClient, wireMockServer.baseUrl());
         restTemplate = new RestTemplate();
         clientController = new ClientController(restTemplate, msgWebClient);
 

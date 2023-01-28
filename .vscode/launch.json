@@ -24,6 +24,17 @@
         },
         {
             "type": "java",
+            "name": "Spring Boot-SpringDemoApplication<spring-demo>-Jws",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.example.springdemo.SpringDemoApplication",
+            "projectName": "spring-demo",
+            "args": "--spring.profiles.active=jws,local",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-SpringDemoApplication<spring-demo>-Jwt",
             "request": "launch",
             "cwd": "${workspaceFolder}",

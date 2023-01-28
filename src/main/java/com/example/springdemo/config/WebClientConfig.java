@@ -16,18 +16,9 @@ import reactor.netty.http.client.HttpClient;
 public class WebClientConfig {
 
     @Bean("msgWebClient")
-    public WebClient messageWebClient(WebClient.Builder builder,
+    public WebClient messageWebClient(WebClient.Builder builder, HttpClient httpClient,
             @Value("${base.url:http://localhost:8080}") String baseUrl) {
                 
-        HttpClient httpClient = HttpClient.create()
-                // .secure(sslSpec -> ...);
-                // .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-                // .doOnConnected(connection -> {
-                //     connection.addHandlerLast(new ReadTimeoutHandler(TIMEOUT, MILLISECONDS));
-                //     connection.addHandlerLast(new WriteTimeoutHandler(TIMEOUT, MILLISECONDS));
-                // })
-                .compress(false);
-
         return builder
                 .baseUrl(baseUrl)
                 .exchangeStrategies(ExchangeStrategies.builder().codecs((configurer) -> {

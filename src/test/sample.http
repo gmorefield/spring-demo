@@ -7,7 +7,7 @@
 @github-secret = {{$dotenv github-secret}}
 
 ###
-# @name github
+# @name github-pat
 
 POST https://github.com/login/oauth/authorize HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
@@ -28,7 +28,13 @@ Authorization: Bearer {{github-pat}}
 ###
 # @name jwtUser
 
-POST {{host}}/token
+POST {{host}}/token/jwt
+Authorization: Basic {{user}} {{password}}
+
+###
+# @name jwtUser
+
+POST {{host}}/token/jws
 Authorization: Basic {{user}} {{password}}
 
 ###
