@@ -22,7 +22,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.example.springdemo.config.WebClientConfig;
+import com.example.springdemo.config.http.WebClientConfig;
 import com.example.springdemo.controller.ClientController;
 import com.example.springdemo.model.Person;
 import com.github.tomakehurst.wiremock.WireMockServer;

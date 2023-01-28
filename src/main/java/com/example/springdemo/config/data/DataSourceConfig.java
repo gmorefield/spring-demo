@@ -1,4 +1,4 @@
-package com.example.springdemo.config;
+package com.example.springdemo.config.data;
 
 import javax.sql.DataSource;
 

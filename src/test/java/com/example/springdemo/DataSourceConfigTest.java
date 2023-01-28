@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.sql.DataSource;
 
-import com.example.springdemo.config.DataSourceConfig;
+import com.example.springdemo.config.data.DataSourceConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.junit.jupiter.api.Test;
