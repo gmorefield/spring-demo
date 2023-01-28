@@ -17,8 +17,8 @@ public class StartupDelay implements CommandLineRunner {
     private static Logger logger = LoggerFactory.getLogger(StartupDelay.class);
     private int delay;
 
-    public StartupDelay(@Value("${sample.command-line.delay}") int delay) {
-        this.delay = delay;
+    public StartupDelay(SampleProperties sampleProperties) {
+        this.delay = sampleProperties.getCommandLine().getDelay();
     }
 
     @Override
