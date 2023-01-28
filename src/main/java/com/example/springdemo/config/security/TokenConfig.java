@@ -33,7 +33,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
-@Profile("jwt")
+@Profile({ "jws", "jwt" })
 @Configuration
 public class TokenConfig {
 	private Logger logger = LoggerFactory.getLogger(TokenConfig.class);
@@ -65,7 +65,7 @@ public class TokenConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		logger.info("Token generation security configured");
 		http
-				.antMatcher("/token")
+				.antMatcher("/token/*")
 				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated())
 				.csrf().disable()

@@ -1,6 +1,7 @@
 package com.example.springdemo.controller;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Profile;
@@ -12,7 +13,10 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Profile("jwt")
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
+
+@Profile({ "jws", "jwt" })
 @RestController
 public class TokenController {
 
@@ -22,8 +26,8 @@ public class TokenController {
         this.encoder = encoder;
     }
 
-    @PostMapping("/token")
-    public String token(Authentication authentication) {
+    @PostMapping("/token/jws")
+    public String secureToken(Authentication authentication) {
         Instant now = Instant.now();
         long expiry = 36000L;
 
@@ -40,6 +44,26 @@ public class TokenController {
                 .build();
 
         return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+
+    @PostMapping("/token/jwt")
+    public String plainToken(Authentication authentication) {
+        Instant now = Instant.now();
+        long expiry = 36000L;
+
+        String scope = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(" "));
+
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .issuer("self")
+                .issueTime(Date.from(now))
+                .expirationTime(Date.from(now.plusSeconds(expiry)))
+                .subject(authentication.getName())
+                .claim("scope", scope)
+                .build();
+
+        return new PlainJWT(claims).serialize();
     }
 
 }
