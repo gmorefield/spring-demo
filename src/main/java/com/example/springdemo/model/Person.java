@@ -2,7 +2,7 @@ package com.example.springdemo.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@jakarta.xml.bind.annotation.XmlRootElement(name="person")
+// @jakarta.xml.bind.annotation.XmlRootElement(name="person")
 @XmlRootElement(name="person")
 public class Person {
     private long id;

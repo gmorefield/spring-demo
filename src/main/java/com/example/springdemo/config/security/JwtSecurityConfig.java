@@ -48,7 +48,10 @@ public class JwtSecurityConfig {
 		logger.info("JWT security configured");
 		http
 				.authorizeHttpRequests((authorize) -> authorize
-						.requestMatchers(new AntPathRequestMatcher("/token/*")).permitAll()
+						.requestMatchers(
+								new AntPathRequestMatcher("/token/*"),
+								new AntPathRequestMatcher("/ws/**"))
+						.permitAll()
 						.requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll()
 						.requestMatchers(EndpointRequest.toAnyEndpoint()).hasAuthority("SCOPE_admin")
 						.anyRequest().hasAuthority("SCOPE_execute"))

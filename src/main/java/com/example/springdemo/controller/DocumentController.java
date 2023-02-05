@@ -36,6 +36,7 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,8 +45,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import com.example.springdemo.client.RecordStorageClient;
 import com.example.springdemo.data.DocumentPagingAndSortingRepository;
 import com.example.springdemo.model.Document;
+import com.example.springdemo.soap.model.SaveStorageRecordResponse;
 import com.example.springdemo.util.JsonConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -58,16 +61,19 @@ public class DocumentController {
     private NamedParameterJdbcTemplate jdbcTemplate;
     private DocumentPagingAndSortingRepository documentRepository;
     private ObjectMapper objectMapper;
+    private RecordStorageClient recordStorageClient;
 
     public DocumentController(AsyncTaskExecutor taskExecutor, NamedParameterJdbcTemplate jdbcTemplate,
-            DocumentPagingAndSortingRepository documentRepository, ObjectMapper objectMapper) {
+            DocumentPagingAndSortingRepository documentRepository, ObjectMapper objectMapper,
+            RecordStorageClient recordStorageClient) {
         this.taskExecutor = taskExecutor;
         this.jdbcTemplate = jdbcTemplate;
         this.documentRepository = documentRepository;
         this.objectMapper = objectMapper;
+        this.recordStorageClient = recordStorageClient;
     }
 
-    @PostMapping("/store")
+    @PostMapping(path = "/store", consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
     public ResponseEntity<String> storeDocument(@RequestPart(name = "meta", required = false) Optional<Map<?, ?>> meta,
             @RequestPart("file") MultipartFile multipartFile,
             @RequestParam(required = false) Optional<Boolean> transform,
@@ -248,6 +254,13 @@ public class DocumentController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(body);
+    }
+
+    @PostMapping("/record/save")
+    public ResponseEntity<SaveStorageRecordResponse> saveRecord(@RequestBody Map<String, Object> data) {
+        SaveStorageRecordResponse response = recordStorageClient.saveRecord("/Users/morefigs/Downloads/" + data.get("fileName"),
+                (String) data.get("contentType"));
+        return ResponseEntity.ok(response);
     }
 
     // need @RestControllerAdvice?
