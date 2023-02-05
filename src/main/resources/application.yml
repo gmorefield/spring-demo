@@ -29,7 +29,7 @@ spring:
             maximum-pool-size: 30
             auto-commit: true
     autoconfigure:
-        exclude: "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration,org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration"
+        exclude: "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration,org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration,org.springframework.boot.autoconfigure.webservices.WebServicesAutoConfiguration"
 
     cloud:
         kubernetes:
@@ -45,6 +45,7 @@ logging:
   level:
     root: info
     "[org.springframework]": info
+    "[org.springframework.ws]": info
     # "[org.springframework.boot.autoconfigure.logging]": info
 
 # management properties to control actuators exposed
@@ -107,6 +108,11 @@ info:
     app:
         name: ${spring.application.name}
         type: demo
+    build:
+        artifact: ${project.artifactId}
+        name: ${project.name}
+        description: ${project.description}
+        version: ${project.version}
 
 # custom application configuration
 sample:
@@ -130,5 +136,7 @@ sample:
            # jdbc-url is needed for Hikari
             jdbc-url: ${sample.hikari.datasource.url}
             maximum-pool-size: 30
+    # multipart:
+    #     maxUploadSize: 500
 
 # debug: true

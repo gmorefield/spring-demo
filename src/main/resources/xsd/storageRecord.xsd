@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+xmlns:tns="https://springdemo.example.com/soap"
+targetNamespace="https://springdemo.example.com/soap" elementFormDefault="qualified"> -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
+    xmlns:tns="https://springdemo.example.com/soap"
+    targetNamespace="https://springdemo.example.com/soap"
+    xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.1"
+    elementFormDefault="qualified">
+
+    <xs:annotation>
+        <xs:appinfo>
+            <jaxb:schemaBindings>
+                <jaxb:package name="com.example.springdemo.soap.model" />
+            </jaxb:schemaBindings>
+        </xs:appinfo>
+    </xs:annotation>
+
+    <xs:element name="SaveStorageRecordRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="StorageRecord" type="tns:StorageRecord" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="SaveStorageRecordResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="success" type="xs:boolean" />
+                <xs:element name="sha1" type="xs:string" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="StorageRecord">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" />
+            <xs:element name="contentType" type="xs:string" />
+            <xs:element name="content" type="xs:base64Binary"
+                xmime:expectedContentTypes="application/octet-stream" />
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

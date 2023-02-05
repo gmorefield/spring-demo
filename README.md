@@ -109,3 +109,8 @@ Note: UTM required on mac silicon
 ```sh
 ip addr show
 ```
+
+## Misc Notes
+```sh
+./mvnw versions:display-dependency-updates
+```
