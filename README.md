@@ -94,6 +94,12 @@ Notes:
 | 0.0.2 | minor config cleanup; added Spring Cache based on ```sample.cache.enabled=true``` |
 
 ## Docker setup for misc profile features
+### springdemo
+```sh
+docker build -t spring-demo:0.0.1 .
+docker run --rm --name spring-demo -p 30005:8080 -e 'SPRING_PROFILES_ACTIVE=h2,local' --detach spring-demo:0.0.1
+```
+
 ### mssql
 ```sh
 docker run --cap-add SYS_PTRACE -e 'ACCEPT_EULA=1' -e 'MSSQL_SA_PASSWORD={password}' -p 1433:1433 --rm --name sqledge --detach mcr.microsoft.com/azure-sql-edge
@@ -115,6 +121,16 @@ Note: UTM required on mac silicon
 ```sh
 ip addr show
 ```
+
+## K8s setup
+### springdemo
+```sh
+k apply -f spring-demo-kube.yaml
+k -n spring-demo get all
+k -n spring-demo describe deployment spring-demo-app
+k -n spring-demo rollout restart deployment spring-demo-app
+```
+
 
 ## Misc Notes
 ```sh

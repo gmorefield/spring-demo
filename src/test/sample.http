@@ -1,4 +1,4 @@
-@host = http://localhost:8080
+# @host = http://localhost:30005    # pull from environments in settings.json
 @user = {{$dotenv BASIC_USER}}
 @admin = {{$dotenv BASIC_ADMIN}}
 @password = {{$dotenv BASIC_PASSWORD}}
@@ -239,7 +239,7 @@ Authorization: Basic testuser testpass
 
 ###
 
-GET {{host}}/document?sortBy=createDateTime&sortOrder=desc
+GET {{host}}/document?sortBy=createDateTime&sortOrder=desc&page=0&size=1
 
 ###
 
