@@ -85,6 +85,17 @@ metadata:
 
 ---
 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: datasource
+  namespace: spring-demo
+type: Opaque
+data:
+  password: UGFzc3cwcmQh
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -108,6 +119,15 @@ spec:
         env:
         - name: BPL_JAVA_NMT_ENABLED
           value: "false"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "mssql,local"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:sqlserver://sqledge;trustServerCertificate=true"
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: datasource
+              key: password
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -131,7 +151,7 @@ spec:
           timeoutSeconds: 3
         resources:
           limits:
-            cpu: 1.0
+            cpu: 1000m
             memory: 1024Mi
 
 ---

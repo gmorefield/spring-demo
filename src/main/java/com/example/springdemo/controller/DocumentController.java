@@ -52,7 +52,7 @@ import com.example.springdemo.soap.model.SaveStorageRecordResponse;
 import com.example.springdemo.util.JsonConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Profile({ "mssql", "H2" })
+@Profile({ "mssql", "h2" })
 @RestController
 @RequestMapping("/document")
 public class DocumentController {
