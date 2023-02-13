@@ -23,4 +23,7 @@ public class Document {
     
     @Column("CREATE_DT")
     private LocalDateTime createDateTime;
+
+    @Column("CHECKSUM")
+    private String checksum;
 }

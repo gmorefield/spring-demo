@@ -73,7 +73,7 @@ public class DocumentController {
         this.recordStorageClient = recordStorageClient;
     }
 
-    @PostMapping(path = "/store", consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
+    @PostMapping(path = "/store", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> storeDocument(@RequestPart(name = "meta", required = false) Optional<Map<?, ?>> meta,
             @RequestPart("file") MultipartFile multipartFile,
             @RequestParam(required = false) Optional<Boolean> transform,
@@ -258,7 +258,8 @@ public class DocumentController {
 
     @PostMapping("/record/save")
     public ResponseEntity<SaveStorageRecordResponse> saveRecord(@RequestBody Map<String, Object> data) {
-        SaveStorageRecordResponse response = recordStorageClient.saveRecord("/Users/morefigs/Downloads/" + data.get("fileName"),
+        SaveStorageRecordResponse response = recordStorageClient.saveRecord(
+                "/Users/morefigs/Downloads/" + data.get("fileName"),
                 (String) data.get("contentType"));
         return ResponseEntity.ok(response);
     }

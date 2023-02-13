@@ -9,16 +9,19 @@ import javax.xml.transform.Source;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.ws.test.server.MockWebServiceClient;
 import org.springframework.xml.transform.StringSource;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { MtomServerConfig.class, StorageEndpoint.class })
+// @ExtendWith(SpringExtension.class)
+// @ContextConfiguration(classes = { MtomServerConfig.class, StorageEndpoint.class })
+@SpringBootTest
+@AutoConfigureTestDatabase
+@ActiveProfiles("h2")
 public class StrorageEndpointIntegrationTest {
 
     @Autowired
