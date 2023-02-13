@@ -17,5 +17,6 @@ CREATE TABLE IF NOT EXISTS DOCUMENT(
     CONTENT_LEN int,
     FILE_NM varchar(255),
     DOC_BIN BLOB,
-    CREATE_DT datetime
+    CREATE_DT datetime,
+    CHECKSUM varchar(40)
 );
