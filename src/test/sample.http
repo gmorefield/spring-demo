@@ -239,7 +239,7 @@ Authorization: Basic testuser testpass
 
 ###
 
-GET {{host}}/document?sortBy=createDateTime&sortOrder=desc&page=0&size=1
+GET {{host}}/document?sortBy=createDateTime&sortOrder=desc&page=0&size=100
 
 ###
 
@@ -376,36 +376,35 @@ GET {{host}}/data/json2xml
 GET {{host}}/deception/runAround
 
 ###
+# mtom encoded data
+# "fileName": "spring-tool-suite-4-4.13.0.RELEASE-e4.22.0-macosx.cocoa.aarch64.dmg"
+# "fileName": "spring-tool-suite-4-4.13.0.RELEASE-e4.22.0-macosx.cocoa.aarch64.dmg"
+# "fileName": "769-26093.pdf"
+
 POST {{host}}/document/record/save
 Content-Type: application/json
 
 {
   "contentType": "application/pdf",
-  "fileName": "spring-tool-suite-4-4.13.0.RELEASE-e4.22.0-macosx.cocoa.aarch64.dmg"
+  "fileName": "TestDocWithHyperlinks.pdf"
 }
-
-  # "fileName": "spring-tool-suite-4-4.13.0.RELEASE-e4.22.0-macosx.cocoa.aarch64.dmg"
-  # "fileName": "769-26093.pdf"
-
-
 
 ###
 POST {{host}}/ws HTTP/1.1
-# Content-Type: multipart/related; start="12345678"; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
-          #  <content>cid:123456789</content>
-Content-Type: multipart/related; start="root@espringdemo"; type="text/xml"; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Type: multipart/related; start="root@espringdemo"; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW; type="application/xop+xml"; start-info="text/xml"
+SOAPAction: ""
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Type: application/soap+xml; charset=UTF-8;
+Content-Type: application/xop+xml; charset=utf-8; type="text/xml"
 Content-ID: <root@espringdemo>
 
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xop-mime='http://www.w3.org/2005/05/xmlmime'>
    <soapenv:Body>
       <SaveStorageRecordRequest xmlns="https://springdemo.example.com/soap">
          <StorageRecord>
             <name>README.md</name>
             <contentType>text/markdown</contentType>
-            <content>
+            <content xop-mime:content-type='text/markdown'>
                <Include href="cid:document@example.com" xmlns="http://www.w3.org/2004/08/xop/include"/>
             </content>
          </StorageRecord>
@@ -419,4 +418,30 @@ Content-Transfer-Encoding: binary
 Content-ID: <document@example.com>
 
 < ./README.md
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+
+###
+# binary64 encoded data
+
+POST {{host}}/ws HTTP/1.1
+Content-Type: multipart/related; start="root@espringdemo"; type="text/xml"; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Type: application/soap+xml; charset=UTF-8;
+Content-ID: <root@espringdemo>
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xop-mime='http://www.w3.org/2005/05/xmlmime'>
+   <soapenv:Body>
+      <SaveStorageRecordRequest xmlns="https://springdemo.example.com/soap">
+         <StorageRecord>
+            <name>test.txt</name>
+            <contentType>text/plain</contentType>
+            <content xop-mime:content-type='text/plain' xop-mime:filename='test.txt'>dGVzdA==</content>
+         </StorageRecord>
+      </SaveStorageRecordRequest>
+    </soapenv:Body>
+</soapenv:Envelope>
+
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
