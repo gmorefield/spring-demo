@@ -3,10 +3,14 @@
     "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m",
     "java.compile.nullAnalysis.mode": "automatic",
 
+    "rest-client.enableTelemetry": false,
     "rest-client.environmentVariables": {
         "$shared": {},
         "local": {
             "host": "http://localhost:8080"
+        },
+        "local-proxy": {
+            "host": "http://amoremb1.home:8080"
         },
         "k8s": {
             "host": "http://localhost:30005"
