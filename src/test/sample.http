@@ -58,6 +58,9 @@ GET {{host}}/actuator/info
 # Authorization: Basic {{user}} {{password}}
 
 ###
+GET {{host}}/actuator/env
+
+###
 
 GET {{host}}/actuator/health
 # Authorization: Basic {{user}} {{password}}
@@ -113,6 +116,15 @@ Content-Type: application/json
 Authorization: Basic {{user}} {{password}}
 
 30
+
+###
+GET {{host}}/broadcast/servers/spring-demo-headless
+
+###
+GET {{host}}/broadcast/info/spring-demo-headless
+
+###
+GET {{host}}/broadcast/proxy/spring-demo-headless/actuator/health/liveness
 
 ###
 
