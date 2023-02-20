@@ -97,13 +97,14 @@ data:
 ---
 
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: spring-demo-app
   labels:
     app: spring-demo-app
   namespace: spring-demo
 spec:
+  serviceName: spring-demo-headless
   replicas: 1
   selector:
     matchLabels:
@@ -120,9 +121,9 @@ spec:
         - name: BPL_JAVA_NMT_ENABLED
           value: "false"
         - name: SPRING_PROFILES_ACTIVE
-          value: "mssql,local"
-        - name: SPRING_DATASOURCE_URL
-          value: "jdbc:sqlserver://sqledge;trustServerCertificate=true"
+          value: "h2,local"
+        # - name: SPRING_DATASOURCE_URL
+        #   value: "jdbc:sqlserver://sqledge;trustServerCertificate=true"
         - name: SPRING_DATASOURCE_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -169,5 +170,21 @@ spec:
     - port: 8080
       name: http
       nodePort: 30005
+  selector:
+    app: spring-demo-app
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-demo-headless
+  labels:
+    app: spring-demo-headless
+spec:
+  ports:
+  - port: 8080
+    name: web
+  clusterIP: None
   selector:
     app: spring-demo-app
