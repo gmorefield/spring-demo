@@ -2,6 +2,8 @@ package com.example.springdemo.controller;
 
 import static org.springframework.http.HttpStatus.OK;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.MediaType;
@@ -28,6 +30,9 @@ public class DataController {
     public ResponseEntity<?> getStatus(@RequestParam(name = "code", required = false) Optional<Integer> statusCode)
             throws Exception {
 
-        return ResponseEntity.status(statusCode.orElse(OK.value())).build();
+                Map output = new HashMap<>();
+                output.put("status", statusCode.orElse(OK.value()));
+                output.put("path", "/data/getStatus");
+        return ResponseEntity.status(statusCode.orElse(OK.value())).body(output);
     }
 }
