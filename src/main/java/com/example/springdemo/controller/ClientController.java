@@ -1,7 +1,5 @@
 package com.example.springdemo.controller;
 
-import static org.springframework.http.HttpStatus.OK;
-
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
@@ -21,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.example.springdemo.model.Person;
@@ -67,8 +66,19 @@ public class ClientController {
     @GetMapping(path = "getStatus")
     public ResponseEntity<?> getStatus(@RequestParam(name = "code", required = false) Optional<Integer> statusCode)
             throws Exception {
-
-        return ResponseEntity.status(statusCode.orElse(OK.value())).build();
+        ResponseEntity<?> response = webClient.get()
+                .uri("/data/getStatus?code={code}", statusCode.orElse(HttpStatus.OK.value()))
+                .retrieve()
+                .onStatus(HttpStatus.BAD_REQUEST::equals, r -> {
+                    // return Mono.empty();
+                    return r.bodyToMono(String.class)
+                            .map(body -> {
+                                return new RuntimeException(body);
+                            });
+                })
+                .toEntity(String.class)
+                .block();
+        return response;
     }
 
     @GetMapping(path = "getXmlFlux", produces = { MediaType.APPLICATION_XML_VALUE })
