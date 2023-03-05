@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.springdemo.config.security.JwtProperties;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
 
@@ -21,9 +22,11 @@ import com.nimbusds.jwt.PlainJWT;
 public class TokenController {
 
     private JwtEncoder encoder;
+    private JwtProperties properties;
 
-    public TokenController(JwtEncoder encoder) {
+    public TokenController(JwtEncoder encoder, JwtProperties properties) {
         this.encoder = encoder;
+        this.properties = properties;
     }
 
     @PostMapping("/token/jws")
@@ -59,8 +62,10 @@ public class TokenController {
                 .issuer("self")
                 .issueTime(Date.from(now))
                 .expirationTime(Date.from(now.plusSeconds(expiry)))
-                .subject(authentication.getName())
-                .claim("scope", scope)
+                // .subject(authentication.getName())
+                // .claim("scope", scope)
+                .claim(properties.getPrincipalClaimName(), authentication.getName())
+                .claim(properties.getAuthoritiesClaimName(), scope)
                 .build();
 
         return new PlainJWT(claims).serialize();

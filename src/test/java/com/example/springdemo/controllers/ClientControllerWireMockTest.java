@@ -16,7 +16,6 @@ import org.springframework.cloud.contract.wiremock.WireMockConfiguration;
 import org.springframework.cloud.contract.wiremock.WireMockRestServiceServer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
@@ -62,7 +61,8 @@ public class ClientControllerWireMockTest {
                 .build();
         HttpClient httpClient = HttpClient.create().secure(t -> t.sslContext(sslContext));
 
-        msgWebClient = new WebClientConfig().messageWebClient(WebClient.builder(), httpClient, wireMockServer.baseUrl());
+        msgWebClient = new WebClientConfig().messageWebClient(WebClient.builder(), httpClient,
+                wireMockServer.baseUrl());
         restTemplate = new RestTemplate();
         clientController = new ClientController(restTemplate, msgWebClient);
 

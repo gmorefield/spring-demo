@@ -21,7 +21,7 @@ import org.springframework.xml.transform.StringSource;
 // @ContextConfiguration(classes = { MtomServerConfig.class, StorageEndpoint.class })
 @SpringBootTest
 @AutoConfigureTestDatabase
-@ActiveProfiles("h2")
+@ActiveProfiles({ "h2", "test" })
 public class StrorageEndpointIntegrationTest {
 
     @Autowired

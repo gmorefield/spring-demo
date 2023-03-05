@@ -77,16 +77,18 @@ public class TokenConfig {
 	@Bean
 	UserDetailsService users(@Value("${basic.user}") String basicUser,
 			@Value("${basic.admin}") String basicAdmin,
-			@Value("${basic.password}") String basicPassword) {
+			@Value("${basic.password}") String basicPassword,
+			@Value("#{'${basic.user.groups}'.split(',')}") String [] userGroups,
+			@Value("#{'${basic.admin.groups}'.split(',')}") String [] adminGroups) {
 
 		return new InMemoryUserDetailsManager(
 				User.withUsername(basicUser)
 						.password("{noop}" + basicPassword)
-						.authorities("execute")
+						.authorities(userGroups)
 						.build(),
 				User.withUsername(basicAdmin)
 						.password("{noop}" + basicPassword)
-						.authorities("execute", "admin")
+						.authorities(adminGroups)
 						.build());
 	}
 
