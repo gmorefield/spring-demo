@@ -20,12 +20,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.springdemo.config.security.JwtProperties;
 import com.example.springdemo.config.security.JwtSecurityConfig;
 import com.example.springdemo.config.security.TokenConfig;
 import com.example.springdemo.controller.TokenController;
 import com.example.springdemo.security.JwtSecurityConfigTest.MockPersonController;
 
-@WebMvcTest({ JwtSecurityConfig.class, TokenConfig.class, TokenController.class })
+@WebMvcTest({ JwtSecurityConfig.class, TokenConfig.class, TokenController.class, JwtProperties.class })
 @TestPropertySource(properties = { "basic.user=testUser", "basic.admin=testAdmin", "basic.password=pass" })
 @Import(MockPersonController.class)
 @ActiveProfiles("jwt")

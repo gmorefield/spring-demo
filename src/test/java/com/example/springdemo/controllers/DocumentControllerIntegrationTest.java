@@ -21,7 +21,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("h2")
+@ActiveProfiles({ "h2", "test" })
 public class DocumentControllerIntegrationTest {
     @Autowired
     TestRestTemplate testRestTemplate;
