@@ -29,8 +29,7 @@ import com.example.springdemo.security.JwtSecurityConfigTest.MockPersonControlle
 @WebMvcTest({ JwtSecurityConfig.class, TokenConfig.class, TokenController.class, JwtProperties.class })
 @TestPropertySource(properties = { "basic.user=testUser", "basic.admin=testAdmin", "basic.password=pass" })
 @Import(MockPersonController.class)
-@ActiveProfiles("jws")
-// @EnableAutoConfiguration
+@ActiveProfiles({"jws","test"})
 public class JwsSecurityConfigTest {
     @Autowired
     MockMvc mvc;

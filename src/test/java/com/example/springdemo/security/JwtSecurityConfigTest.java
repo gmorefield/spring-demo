@@ -17,7 +17,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.springdemo.config.security.JwtProperties;
@@ -29,7 +30,7 @@ import com.example.springdemo.security.JwtSecurityConfigTest.MockPersonControlle
 @WebMvcTest({ JwtSecurityConfig.class, TokenConfig.class, TokenController.class, JwtProperties.class })
 @TestPropertySource(properties = { "basic.user=testUser", "basic.admin=testAdmin", "basic.password=pass" })
 @Import(MockPersonController.class)
-@ActiveProfiles("jwt")
+@ActiveProfiles({"jwt","test"})
 // @EnableAutoConfiguration
 public class JwtSecurityConfigTest {
     @Autowired
@@ -78,12 +79,30 @@ public class JwtSecurityConfigTest {
                 .andExpect(content().string("person"));
     }
 
+    @Test
+    void whenAdmin_personUpdatedGranted() throws Exception {
+        MvcResult result = this.mvc.perform(post("/token/jwt")
+                .with(httpBasic("testAdmin", "pass")))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String token = result.getResponse().getContentAsString();
+
+        this.mvc.perform(post("/person/{id}", "one")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(content().string("person@one"));
+    }
+
     @RestController
-    @RequestMapping("/person")
     static class MockPersonController {
-        @GetMapping()
+        @GetMapping("/person")
         public String getInfo() {
             return "person";
+        }
+
+        @PostMapping("/person/{id}")
+        public String setInfo(@PathVariable(name = "id") String id) {
+            return "person@" + id;
         }
     }
 
