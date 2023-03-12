@@ -135,7 +135,6 @@ public class JwtSecurityConfig {
         return MappedJwtClaimSetConverter.withDefaults(singletonMap("memberOf", memberOfConverter()));
     }
 
-    @Bean
     public Converter<Object, ?> memberOfConverter() {
         return new Converter<Object,String>() {
 
