@@ -18,6 +18,8 @@ import org.springframework.web.context.request.async.TimeoutCallableProcessingIn
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.example.springdemo.util.MdcTaskDecorator;
+
 import java.util.concurrent.Callable;
 
 @Configuration
@@ -36,6 +38,7 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(25);
         executor.setThreadNamePrefix("AsyncExecutor-");
+        executor.setTaskDecorator(new MdcTaskDecorator());
         return executor;
     }
 
