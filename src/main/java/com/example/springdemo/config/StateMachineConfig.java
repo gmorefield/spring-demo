@@ -1,7 +1,6 @@
 package com.example.springdemo.config;
 
-import java.util.EnumSet;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.config.EnableStateMachine;
@@ -13,6 +12,11 @@ import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 
+import java.util.EnumSet;
+
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
+@Slf4j
 @Configuration
 @EnableStateMachine
 public class StateMachineConfig
@@ -59,7 +63,9 @@ public class StateMachineConfig
         return new StateMachineListenerAdapter<States, Events>() {
             @Override
             public void stateChanged(State<States, Events> from, State<States, Events> to) {
-                System.out.println("*** State change to " + to.getId());
+                log.info("*** State change",
+                        kv("fromState", (from == null) ? "" : from.getId()),
+                        kv("toState", (to == null) ? "" : to.getId()));
             }
         };
     }
