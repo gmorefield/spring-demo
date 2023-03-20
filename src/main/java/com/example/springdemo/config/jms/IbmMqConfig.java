@@ -1,15 +1,16 @@
 package com.example.springdemo.config.jms;
 
+import com.ibm.mq.spring.boot.MQAutoConfiguration;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Configuration;
 
-import com.ibm.mq.spring.boot.MQAutoConfiguration;
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class IbmMqConfig {
-    public static final Logger log = LoggerFactory.getLogger(IbmMqConfig.class);
+    public static final Logger log = getLogger(lookup().lookupClass());
 
     @Configuration
     @ConditionalOnExpression("T(org.springframework.util.ObjectUtils).isEmpty('${ibm.mq.queueManager:}')")

@@ -1,12 +1,5 @@
 package com.example.springdemo.config.jms;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -20,15 +13,20 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
-import org.springframework.jms.support.converter.MessageType;
 import org.springframework.jms.support.destination.DynamicDestinationResolver;
 import org.springframework.lang.Nullable;
 import org.springframework.util.backoff.ExponentialBackOff;
 
+import javax.jms.*;
+
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.springframework.boot.context.properties.PropertyMapper.get;
+import static org.springframework.jms.support.converter.MessageType.TEXT;
+
 @Configuration
 @Profile({ "activemq", "mq" })
 public class JmsConfig {
-    public static final Logger log = LoggerFactory.getLogger(JmsConfig.class);
+    public static final Logger log = LoggerFactory.getLogger(lookup().lookupClass());
 
     public JmsConfig() {
         log.info("JmsConfig initialized");
@@ -72,7 +70,7 @@ public class JmsConfig {
     @Bean
     public MessageConverter jacksonJmsMessageConverter() {
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        converter.setTargetType(MessageType.TEXT);
+        converter.setTargetType(TEXT);
         converter.setTypeIdPropertyName("_type");
         return converter;
     }
@@ -82,7 +80,7 @@ public class JmsConfig {
             DynamicDestinationResolver dynamicDestinationResolver,
             ObjectProvider<MessageConverter> messageConverter) {
 
-        PropertyMapper map = PropertyMapper.get();
+        PropertyMapper map = get();
         JmsTemplate template = new DelayedJmsTemplate(connectionFactory, dynamicDestinationResolver());
         map.from(messageConverter::getIfUnique).whenNonNull().to(template::setMessageConverter);
         return template;

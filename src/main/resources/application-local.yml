@@ -5,7 +5,10 @@ management:
             exposure:
                 include: "*"
 
-# spring:
+spring:
 #     sql:
 #         init:
 #             mode: always
+    output:
+        ansi:
+            enabled: ALWAYS
