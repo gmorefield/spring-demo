@@ -67,6 +67,35 @@
         </encoder>
     </appender>
 
+    <appender name="logstashJsonFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/app/logs/spring-demo-${HOSTNAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>/app/logs/spring-demo-${HOSTNAME}.%d{yyyy-MM-dd-HH-mm}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeContext>true</includeContext>
+            <includeCallerData>false</includeCallerData>
+            <includeMdc>true</includeMdc>
+            <fieldNames>
+                <timestamp>ts</timestamp>
+                <message>msg</message>
+                <thread>tid</thread>
+                <logger>[ignore]</logger>
+                <version>[ignore]</version>
+                <levelValue>[ignore]</levelValue>
+                <caller>caller</caller>
+                <stackTrace>ex</stackTrace>
+            </fieldNames>
+            <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                <truncateAfter>^org\.springframework\.web\.servlet\.DispatcherServlet\.doDispatch</truncateAfter>
+                <shortenedClassNameLength>25</shortenedClassNameLength>
+            </throwableConverter>
+        </encoder>
+    </appender>
+
     <conversionRule conversionWord="stack" converterClass="net.logstash.logback.stacktrace.ShortenedThrowableConverter" />
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
 
@@ -98,6 +127,7 @@
     <springProfile name="kubernetes">
         <root level="INFO">
             <appender-ref ref="logstashJsonAppender" />
+            <appender-ref ref="logstashJsonFileAppender" />
         </root>
     </springProfile>
 

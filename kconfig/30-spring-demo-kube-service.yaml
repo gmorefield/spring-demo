@@ -1,0 +1,33 @@
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-demo-app
+  labels:
+    name: spring-demo-app
+  namespace: spring-demo
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      name: http
+      nodePort: 30005
+  selector:
+    app: spring-demo-app
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-demo-headless
+  labels:
+    app: spring-demo-headless
+  namespace: spring-demo
+spec:
+  ports:
+  - port: 8080
+    name: web
+  clusterIP: None
+  selector:
+    app: spring-demo-app
