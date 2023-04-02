@@ -1,0 +1,66 @@
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: spring-demo-app
+  labels:
+    app: spring-demo-app
+  namespace: spring-demo
+spec:
+  serviceName: spring-demo-headless
+  replicas: 2
+  selector:
+    matchLabels:
+      app: spring-demo-app
+  template:
+    metadata:
+      labels:
+        app: spring-demo-app
+    spec:
+      volumes:
+      - name: spring-demo-pv-storage
+        persistentVolumeClaim:
+          claimName: spring-demo-pv-claim
+      containers:
+      - name: spring-demo-app
+        image: spring-demo:0.0.1
+        env:
+        - name: BPL_JAVA_NMT_ENABLED
+          value: "false"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "h2,local"
+        # - name: SPRING_DATASOURCE_URL
+        #   value: "jdbc:sqlserver://sqledge;trustServerCertificate=true"
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: datasource
+              key: password
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: "/app/logs"
+          name: spring-demo-pv-storage
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 3
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 3
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 3
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1024Mi

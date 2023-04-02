@@ -258,11 +258,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web-services</artifactId>
 		</dependency>
-		<!-- <dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>activation</artifactId>
-			<version>1.1.1</version>
-		</dependency> -->
 		<dependency>
 			<groupId>jakarta.activation</groupId>
 		<artifactId>jakarta.activation-api</artifactId>
@@ -272,11 +267,6 @@
 			<groupId>wsdl4j</groupId>
 			<artifactId>wsdl4j</artifactId>
 			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
-			<version>1.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.ws</groupId>
@@ -357,7 +347,7 @@
 				<configuration>
 					<failOnNoGitDirectory>false</failOnNoGitDirectory>
 					<generateGitPropertiesFile>true</generateGitPropertiesFile>
-					<generateGitPropertiesFileName>${project.build.outputDirectory}/git.properties</generateGitPropertiesFileName>
+<!--					<generateGitPropertiesFileName>${project.build.outputDirectory}/git.properties</generateGitPropertiesFileName>-->
 					<includeOnlyProperties>
 						<includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
 						<includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
