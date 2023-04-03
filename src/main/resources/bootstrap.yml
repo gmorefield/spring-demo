@@ -35,3 +35,5 @@ spring:
                 enabled: true
             leader:
                 config-map-name: spring-demo-leader
+        vault:
+            enabled: false
