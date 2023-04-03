@@ -119,14 +119,43 @@ ip addr show
 ## K8s setup
 ### springdemo
 ```sh
-k apply -f spring-demo-kube.yaml
+k apply -f kconfig/
 k -n spring-demo get all
 k -n spring-demo describe deployment spring-demo-app
 k -n spring-demo rollout restart deployment spring-demo-app
+```
+
+## HashiCorp Vault
+References
+- [Injecting Secrets](https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-sidecar)
+### Development mode setup (helm)
+```sh
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+helm install vault hashicorp/vault --set "server.dev.enabled=true"
+```
+### Vault configuration
+```sh
+kubectl exec -it vault-0 -- /bin/sh
+vault secrets enable -path=secret kv-v2
+vault kv put secret/spring-demo username="xxx" password="xxx"
 ```
 
 
 ## Misc Notes
 ```sh
 ./mvnw versions:display-dependency-updates
+```
+
+### Version updates
+[Increment versions in maven builds](https://wyssmann.com/blog/2021/03/how-to-increment-versions-in-maven-builds-alternative-to-maven-release-plugin/)
+```sh
+./mvnw build-helper:parse-version help:effective-pom
+
+./mvnw build-helper:parse-version versions:set \
+ -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}
+ 
+./mvnw build-helper:parse-version versions:set \
+-DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT
+
 ```
