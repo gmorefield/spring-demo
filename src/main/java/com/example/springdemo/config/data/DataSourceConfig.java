@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.validation.annotation.Validated;
 
 @Configuration
 public class DataSourceConfig {
@@ -23,6 +24,7 @@ public class DataSourceConfig {
     @Bean
     @Profile({ "builder", "test-ds" })
     @ConfigurationProperties(prefix = "spring.datasource.hikari")
+    @Validated
     public DataSource builderDataSource() {
         return DataSourceBuilder.create()
                 .driverClassName("org.h2.Driver")
@@ -35,6 +37,7 @@ public class DataSourceConfig {
     @Profile({ "props", "test-ds" })
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource")
+    @Validated
     public DataSource propsDataSource() {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
@@ -42,6 +45,7 @@ public class DataSourceConfig {
     @Bean
     @Profile({ "custom", "test-ds" })
     @ConfigurationProperties(prefix = "sample.datasource")
+    @Validated
     public DataSource customDataSource() {
         return DataSourceBuilder.create().build();
     }
@@ -49,6 +53,7 @@ public class DataSourceConfig {
     @Bean
     @Profile({ "hikari", "test-ds" })
     @ConfigurationProperties(prefix = "sample.hikari.datasource")
+    @Validated
     public DataSource hikariDataSource() {
         return new HikariDataSource();
     }
