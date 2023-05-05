@@ -5,10 +5,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
 @Data
 @Configuration
 @ConfigurationProperties("sample.jwt")
+@Validated
 public class JwtProperties {
     // name of principal claim
     private String principalClaimName = JwtClaimNames.SUB;
