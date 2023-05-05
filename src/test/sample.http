@@ -246,6 +246,18 @@ Content-Type: application/json
 
 ###
 
+GET {{host}}/tasks/schedules
+
+###
+
+GET {{host}}/tasks/schedules/sample/stop
+
+###
+
+GET {{host}}/tasks/schedules/sample/start
+
+###
+
 POST {{host}}/authorize
 Authorization: Basic testuser testpass
 

@@ -165,3 +165,11 @@ vault kv put secret/spring-demo username="xxx" password="xxx"
 -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT
 
 ```
+
+### PlantUML download
+1. Download [PlantUMLrelease jar](https://github.com/plantuml/plantuml/releases) from git 
+
+2. Install downloaded jar into Maven repository:
+```sh
+./mvnw install:install-file -DlocalRepositoryPath=/Users/morefigs/.m2/repository -DcreateChecksum=true -Dpackaging=jar -Dfile=/Users/morefigs/Downloads/plantuml-1.2023.6.jar -DgroupId=plantuml -DartifactId=plantuml -Dversion=v1.2023.6
+```
