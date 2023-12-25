@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.example.springdemo.model.Person;
@@ -27,6 +26,7 @@ import com.example.springdemo.model.Person;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 @RestController
 @RequestMapping("client")
@@ -64,7 +64,8 @@ public class ClientController {
     }
 
     @GetMapping(path = "getStatus")
-    public ResponseEntity<?> getStatus(@RequestParam(name = "code", required = false) Optional<Integer> statusCode)
+    public ResponseEntity<?> getStatus(@RequestParam(name = "code", required = false) Optional<Integer> statusCode,
+                                       @RequestParam(name="retry", required = false) Optional<Boolean> retryEnabled)
             throws Exception {
         ResponseEntity<?> response = webClient.get()
                 .uri("/data/getStatus?code={code}", statusCode.orElse(HttpStatus.OK.value()))
@@ -77,6 +78,10 @@ public class ClientController {
                             });
                 })
                 .toEntity(String.class)
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(2)).jitter(.5)
+                        .filter(throwable -> {
+                            return retryEnabled.orElse(false) && throwable != null;
+                        }))
                 .block();
         return response;
     }
