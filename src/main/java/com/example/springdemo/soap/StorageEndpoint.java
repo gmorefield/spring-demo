@@ -1,5 +1,6 @@
 package com.example.springdemo.soap;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -11,7 +12,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
+
 import org.apache.commons.io.input.CountingInputStream;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +25,9 @@ import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
+import com.example.springdemo.soap.model.ObjectFactory;
+import com.example.springdemo.soap.model.ReadStorageRecordRequest;
+import com.example.springdemo.soap.model.ReadStorageRecordResponse;
 import com.example.springdemo.soap.model.SaveStorageRecordRequest;
 import com.example.springdemo.soap.model.SaveStorageRecordResponse;
 import com.example.springdemo.soap.model.StorageRecord;
@@ -34,6 +42,24 @@ public class StorageEndpoint {
 	public StorageEndpoint(NamedParameterJdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 	}
+
+	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "ReadStorageRecordRequest")
+	@ResponsePayload
+	public ReadStorageRecordResponse readRecord(
+			@RequestPayload ReadStorageRecordRequest request) throws IOException, NoSuchAlgorithmException {
+
+				ObjectFactory of = new ObjectFactory();
+				
+		StorageRecord record = of.createStorageRecord();
+		record.setName("test");
+		record.setContentType("application/octet-stream");
+		FileDataSource fds = new FileDataSource(new File("target/" + request.getName()));
+		record.setContent(new DataHandler(fds));
+		ReadStorageRecordResponse response = of.createReadStorageRecordResponse();
+		response.setStorageRecord(record);
+		return response;
+	}
+
 
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "SaveStorageRecordRequest")
 	@ResponsePayload
@@ -64,10 +90,12 @@ public class StorageEndpoint {
 			// cis.close();
 			// dis.close();
 			params.put("checksum", new BigInteger(1, md.digest()).toString(16));
+			System.out.println("checksum:"+ params.get("checksum"));
+			System.out.println("checksum2:" + new String(Base64.encodeBase64(dis.getMessageDigest().digest())));
 			params.put("contentLen", cis.getByteCount());
 			jdbcTemplate.update("update DOCUMENT set checksum = :checksum, content_len = :contentLen WHERE id=:id",
 					new MapSqlParameterSource(params));
-			System.out.println(String.format("received %d bytes", cis.getByteCount()));
+			System.out.println(String.format("received %d bytes. stored id %s", cis.getByteCount(), params.get("id")));
 			response.setSha1((String)params.get("checksum"));
 		}
 		response.setSuccess(true);

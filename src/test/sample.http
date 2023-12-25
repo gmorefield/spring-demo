@@ -40,7 +40,7 @@ Authorization: Basic {{user}} {{password}}
 ###
 # @name jwtAdmin
 
-POST {{host}}/token
+POST {{host}}/token/jwt
 Authorization: Basic {{admin}} {{password}}
 
 ###
@@ -275,7 +275,7 @@ GET {{host}}/document?size=1&page=2&sortBy=fileName
 
 ###
 
-GET {{host}}/document/17311236-2D47-4BD5-BDDC-39E35BCBBD7D
+GET {{host}}/document/9abb4957-c7cf-471c-8684-25e93a4a8dd9
 
 ###
 
@@ -308,7 +308,8 @@ Content-Type: text/markdown
 
 ###
 
-GET {{host}}/document/3af0017d-e60b-4d8d-a27a-e1b609281ba2/binary
+# GET {{host}}/document/3af0017d-e60b-4d8d-a27a-e1b609281ba2/binary
+GET {{host}}/document/9abb4957-c7cf-471c-8684-25e93a4a8dd9/binary
 
 ###
 
@@ -402,6 +403,19 @@ GET {{host}}/data/json2xml
 
 ###
 GET {{host}}/deception/runAround
+
+###
+POST {{host}}/ws HTTP/1.1
+Content-Type: text/xml
+SOAPAction: ""
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xop-mime='http://www.w3.org/2005/05/xmlmime'>
+   <soapenv:Body>
+      <ReadStorageRecordRequest xmlns="https://springdemo.example.com/soap">
+         <name>classes/git.properties</name>
+      </ReadStorageRecordRequest>
+    </soapenv:Body>
+</soapenv:Envelope>
 
 ###
 # mtom encoded data
