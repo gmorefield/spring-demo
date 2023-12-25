@@ -258,6 +258,10 @@ GET {{host}}/tasks/schedules/sample/start
 
 ###
 
+POST {{host}}/uml/generate/PNG
+
+###
+
 POST {{host}}/authorize
 Authorization: Basic testuser testpass
 
