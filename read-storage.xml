@@ -1,0 +1,7 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xop-mime='http://www.w3.org/2005/05/xmlmime'>
+   <soapenv:Body>
+      <ReadStorageRecordRequest xmlns="https://springdemo.example.com/soap">
+         <name>769-26093.pdf</name>
+      </ReadStorageRecordRequest>
+    </soapenv:Body>
+</soapenv:Envelope>

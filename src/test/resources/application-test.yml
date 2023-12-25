@@ -6,6 +6,7 @@ spring:
         enabled: false
     sql:
         init:
+            data-locations: optional:classpath:data-test.sql
             continue-on-error: false
 
 logging:

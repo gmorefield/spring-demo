@@ -1,10 +1,17 @@
 spring:
     datasource: 
         driver-class-name: org.h2.Driver
-        url: jdbc:h2:mem:testdb
+        url: jdbc:h2:mem:testdb;IFEXISTS=FALSE;DB_CLOSE_DELAY=-1  
         username: sa
         # jdbc-url is needed for HikariDataSource
         jdbc-url: ${spring.datasource.url}
     h2:
         console:
             enabled: true
+            settings:
+                trace: false
+                web-allow-others: false
+    sql:
+        init:
+            platform: h2
+    #         schema-locations: classpath:schema-mssql.sql

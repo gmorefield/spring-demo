@@ -35,11 +35,28 @@ targetNamespace="https://springdemo.example.com/soap" elementFormDefault="qualif
         </xs:complexType>
     </xs:element>
 
+    <xs:element name="ReadStorageRecordRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ReadStorageRecordResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="StorageRecord" type="tns:StorageRecord" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
     <xs:complexType name="StorageRecord">
         <xs:sequence>
             <xs:element name="name" type="xs:string" />
             <xs:element name="contentType" type="xs:string" />
             <xs:element name="content" type="xs:base64Binary"
+                xmime:contentType="xs:base64Binary"
                 xmime:expectedContentTypes="application/octet-stream" />
         </xs:sequence>
     </xs:complexType>
