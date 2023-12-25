@@ -136,6 +136,9 @@ sample:
            # jdbc-url is needed for Hikari
             jdbc-url: ${sample.hikari.datasource.url}
             maximum-pool-size: 30
+    task:
+        free-memory:
+            enabled: false
     # multipart:
     #     maxUploadSize: 500
 

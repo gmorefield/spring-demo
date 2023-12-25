@@ -273,6 +273,12 @@
 			<artifactId>spring-cloud-starter-vault-config</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>plantuml</groupId>
+			<artifactId>plantuml</artifactId>
+			<version>v1.2023.6</version>
+		</dependency>
+
 	</dependencies>
 
 	<dependencyManagement>
