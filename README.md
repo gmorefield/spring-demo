@@ -124,6 +124,11 @@ k -n spring-demo get all
 k -n spring-demo describe deployment spring-demo-app
 k -n spring-demo rollout restart deployment spring-demo-app
 ```
+### compile, build, deploy
+```sh
+alias ksd="kubectl -n spring-demo"
+./mvnw package && docker build -t spring-demo:latest . && ksd rollout restart deployment spring-demo-app && ksd get pods --watch
+```
 
 ## HashiCorp Vault
 References

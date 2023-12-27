@@ -29,7 +29,7 @@ spec:
         - name: BPL_JAVA_NMT_ENABLED
           value: "false"
         - name: SPRING_PROFILES_ACTIVE
-          value: "h2,local"
+          value: "local"
         # - name: SPRING_DATASOURCE_URL
         #   value: "jdbc:sqlserver://sqledge;trustServerCertificate=true"
         - name: SPRING_DATASOURCE_PASSWORD
