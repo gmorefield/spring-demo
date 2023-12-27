@@ -1,0 +1,32 @@
+<claim>
+    <policy>
+        <coverage id="1">
+            <prop1 id="3">x1</prop1>
+            <prop2>x2</prop2>
+            <subcov id="2">
+                <propX>1</propX>
+                <propY>2</propY>
+                <subcov id="2">
+                    <propX>1</propX>
+                    <propY>2</propY>
+                </subcov>
+            </subcov>
+            <subcov>
+                <propX>1</propX>
+                <propY>2</propY>
+            </subcov>
+        </coverage>
+    </policy>
+    <multilevel>
+        <prop1>1</prop1>
+        <prop2>2</prop2>
+        <sublevel1>
+            <prop1 id="one">1</prop1>
+            <prop2 id="two">2</prop2>
+            <sublevel2 id="three">
+                <prop1>1</prop1>
+                <prop2>2</prop2>
+            </sublevel2>
+        </sublevel1>
+    </multilevel>
+</claim>
