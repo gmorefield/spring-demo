@@ -4,7 +4,7 @@ spring:
         # url: jdbc:sqlserver://localhost;databaseName=model
         url: jdbc:sqlserver://localhost;trustServerCertificate=true
         username: sa
-        maximum-pool-size: ${sample.datasource.maximum-pool-size}
+        maximum-pool-size: ${spring.datasource.pool-size}
         # password: redacted
     sql:
         init:

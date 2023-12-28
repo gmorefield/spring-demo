@@ -3,7 +3,6 @@ package com.example.springdemo.config;
 import javax.sql.DataSource;
 
 import org.springframework.beans.BeansException;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.availability.AvailabilityChangeEvent;
 import org.springframework.boot.availability.LivenessState;
 import org.springframework.boot.availability.ReadinessState;
@@ -93,7 +92,7 @@ public class AppConfig implements ApplicationContextAware {
             HikariDataSource hds = (HikariDataSource) ds;
             log.info("maximum-pool-size: {}", hds.getMaximumPoolSize());
         }
-        logger.info("cache-manager-exists: {}", applicationContext.containsBean("cacheManager"));
+        log.info("cache-manager-exists: {}", applicationContext.containsBean("cacheManager"));
     }
 
     // @Bean

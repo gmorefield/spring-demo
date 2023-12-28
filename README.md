@@ -88,10 +88,11 @@ Notes:
 
 ## Change Log
 
-| Version | Description |
-| ----- | ------ |
-| 0.0.1-SNAPSHOT | initial version |
-| 0.0.2 | minor config cleanup; added Spring Cache based on ```sample.cache.enabled=true``` |
+| Version        | Description                                                                       |
+|----------------|-----------------------------------------------------------------------------------|
+| 0.0.1-SNAPSHOT | initial version                                                                   |
+| 0.0.2          | minor config cleanup; added Spring Cache based on ```sample.cache.enabled=true``` |
+| 0.1.0          | merged lots of spring cloud changes                                               |
 
 ## Docker setup for misc profile features
 ### springdemo
@@ -129,6 +130,7 @@ k apply -f kconfig/
 k -n spring-demo get all
 k -n spring-demo describe deployment spring-demo-app
 k -n spring-demo rollout restart deployment spring-demo-app
+k -n spring-demo logs -f -l app=spring-demo-app
 ```
 ### compile, build, deploy
 ```sh

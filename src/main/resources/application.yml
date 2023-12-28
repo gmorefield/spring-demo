@@ -126,7 +126,7 @@ sample:
         password: ${db.password}
         # jdbc-url is needed for Hikari
         jdbc-url: ${sample.datasource.url}
-        maximum-pool-size: ${sample.datasource.maximum-pool-size}
+        maximum-pool-size: ${spring.datasource.pool-size}
     hikari:
         datasource:
             driver-class-name: org.h2.Driver
@@ -135,7 +135,7 @@ sample:
             password: ${db.password}
            # jdbc-url is needed for Hikari
             jdbc-url: ${sample.hikari.datasource.url}
-            maximum-pool-size: ${sample.datasource.maximum-pool-size}
+            maximum-pool-size: ${spring.datasource.pool-size}
     task:
         free-memory:
             enabled: false
