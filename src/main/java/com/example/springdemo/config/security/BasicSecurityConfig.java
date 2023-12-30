@@ -12,11 +12,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Simple example using Basic Authentication allowing:
@@ -27,7 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 @Import(SecurityAutoConfiguration.class) // needed because autoconfig excluded in application.yml
-public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
+public class BasicSecurityConfig {
     final Logger logger = LoggerFactory.getLogger(BasicSecurityConfig.class);
 
     private final String basicUser;
@@ -42,7 +42,8 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
         basicPassword = password;
     }
 
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         logger.info("BasicSecurity configured");
 
         http.requestMatchers(matchers -> matchers
@@ -54,6 +55,7 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
                         .anyRequest().authenticated()).httpBasic(basic -> basic.realmName("spring-demo"))
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers.frameOptions().sameOrigin());
+        return http.build();
     }
 
     @Bean
