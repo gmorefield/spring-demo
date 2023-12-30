@@ -1,5 +1,5 @@
 # FROM adoptopenjdk/openjdk11
-FROM bellsoft/liberica-openjdk-alpine-musl:11.0.15-10
+FROM bellsoft/liberica-openjdk-alpine-musl:17.0.7-7
 RUN addgroup --system spring && adduser --system spring --ingroup spring
 USER spring:spring
 ARG JAR_FILE=target/*.jar
