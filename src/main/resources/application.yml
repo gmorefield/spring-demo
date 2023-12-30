@@ -41,6 +41,11 @@ spring:
                 # - my-namespace
         vault:
           enabled: false
+        discovery:
+          enabled: false
+          client:
+              composite-indicator:
+                enabled: false
 
 # control logging levels
 logging:
