@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,19 +45,15 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         logger.info("BasicSecurity configured");
 
-        http.requestMatchers()
-                .antMatchers("/authorize")
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                // .requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll()
-                // .antMatchers("/favicon.ico", "/error").permitAll()
-                .anyRequest().authenticated()
-                .and().httpBasic().realmName("spring-demo") //.authenticationEntryPoint(authEntryPoint)
-                .and()
-                .csrf().disable()
-                .headers().frameOptions().sameOrigin();
+        http.requestMatchers(matchers -> matchers
+                .antMatchers("/authorize"))
+                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeRequests(requests -> requests
+                        // .requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll()
+                        // .antMatchers("/favicon.ico", "/error").permitAll()
+                        .anyRequest().authenticated()).httpBasic(basic -> basic.realmName("spring-demo"))
+                .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers.frameOptions().sameOrigin());
     }
 
     @Bean

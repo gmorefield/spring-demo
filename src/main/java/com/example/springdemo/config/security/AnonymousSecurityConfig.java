@@ -21,10 +21,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 public class AnonymousSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         log.info("AnonymousSecurity configured");
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().authorizeRequests().anyRequest().permitAll()
-                .and()
-                .csrf().disable()
-                .headers().frameOptions().sameOrigin();
+        http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeRequests(requests -> requests.anyRequest().permitAll())
+                .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers.frameOptions().sameOrigin());
     }
 }
