@@ -39,6 +39,8 @@ spring:
                 mode: event
                 # namespaces:
                 # - my-namespace
+        vault:
+          enabled: false
 
 # control logging levels
 logging:
