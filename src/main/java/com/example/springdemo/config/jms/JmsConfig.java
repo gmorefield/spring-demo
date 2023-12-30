@@ -1,5 +1,6 @@
 package com.example.springdemo.config.jms;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -17,7 +18,12 @@ import org.springframework.jms.support.destination.DynamicDestinationResolver;
 import org.springframework.lang.Nullable;
 import org.springframework.util.backoff.ExponentialBackOff;
 
-import javax.jms.*;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.springframework.boot.context.properties.PropertyMapper.get;
@@ -38,9 +44,7 @@ public class JmsConfig {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         configurer.configure(factory, connectionFactory);
         // factory.setConnectionFactory(connectionFactory);
-        factory.setErrorHandler(t -> {
-            log.error("Caught error {}", t.getMessage());
-        });
+        factory.setErrorHandler(t -> log.error("Caught error {}", t.getMessage()));
         factory.setSessionTransacted(true);
 
         ExponentialBackOff backOff = new ExponentialBackOff(5000, 1.5);
@@ -56,9 +60,10 @@ public class JmsConfig {
     @Primary
     public DynamicDestinationResolver dynamicDestinationResolver() {
         return new DynamicDestinationResolver() {
+            @NotNull
             @Override
-            public Destination resolveDestinationName(@Nullable Session session, String destinationName,
-                    boolean pubSubDomain) throws JMSException {
+            public Destination resolveDestinationName(@Nullable Session session, @NotNull String destinationName,
+                                                      boolean pubSubDomain) throws JMSException {
                 if (destinationName.endsWith("Topic")) {
                     pubSubDomain = true;
                 }
@@ -88,7 +93,7 @@ public class JmsConfig {
 
     // @Component
     public static class DelayedJmsTemplate extends JmsTemplate {
-        public static String DELAY_PROPERTY_NAME = "deliveryDelay";
+        public static final String DELAY_PROPERTY_NAME = "deliveryDelay";
 
         public DelayedJmsTemplate(ConnectionFactory connectionFactory,
                 DynamicDestinationResolver dynamicDestinationResolver) {
@@ -97,7 +102,7 @@ public class JmsConfig {
         }
 
         @Override
-        protected void doSend(MessageProducer producer, Message message) throws JMSException {
+        protected void doSend(@NotNull MessageProducer producer, Message message) throws JMSException {
             long delay = -1;
             if (message.propertyExists(DELAY_PROPERTY_NAME)) {
                 delay = message.getLongProperty(DELAY_PROPERTY_NAME);

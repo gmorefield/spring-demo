@@ -1,6 +1,35 @@
 package com.example.springdemo.controller;
 
-import static org.apache.commons.io.IOUtils.closeQuietly;
+import com.example.springdemo.client.RecordStorageClient;
+import com.example.springdemo.data.DocumentPagingAndSortingRepository;
+import com.example.springdemo.model.Document;
+import com.example.springdemo.soap.model.SaveStorageRecordResponse;
+import com.example.springdemo.util.JsonConverter;
+import org.apache.commons.io.output.CountingOutputStream;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,66 +47,31 @@ import java.util.UUID;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.io.output.CountingOutputStream;
-import org.springframework.context.annotation.Profile;
-import org.springframework.core.task.AsyncTaskExecutor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.util.StreamUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+import static org.apache.commons.io.IOUtils.closeQuietly;
 
-import com.example.springdemo.client.RecordStorageClient;
-import com.example.springdemo.data.DocumentPagingAndSortingRepository;
-import com.example.springdemo.model.Document;
-import com.example.springdemo.soap.model.SaveStorageRecordResponse;
-import com.example.springdemo.util.JsonConverter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-@Profile({ "mssql", "h2" })
+@Profile({"mssql", "h2"})
 @RestController
 @RequestMapping("/document")
 public class DocumentController {
 
-    private AsyncTaskExecutor taskExecutor;
-    private NamedParameterJdbcTemplate jdbcTemplate;
-    private DocumentPagingAndSortingRepository documentRepository;
-    private ObjectMapper objectMapper;
-    private RecordStorageClient recordStorageClient;
+    private final AsyncTaskExecutor taskExecutor;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
+    private final DocumentPagingAndSortingRepository documentRepository;
+    private final RecordStorageClient recordStorageClient;
 
     public DocumentController(AsyncTaskExecutor taskExecutor, NamedParameterJdbcTemplate jdbcTemplate,
-            DocumentPagingAndSortingRepository documentRepository, ObjectMapper objectMapper,
-            RecordStorageClient recordStorageClient) {
+                              DocumentPagingAndSortingRepository documentRepository, RecordStorageClient recordStorageClient) {
         this.taskExecutor = taskExecutor;
         this.jdbcTemplate = jdbcTemplate;
         this.documentRepository = documentRepository;
-        this.objectMapper = objectMapper;
         this.recordStorageClient = recordStorageClient;
     }
 
     @PostMapping(path = "/store", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> storeDocument(@RequestPart(name = "meta", required = false) Optional<Map<?, ?>> meta,
-            @RequestPart("file") MultipartFile multipartFile,
-            @RequestParam(required = false) Optional<Boolean> transform,
-            @RequestParam(required = false) Optional<Boolean> compactFormat) throws IOException {
+                                                @RequestPart("file") MultipartFile multipartFile,
+                                                @RequestParam(required = false) Optional<Boolean> transform,
+                                                @RequestParam(required = false) Optional<Boolean> compactFormat) throws IOException {
 
         boolean convertToXml = transform.orElse(false) &&
                 Optional.ofNullable(multipartFile.getContentType()).orElse("").contains("json");
@@ -143,7 +137,7 @@ public class DocumentController {
     }
 
     // Read - by sorted and paginated
-    @GetMapping(params = { "page", "size", "sortBy", "sortOrder" })
+    @GetMapping(params = {"page", "size", "sortBy", "sortOrder"})
     public List<Document> findAllBySortAndPage(
             @RequestParam("page") final int page,
             @RequestParam("size") final int size,
@@ -157,7 +151,7 @@ public class DocumentController {
     }
     // Read - by only paginated
 
-    @GetMapping(params = { "page", "size" })
+    @GetMapping(params = {"page", "size"})
     public List<Document> findAllByPage(
             @RequestParam("page") final int page,
             @RequestParam("size") final int size) {
@@ -169,7 +163,7 @@ public class DocumentController {
     }
     // Read - by only sorted
 
-    @GetMapping(params = { "sortBy" })
+    @GetMapping(params = {"sortBy"})
     public List<Document> findAllBySort(
             @RequestParam("sortBy") final String sortBy,
             @RequestParam(name = "sortOrder", required = false) final Optional<String> sortOrder) {
@@ -180,9 +174,9 @@ public class DocumentController {
 
     @GetMapping("/{docId}/binary")
     public ResponseEntity<StreamingResponseBody> getDocument(@PathVariable("docId") String docId,
-            @RequestHeader(name = HttpHeaders.ACCEPT_ENCODING, required = false) Optional<String> acceptEncodingHeader,
-            @RequestParam(required = false) Optional<Boolean> transform,
-            @RequestParam(required = false) Optional<Boolean> compactFormat) {
+                                                             @RequestHeader(name = HttpHeaders.ACCEPT_ENCODING, required = false) Optional<String> acceptEncodingHeader,
+                                                             @RequestParam(required = false) Optional<Boolean> transform,
+                                                             @RequestParam(required = false) Optional<Boolean> compactFormat) {
 
         final boolean useGzip = acceptEncodingHeader.orElse("identity").contains("gzip");
 
@@ -205,31 +199,27 @@ public class DocumentController {
         final boolean convertToXml = transform.orElse(false) &&
                 Optional.ofNullable(doc.getContentType()).orElse("").contains("json");
 
-        StreamingResponseBody body = outputStream -> {
-            jdbcTemplate.query("select Doc_Bin from DOCUMENT where ID = :id",
-                    new MapSqlParameterSource("id", docId),
-                    new RowCallbackHandler() {
-                        public void processRow(ResultSet resultSet) throws SQLException {
-                            InputStream inputStream = resultSet.getBinaryStream("Doc_Bin");
+        StreamingResponseBody body = outputStream -> jdbcTemplate.query("select Doc_Bin from DOCUMENT where ID = :id",
+                new MapSqlParameterSource("id", docId),
+                resultSet -> {
+                    InputStream inputStream = resultSet.getBinaryStream("Doc_Bin");
 
-                            try {
-                                if (!useGzip || convertToXml) {
-                                    inputStream = new GZIPInputStream(inputStream);
-                                }
-                                if (convertToXml) {
-                                    new JsonConverter().root("root").useCompactFormat(compactFormat.orElse(true))
-                                            .streamToXml(inputStream, outputStream);
-                                } else {
-                                    StreamUtils.copy(inputStream, outputStream);
-                                }
-                            } catch (IOException e) {
-                                throw new SQLException(e);
-                            } finally {
-                                closeQuietly(inputStream);
-                            }
+                    try {
+                        if (!useGzip || convertToXml) {
+                            inputStream = new GZIPInputStream(inputStream);
                         }
-                    });
-        };
+                        if (convertToXml) {
+                            new JsonConverter().root("root").useCompactFormat(compactFormat.orElse(true))
+                                    .streamToXml(inputStream, outputStream);
+                        } else {
+                            StreamUtils.copy(inputStream, outputStream);
+                        }
+                    } catch (IOException e) {
+                        throw new SQLException(e);
+                    } finally {
+                        closeQuietly(inputStream);
+                    }
+                });
 
         long contentLength = doc.getContentLength();
         String fileName = doc.getFileName();

@@ -1,13 +1,13 @@
 package com.example.springdemo.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.springframework.util.StringUtils;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JsonConverterTest {
     private JsonConverter jsonConverter = new JsonConverter();

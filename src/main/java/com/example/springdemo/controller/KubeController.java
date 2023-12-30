@@ -1,11 +1,6 @@
 package com.example.springdemo.controller;
 
-import javax.validation.ConstraintViolationException;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-
 import com.example.springdemo.service.AvailabilityService;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,11 +10,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+
 @RestController()
 @RequestMapping("kube")
 @Validated
 public class KubeController {
-    private AvailabilityService availabilityService;
+    private final AvailabilityService availabilityService;
 
     public KubeController(AvailabilityService availabilityService) {
         this.availabilityService = availabilityService;

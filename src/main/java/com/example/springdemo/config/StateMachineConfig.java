@@ -21,11 +21,11 @@ import static net.logstash.logback.argument.StructuredArguments.kv;
 @EnableStateMachine
 public class StateMachineConfig
         extends EnumStateMachineConfigurerAdapter<StateMachineConfig.States, StateMachineConfig.Events> {
-    public static enum States {
+    public enum States {
         SI, S1, S2
     }
 
-    public static enum Events {
+    public enum Events {
         E1, E2
     }
 
@@ -60,7 +60,7 @@ public class StateMachineConfig
 
     @Bean
     public StateMachineListener<States, Events> listener() {
-        return new StateMachineListenerAdapter<States, Events>() {
+        return new StateMachineListenerAdapter<>() {
             @Override
             public void stateChanged(State<States, Events> from, State<States, Events> to) {
                 log.info("*** State change",

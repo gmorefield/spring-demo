@@ -1,11 +1,10 @@
 package com.example.springdemo.data;
 
-import java.util.List;
-
+import com.example.springdemo.model.Document;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.springdemo.model.Document;
+import java.util.List;
 
 @Repository
 public interface DocumentPagingAndSortingRepository extends PagingAndSortingRepository<Document, String> {

@@ -1,15 +1,11 @@
 package com.example.springdemo.config.security;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SecureRandom;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,18 +22,21 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.SecurityContext;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Profile({ "jws", "jwt" })
 @Configuration
 public class TokenConfig {
-	private Logger logger = LoggerFactory.getLogger(TokenConfig.class);
-	private KeyPair keyPair;
+	private final Logger logger = LoggerFactory.getLogger(TokenConfig.class);
+	private final KeyPair keyPair;
 
 	public TokenConfig() throws NoSuchAlgorithmException, NoSuchProviderException {
 		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
@@ -64,13 +63,13 @@ public class TokenConfig {
 	@Order(100)
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		logger.info("Token generation security configured");
-		http
-				.antMatcher("/token/*")
-				.authorizeHttpRequests((authorize) -> authorize
-						.anyRequest().authenticated())
-				.csrf().disable()
-				.httpBasic(withDefaults())
-				.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http
+                .antMatcher("/token/*")
+                .authorizeHttpRequests((authorize) -> authorize
+                        .anyRequest().authenticated())
+                .csrf(csrf -> csrf.disable())
+                .httpBasic(withDefaults())
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		return http.build();
 	}
 

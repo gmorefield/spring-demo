@@ -583,7 +583,8 @@
 
 					<packageName>com.example.springdemo.soap.model</packageName>
 
-					<xmlschema>true</xmlschema>
+<!--					<xmlschema>true</xmlschema>-->
+					<sourceType>XmlSchema</sourceType>
 					<sources>
 						<source>${project.basedir}/src/main/resources/xsd/storageRecord.xsd</source>
 					</sources>
@@ -646,7 +647,7 @@
 						</schema>
 					</schemas>
 					<episode>false</episode>
-					<clearOutputDir>true</clearOutputDir>
+<!--					<clearOutputDir>true</clearOutputDir>-->
 				</configuration>
 			</plugin>
 		</plugins>

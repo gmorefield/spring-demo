@@ -1,15 +1,14 @@
 package com.example.springdemo.client;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
-
+import com.example.springdemo.soap.model.SaveStorageRecordRequest;
+import com.example.springdemo.soap.model.SaveStorageRecordResponse;
+import com.example.springdemo.soap.model.StorageRecord;
 import org.springframework.ws.WebServiceMessageFactory;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 import org.springframework.ws.soap.client.core.SoapActionCallback;
 
-import com.example.springdemo.soap.model.SaveStorageRecordRequest;
-import com.example.springdemo.soap.model.SaveStorageRecordResponse;
-import com.example.springdemo.soap.model.StorageRecord;
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 
 // import com.example.springdemo.wsclient.SaveStorageRecordRequest;
 // import com.example.springdemo.wsclient.SaveStorageRecordResponse;

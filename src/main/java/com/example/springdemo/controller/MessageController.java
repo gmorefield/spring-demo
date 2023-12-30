@@ -1,25 +1,10 @@
 package com.example.springdemo.controller;
 
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import javax.jms.Session;
-import javax.jms.TextMessage;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.Lifecycle;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.config.JmsListenerEndpointRegistry;
@@ -36,23 +21,39 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 @RestController
 @RequestMapping(path = "/message")
-@Profile({ "activemq", "mq" })
+@Profile({"activemq", "mq"})
 public class MessageController {
-    private static Logger log = LoggerFactory.getLogger(MessageController.class);
+    private static final Logger log = LoggerFactory.getLogger(MessageController.class);
 
-    private JmsTemplate jmsTemplate;
-    private JmsMessagingTemplate jmsMessagingTemplate;
-    private String defaultQueueName;
-    private Queue<String> messages = new ConcurrentLinkedQueue<>();
-    private Queue<String> subMessages = new ConcurrentLinkedQueue<>();
-    private JmsListenerEndpointRegistry registry;
-    private Random random = new SecureRandom();
+    private final JmsTemplate jmsTemplate;
+    private final JmsMessagingTemplate jmsMessagingTemplate;
+    private final String defaultQueueName;
+    private final Queue<String> messages = new ConcurrentLinkedQueue<>();
+    private final Queue<String> subMessages = new ConcurrentLinkedQueue<>();
+    private final JmsListenerEndpointRegistry registry;
+    private final Random random = new SecureRandom();
 
     public MessageController(JmsMessagingTemplate jmsMessagingTemplate,
-            @Value("${springdemo.default.queueName}") String defaultQueueName,
-            JmsListenerEndpointRegistry registry) {
+                             @Value("${springdemo.default.queueName}") String defaultQueueName,
+                             JmsListenerEndpointRegistry registry) {
         this.jmsTemplate = jmsMessagingTemplate.getJmsTemplate();
         this.jmsMessagingTemplate = jmsMessagingTemplate;
         this.defaultQueueName = defaultQueueName;
@@ -63,34 +64,32 @@ public class MessageController {
 
     @GetMapping("sendNow")
     public String sendNow(@RequestHeader(name = "x-count", defaultValue = "1") int count,
-            @RequestHeader(name = "x-env", defaultValue = "msg") String env) {
+                          @RequestHeader(name = "x-env", defaultValue = "msg") String env) {
         IntStream.rangeClosed(1, count)
                 .parallel()
-                .forEach(i -> {
-                    jmsTemplate.convertAndSend(defaultQueueName, "Message"
-                            + (count == 1 ? "" : " (" + i + "/" + count + ")")
-                            + " at " + LocalDateTime.now()
-                            + " [t-" + Thread.currentThread().getId() + "]",
-                            message -> {
-                                message.setStringProperty("env", env);
-                                return message;
-                            });
-                });
+                .forEach(i -> jmsTemplate.convertAndSend(defaultQueueName, "Message"
+                                + (count == 1 ? "" : " (" + i + "/" + count + ")")
+                                + " at " + LocalDateTime.now()
+                                + " [t-" + Thread.currentThread().getId() + "]",
+                        message -> {
+                            message.setStringProperty("env", env);
+                            return message;
+                        }));
 
         return "success";
     }
 
     @GetMapping("messaging/sendNow")
     public String messagingSendNow(@RequestHeader(name = "x-count", defaultValue = "1") int count,
-            @RequestHeader(name = "x-env", defaultValue = "${sample.env}") String env) {
+                                   @RequestHeader(name = "x-env", defaultValue = "${sample.env}") String env) {
         IntStream.rangeClosed(1, count)
                 .parallel()
                 .forEach(i -> {
                     Message<String> message = MessageBuilder.withPayload(
-                            "Message"
-                                    + (count == 1 ? "" : " (" + i + "/" + count + ")")
-                                    + " at " + LocalDateTime.now()
-                                    + " [t-" + Thread.currentThread().getId() + "]")
+                                    "Message"
+                                            + (count == 1 ? "" : " (" + i + "/" + count + ")")
+                                            + " at " + LocalDateTime.now()
+                                            + " [t-" + Thread.currentThread().getId() + "]")
                             .setHeader("env", env)
                             .setHeader("transactionId", UUID.randomUUID().toString())
                             .build();
@@ -105,12 +104,10 @@ public class MessageController {
     public String publishNow(@RequestHeader(name = "x-count", defaultValue = "1") int count) {
         IntStream.rangeClosed(1, count)
                 .parallel()
-                .forEach(i -> {
-                    jmsTemplate.convertAndSend("sampleTopic", "Message"
-                            + (count == 1 ? "" : " (" + i + "/" + count + ")")
-                            + " at " + LocalDateTime.now()
-                            + " [t-" + Thread.currentThread().getId() + "]");
-                });
+                .forEach(i -> jmsTemplate.convertAndSend("sampleTopic", "Message"
+                        + (count == 1 ? "" : " (" + i + "/" + count + ")")
+                        + " at " + LocalDateTime.now()
+                        + " [t-" + Thread.currentThread().getId() + "]"));
 
         return "success";
     }
@@ -184,14 +181,14 @@ public class MessageController {
     @GetMapping("registry/start")
     public String startListeners() {
         registry.getListenerContainers()
-                .forEach(c -> c.start());
+                .forEach(Lifecycle::start);
         return "success";
     }
 
     @GetMapping("registry/stop")
     public String stopListeners() {
         registry.getListenerContainers()
-                .forEach(c -> c.stop());
+                .forEach(Lifecycle::stop);
         return "success";
     }
 
@@ -253,7 +250,7 @@ public class MessageController {
     }
 
     @JmsListener(id = "laterListener", destination = "later")
-    public void laterMqListener(@Payload TextMessage message, @Headers Map headers, Session session) throws Exception {
+    public void laterMqListener(@Payload TextMessage message, @Headers Map<String, Object> headers, Session session) throws Exception {
         log.info("later session [transacted={}][acknowledgeMode={}][headers={}][deliveryCount={}]",
                 session.getTransacted(),
                 session.getAcknowledgeMode(), headers.toString(), message.getIntProperty("JMSXDeliveryCount"));

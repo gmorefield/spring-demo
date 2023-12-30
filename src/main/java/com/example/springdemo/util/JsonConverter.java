@@ -1,33 +1,37 @@
 package com.example.springdemo.util;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Optional;
+
 import static com.fasterxml.jackson.core.JsonToken.END_ARRAY;
 import static com.fasterxml.jackson.core.JsonToken.END_OBJECT;
 import static com.fasterxml.jackson.core.JsonToken.FIELD_NAME;
 import static com.fasterxml.jackson.core.JsonToken.START_ARRAY;
 import static com.fasterxml.jackson.core.JsonToken.START_OBJECT;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Optional;
-
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-
 public class JsonConverter {
     private boolean omitXmlDeclaration = true;
     private boolean useCompactFormat = true;
 
     private String nodeNameRoot = "root";
-    private String nodeNameObject = "object";
-    private String nodeNameValue = "value";
-    private String nodeNameArray = "array";
+    private final String nodeNameObject = "object";
+    private final String nodeNameValue = "value";
+    private final String nodeNameArray = "array";
 
     public JsonConverter() {
+    }
+
+    public JsonConverter(boolean omitXmlDeclaration) {
+        this.omitXmlDeclaration = omitXmlDeclaration;
     }
 
     public JsonConverter root(String rootName) {

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-@ConditionalOnProperty(name = "sample.task.free-memory.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "sample.task.free-memory.enabled", havingValue = "true")
 @Component
 public class SampleTask {
 

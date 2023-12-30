@@ -1,16 +1,15 @@
 package com.example.springdemo.model;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -27,8 +26,6 @@ public class CloudEventDto {
     private String subject;
     @JsonAlias({"id","ce-id"})
     private String id;
-    // @JsonAlias({"time","ce-time"})
-    // private LocalDateTime time;
     @JsonAlias({"datacontenttype","ce-datacontenttype"})
     private String datacontenttype;
 

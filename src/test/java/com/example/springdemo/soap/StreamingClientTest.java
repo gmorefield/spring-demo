@@ -1,7 +1,14 @@
 package com.example.springdemo.soap;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import com.example.springdemo.soap.model.ObjectFactory;
+import com.example.springdemo.soap.model.ReadStorageRecordRequest;
+import com.example.springdemo.soap.model.ReadStorageRecordResponse;
+import com.sun.xml.ws.developer.StreamingAttachmentFeature;
+import com.sun.xml.ws.developer.StreamingDataHandler;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import javax.activation.DataHandler;
 import javax.jws.WebMethod;
@@ -17,16 +24,8 @@ import javax.xml.ws.Action;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.MTOMFeature;
 
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import com.example.springdemo.soap.model.ObjectFactory;
-import com.example.springdemo.soap.model.ReadStorageRecordRequest;
-import com.example.springdemo.soap.model.ReadStorageRecordResponse;
-import com.sun.xml.ws.developer.StreamingAttachmentFeature;
-import com.sun.xml.ws.developer.StreamingDataHandler;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 @Disabled("Manual test")
 public class StreamingClientTest {

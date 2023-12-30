@@ -1,6 +1,8 @@
 package com.example.springdemo.config;
 
 
+import com.example.springdemo.util.MdcTaskDecorator;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -16,8 +18,6 @@ import org.springframework.web.context.request.async.CallableProcessingIntercept
 import org.springframework.web.context.request.async.TimeoutCallableProcessingInterceptor;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import com.example.springdemo.util.MdcTaskDecorator;
 
 import java.util.concurrent.Callable;
 
@@ -50,7 +50,7 @@ public class AsyncConfig implements AsyncConfigurer {
     public WebMvcConfigurer webMvcConfigurerConfigurer(AsyncTaskExecutor taskExecutor, CallableProcessingInterceptor callableProcessingInterceptor) {
         return new WebMvcConfigurer() {
             @Override
-            public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+            public void configureAsyncSupport(@NotNull AsyncSupportConfigurer configurer) {
                 configurer.setDefaultTimeout(360000).setTaskExecutor(taskExecutor);
                 configurer.registerCallableInterceptors(callableProcessingInterceptor);
                 WebMvcConfigurer.super.configureAsyncSupport(configurer);

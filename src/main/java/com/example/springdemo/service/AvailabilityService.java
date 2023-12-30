@@ -1,16 +1,16 @@
 package com.example.springdemo.service;
 
-import java.util.concurrent.TimeUnit;
-
 import org.springframework.boot.availability.AvailabilityChangeEvent;
 import org.springframework.boot.availability.ReadinessState;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 @Component
 public class AvailabilityService {
-    private ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
     public AvailabilityService(ApplicationEventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;

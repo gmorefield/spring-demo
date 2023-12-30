@@ -1,7 +1,8 @@
 package com.example.springdemo.config;
 
-import javax.sql.DataSource;
-
+import com.example.springdemo.filter.RequestLoggingFilter;
+import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.availability.AvailabilityChangeEvent;
 import org.springframework.boot.availability.LivenessState;
@@ -17,17 +18,14 @@ import org.springframework.integration.leader.event.OnGrantedEvent;
 import org.springframework.integration.leader.event.OnRevokedEvent;
 import org.springframework.scheduling.annotation.Async;
 
-import com.example.springdemo.filter.RequestLoggingFilter;
-import com.zaxxer.hikari.HikariDataSource;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.sql.DataSource;
 
 @Configuration
 @Slf4j
 public class AppConfig implements ApplicationContextAware {
     /** 
      * The easiest approach is to add @Component to Filter definition, but a FilterRegistrationBean
-     * can also be used to register Filters with customization (eg. url patterns)
+     * can also be used to register Filters with customization (e.g. url patterns)
      */
     @Bean
     public FilterRegistrationBean<RequestLoggingFilter> filterRegistrationBean() {
@@ -88,15 +86,9 @@ public class AppConfig implements ApplicationContextAware {
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         DataSource ds = applicationContext.getBean(DataSource.class);
         if (ds instanceof HikariDataSource) {
-            @SuppressWarnings("resource")   // DataSource lifecyle managed by Spring
             HikariDataSource hds = (HikariDataSource) ds;
             log.info("maximum-pool-size: {}", hds.getMaximumPoolSize());
         }
         log.info("cache-manager-exists: {}", applicationContext.containsBean("cacheManager"));
     }
-
-    // @Bean
-    // public HttpMessageConverter<CloudEvent> cloudEventHttpMessageConverter() {
-    //     return new CloudEventHttpMessageConverter();
-    // }
 }

@@ -1,5 +1,6 @@
 package com.example.springdemo.config;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -24,7 +25,7 @@ public class SchedulerConfig implements SchedulingConfigurer {
 
     private final Map<Object, ScheduledFuture<?>> scheduledTasks = new IdentityHashMap<>();
 
-    private final int POOL_SIZE = 10;
+    private static final int POOL_SIZE = 10;
 
     public Map<Object, ScheduledFuture<?>> getScheduledTasks() {
         return scheduledTasks;
@@ -54,8 +55,9 @@ public class SchedulerConfig implements SchedulingConfigurer {
 
     class CustomTaskScheduler extends ThreadPoolTaskScheduler {
 
+        @NotNull
         @Override
-        public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, long period) {
+        public ScheduledFuture<?> scheduleAtFixedRate(@NotNull Runnable task, long period) {
             ScheduledFuture<?> future = super.scheduleAtFixedRate(task, period);
 
             ScheduledMethodRunnable runnable = (ScheduledMethodRunnable) task;
@@ -64,8 +66,9 @@ public class SchedulerConfig implements SchedulingConfigurer {
             return future;
         }
 
+        @NotNull
         @Override
-        public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Date startTime, long period) {
+        public ScheduledFuture<?> scheduleAtFixedRate(@NotNull Runnable task, @NotNull Date startTime, long period) {
             ScheduledFuture<?> future = super.scheduleAtFixedRate(task, startTime, period);
 
             ScheduledMethodRunnable runnable = (ScheduledMethodRunnable) task;

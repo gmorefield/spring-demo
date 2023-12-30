@@ -1,11 +1,12 @@
 package com.example.springdemo.controllers;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import javax.net.ssl.SSLException;
-
+import com.example.springdemo.config.http.WebClientConfig;
+import com.example.springdemo.controller.ClientController;
+import com.example.springdemo.model.Person;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,17 +21,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.example.springdemo.config.http.WebClientConfig;
-import com.example.springdemo.controller.ClientController;
-import com.example.springdemo.model.Person;
-import com.github.tomakehurst.wiremock.WireMockServer;
-
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+
+import javax.net.ssl.SSLException;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = WebEnvironment.NONE, classes = WireMockConfiguration.class)

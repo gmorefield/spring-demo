@@ -1,11 +1,10 @@
 package com.example.springdemo.model;
 
-import java.time.LocalDateTime;
-
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 
-import lombok.Data;
+import java.time.LocalDateTime;
 
 @Data
 public class Document {

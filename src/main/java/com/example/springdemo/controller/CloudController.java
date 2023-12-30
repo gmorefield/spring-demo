@@ -1,8 +1,13 @@
 package com.example.springdemo.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-
+import com.example.springdemo.config.InfoProps;
+import com.example.springdemo.model.CloudEventDto;
+import com.example.springdemo.model.SampleDto;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cloudevents.CloudEvent;
+import io.cloudevents.CloudEventData;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,21 +19,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.springdemo.config.InfoProps;
-import com.example.springdemo.model.CloudEventDto;
-import com.example.springdemo.model.SampleDto;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.cloudevents.CloudEvent;
-import io.cloudevents.CloudEventData;
+import java.io.IOException;
+import java.io.InputStream;
 
 @RestController()
 @RequestMapping("/cloud")
 public class CloudController {
 
-    private InfoProps props;
+    private final InfoProps props;
 
     public CloudController(InfoProps props) {
         this.props = props;
@@ -51,7 +49,7 @@ public class CloudController {
 
     @PostMapping("entity/echo")
     public ResponseEntity<String> echoEntity(HttpEntity<String> requestEntity) {
-        return new ResponseEntity<String>(requestEntity.getBody(), requestEntity.getHeaders(), HttpStatus.OK);
+        return new ResponseEntity<>(requestEntity.getBody(), requestEntity.getHeaders(), HttpStatus.OK);
     }
 
     @PostMapping("entity/echo/shell")

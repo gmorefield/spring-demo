@@ -1,12 +1,7 @@
 package com.example.springdemo.controller;
 
-import static org.springframework.http.HttpStatus.CONFLICT;
-
-import java.time.Duration;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.concurrent.ScheduledFuture;
-
+import com.example.springdemo.config.SchedulerConfig;
+import com.example.springdemo.tasks.SampleTask;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
@@ -14,15 +9,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.springdemo.config.SchedulerConfig;
-import com.example.springdemo.tasks.SampleTask;
+import java.time.Duration;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.concurrent.ScheduledFuture;
+
+import static org.springframework.http.HttpStatus.CONFLICT;
 
 @RestController
 @RequestMapping("/tasks")
 public class ScheduleController {
-    private SchedulerConfig config;
-    private SampleTask sampleTask;
-    private TaskScheduler taskScheduler;
+    private final SchedulerConfig config;
+    private final SampleTask sampleTask;
+    private final TaskScheduler taskScheduler;
 
     public ScheduleController(SchedulerConfig config, TaskScheduler taskScheduler, Optional<SampleTask> sampleTask) {
         this.config = config;

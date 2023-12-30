@@ -1,9 +1,8 @@
 package com.example.springdemo.controller;
 
-import java.time.Instant;
-import java.util.Date;
-import java.util.stream.Collectors;
-
+import com.example.springdemo.config.security.JwtProperties;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,16 +12,16 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.springdemo.config.security.JwtProperties;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.PlainJWT;
+import java.time.Instant;
+import java.util.Date;
+import java.util.stream.Collectors;
 
 @Profile({ "jws", "jwt" })
 @RestController
 public class TokenController {
 
-    private JwtEncoder encoder;
-    private JwtProperties properties;
+    private final JwtEncoder encoder;
+    private final JwtProperties properties;
 
     public TokenController(JwtEncoder encoder, JwtProperties properties) {
         this.encoder = encoder;

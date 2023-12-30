@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableCaching
-@ConditionalOnProperty(name = "sample.cache.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "sample.cache.enabled", havingValue = "true")
 public class CacheConfig implements ApplicationContextAware {
-    private static Logger logger = LoggerFactory.getLogger(CacheConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(CacheConfig.class);
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

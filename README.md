@@ -118,7 +118,7 @@ docker run --name activemq --rm --detach -p 61616:61616 -p 8161:8161 symptoma/ac
 ```sh
 sudo docker run --rm --name QM1 --env LICENSE=accept --env MQ_QMGR_NAME=QM1 --publish 1414:1414 --publish 9443:9443 --detach icr.io/ibm-messaging/mq:latest
 ```
-Note: UTM required on mac silicon
+Note: UTM required on Mac silicon
 ```sh
 ip addr show
 ```

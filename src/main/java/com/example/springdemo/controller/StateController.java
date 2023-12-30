@@ -1,21 +1,19 @@
 package com.example.springdemo.controller;
 
+import com.example.springdemo.config.StateMachineConfig;
+import com.example.springdemo.config.StateMachineConfig.Events;
+import com.example.springdemo.config.StateMachineConfig.States;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.example.springdemo.config.StateMachineConfig;
-import com.example.springdemo.config.StateMachineConfig.Events;
-import com.example.springdemo.config.StateMachineConfig.States;
-
 import reactor.core.publisher.Mono;
 
 @RequestMapping("/state")
 @RestController
 public class StateController {
-    private StateMachine<StateMachineConfig.States, StateMachineConfig.Events> stateMachine;
+    private final StateMachine<StateMachineConfig.States, StateMachineConfig.Events> stateMachine;
 
     public StateController(StateMachine<States, Events> stateMachine) {
         this.stateMachine = stateMachine;

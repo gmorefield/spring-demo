@@ -4,7 +4,6 @@ import com.example.springdemo.controller.KubeController;
 import com.example.springdemo.controller.PersonController;
 import com.example.springdemo.data.PersonRepository;
 import com.example.springdemo.service.AvailabilityService;
-
 import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

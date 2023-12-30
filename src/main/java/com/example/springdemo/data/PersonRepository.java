@@ -1,11 +1,6 @@
 package com.example.springdemo.data;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
 import com.example.springdemo.model.Person;
-
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,9 +12,13 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
 @Component
 public class PersonRepository {
-    private NamedParameterJdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
 
     public PersonRepository(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -54,9 +53,7 @@ public class PersonRepository {
 
     @Cacheable("persons")
     public List<Person> findAll() {
-        return jdbcTemplate.query("select * from Person", (resultSet, i) -> {
-            return toPerson(resultSet);
-        });
+        return jdbcTemplate.query("select * from Person", (resultSet, i) -> toPerson(resultSet));
     }
 
     @Cacheable(cacheNames = "person", key = "#id")
@@ -65,9 +62,7 @@ public class PersonRepository {
             return jdbcTemplate.queryForObject(
                     "select * from Person where ID = :id",
                     new MapSqlParameterSource().addValue("id", id),
-                    (resultSet, row) -> {
-                        return toPerson(resultSet);
-                    });
+                    (resultSet, row) -> toPerson(resultSet));
         } catch (IncorrectResultSizeDataAccessException e) {
             if (e.getActualSize() == 0) {
                 return null;

@@ -1,5 +1,24 @@
 package com.example.springdemo.soap;
 
+import com.example.springdemo.soap.model.ObjectFactory;
+import com.example.springdemo.soap.model.ReadStorageRecordRequest;
+import com.example.springdemo.soap.model.ReadStorageRecordResponse;
+import com.example.springdemo.soap.model.SaveStorageRecordRequest;
+import com.example.springdemo.soap.model.SaveStorageRecordResponse;
+import com.example.springdemo.soap.model.StorageRecord;
+import org.apache.commons.io.input.CountingInputStream;
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ws.server.endpoint.annotation.Endpoint;
+import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
+import org.springframework.ws.server.endpoint.annotation.RequestPayload;
+import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
+
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,32 +31,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
-
-import org.apache.commons.io.input.CountingInputStream;
-import org.apache.tomcat.util.codec.binary.Base64;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ws.server.endpoint.annotation.Endpoint;
-import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
-import org.springframework.ws.server.endpoint.annotation.RequestPayload;
-import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
-
-import com.example.springdemo.soap.model.ObjectFactory;
-import com.example.springdemo.soap.model.ReadStorageRecordRequest;
-import com.example.springdemo.soap.model.ReadStorageRecordResponse;
-import com.example.springdemo.soap.model.SaveStorageRecordRequest;
-import com.example.springdemo.soap.model.SaveStorageRecordResponse;
-import com.example.springdemo.soap.model.StorageRecord;
-
 @Endpoint
 public class StorageEndpoint {
 
 	private static final String NAMESPACE_URI = "https://springdemo.example.com/soap";
 
-	private NamedParameterJdbcTemplate jdbcTemplate;
+	private final NamedParameterJdbcTemplate jdbcTemplate;
 
 	public StorageEndpoint(NamedParameterJdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
@@ -46,7 +45,7 @@ public class StorageEndpoint {
 	@PayloadRoot(namespace = NAMESPACE_URI, localPart = "ReadStorageRecordRequest")
 	@ResponsePayload
 	public ReadStorageRecordResponse readRecord(
-			@RequestPayload ReadStorageRecordRequest request) throws IOException, NoSuchAlgorithmException {
+			@RequestPayload ReadStorageRecordRequest request) {
 
 				ObjectFactory of = new ObjectFactory();
 				
@@ -95,7 +94,7 @@ public class StorageEndpoint {
 			params.put("contentLen", cis.getByteCount());
 			jdbcTemplate.update("update DOCUMENT set checksum = :checksum, content_len = :contentLen WHERE id=:id",
 					new MapSqlParameterSource(params));
-			System.out.println(String.format("received %d bytes. stored id %s", cis.getByteCount(), params.get("id")));
+			System.out.printf("received %d bytes. stored id %s%n", cis.getByteCount(), params.get("id"));
 			response.setSha1((String)params.get("checksum"));
 		}
 		response.setSuccess(true);

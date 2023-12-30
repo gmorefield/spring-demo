@@ -1,13 +1,6 @@
 package com.example.springdemo.controllers;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-
+import com.example.springdemo.controller.MessageController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +12,15 @@ import org.springframework.jms.config.JmsListenerEndpointRegistry;
 import org.springframework.jms.core.JmsMessagingTemplate;
 import org.springframework.jms.core.JmsTemplate;
 
-import com.example.springdemo.controller.MessageController;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class MessageControllerUnitTest {

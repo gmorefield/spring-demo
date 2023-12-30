@@ -1,9 +1,6 @@
 package com.example.springdemo.config.data;
 
-import javax.sql.DataSource;
-
 import com.zaxxer.hikari.HikariDataSource;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -12,14 +9,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.validation.annotation.Validated;
 
+import javax.sql.DataSource;
+
 @Configuration
 public class DataSourceConfig {
-
-    // @Bean
-    // @Profile("test-ds")
-    // public DataSource dataSource(DataSourceProperties dataSourceProperties) {
-    // return new EmbeddedDatabaseBuilder().build();
-    // }
 
     @Bean
     @Profile({ "builder", "test-ds" })

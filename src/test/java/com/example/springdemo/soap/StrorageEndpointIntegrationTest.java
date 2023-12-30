@@ -1,12 +1,5 @@
 package com.example.springdemo.soap;
 
-import static org.springframework.ws.test.server.RequestCreators.withPayload;
-import static org.springframework.ws.test.server.ResponseMatchers.payload;
-
-import java.util.Base64;
-
-import javax.xml.transform.Source;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +9,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.ws.test.server.MockWebServiceClient;
 import org.springframework.xml.transform.StringSource;
+
+import javax.xml.transform.Source;
+
+import java.util.Base64;
+
+import static org.springframework.ws.test.server.RequestCreators.withPayload;
+import static org.springframework.ws.test.server.ResponseMatchers.payload;
 
 // @ExtendWith(SpringExtension.class)
 // @ContextConfiguration(classes = { MtomServerConfig.class, StorageEndpoint.class })

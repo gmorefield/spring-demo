@@ -1,17 +1,8 @@
 package com.example.springdemo.config.security;
 
-import static java.util.Collections.singletonMap;
-
-import java.security.interfaces.RSAPublicKey;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
@@ -40,15 +31,24 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StringUtils;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.singletonMap;
 
 @Profile({ "jws", "jwt" })
 @EnableWebSecurity
 @Configuration
 public class JwtSecurityConfig {
     private static final Logger logger = LoggerFactory.getLogger(JwtSecurityConfig.class);
-    private JwtProperties jwtProperties;
+    private final JwtProperties jwtProperties;
 
     public JwtSecurityConfig(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
@@ -66,7 +66,7 @@ public class JwtSecurityConfig {
                         .requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll()
                         .requestMatchers(EndpointRequest.toAnyEndpoint()).hasAuthority("SCOPE_admin")
                         .anyRequest().hasAuthority("SCOPE_execute"))
-                .csrf().disable()
+                .csrf(csrf -> csrf.disable())
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling((exceptions) -> exceptions
@@ -140,12 +140,12 @@ public class JwtSecurityConfig {
 
             @Override
             @Nullable
-            public String convert(Object source) {
+            public String convert(@NotNull Object source) {
                 return Arrays.stream(source.toString().split("[\\s,]"))
                 .filter(StringUtils::hasText)
                 .map(group -> group.substring(2).toLowerCase())
                 .collect(Collectors.joining(" "));
-            };
+            }
         };
     }
 }

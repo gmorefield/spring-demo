@@ -27,7 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 @Import(SecurityAutoConfiguration.class) // needed because autoconfig excluded in application.yml
 public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
-    Logger logger = LoggerFactory.getLogger(BasicSecurityConfig.class);
+    final Logger logger = LoggerFactory.getLogger(BasicSecurityConfig.class);
 
     private final String basicUser;
     private final String basicPassword;
