@@ -23,10 +23,10 @@ public class AnonymousSecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         log.info("AnonymousSecurity configured");
-        http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeRequests(requests -> requests.anyRequest().permitAll())
+        http.authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
+                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(csrf -> csrf.disable())
-                .headers(headers -> headers.frameOptions().sameOrigin());
+                .headers(headers -> headers.frameOptions(o -> o.sameOrigin()));
         return http.build();
     }
 }

@@ -26,10 +26,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest({ JwtSecurityConfig.class, TokenConfig.class, TokenController.class, JwtProperties.class })
-@TestPropertySource(properties = { "basic.user=testUser", "basic.admin=testAdmin", "basic.password=pass" })
+@WebMvcTest({JwtSecurityConfig.class, TokenConfig.class, TokenController.class, JwtProperties.class})
+@TestPropertySource(properties = {"basic.user=testUser", "basic.admin=testAdmin", "basic.password=pass"})
 @Import(MockPersonController.class)
-@ActiveProfiles({"jwt","test"})
+@ActiveProfiles({"jwt", "test"})
 // @EnableAutoConfiguration
 public class JwtSecurityConfigTest {
     @Autowired
@@ -44,8 +44,8 @@ public class JwtSecurityConfigTest {
     @Test
     void whenScopeExecute_personRequestGranted() throws Exception {
         mvc.perform(get("/person")
-                .with(jwt()
-                        .authorities(new SimpleGrantedAuthority("SCOPE_execute"))))
+                        .with(jwt()
+                                .authorities(new SimpleGrantedAuthority("SCOPE_execute"))))
                 .andExpect(status().isOk())
                 .andExpect(content().string("person"));
     }
@@ -53,42 +53,44 @@ public class JwtSecurityConfigTest {
     @Test
     void whenUser_personRequestGranted() throws Exception {
         MvcResult result = this.mvc.perform(post("/token/jwt")
-                .with(httpBasic("testUser", "pass")))
+                        .with(httpBasic("testUser", "pass")))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String token = result.getResponse().getContentAsString();
 
         this.mvc.perform(get("/person")
-                .header("Authorization", "Bearer " + token))
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
                 .andExpect(content().string("person"));
     }
 
     @Test
     void whenAdmin_personRequestGranted() throws Exception {
         MvcResult result = this.mvc.perform(post("/token/jwt")
-                .with(httpBasic("testAdmin", "pass")))
+                        .with(httpBasic("testAdmin", "pass")))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String token = result.getResponse().getContentAsString();
 
         this.mvc.perform(get("/person")
-                .header("Authorization", "Bearer " + token))
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
                 .andExpect(content().string("person"));
     }
 
     @Test
     void whenAdmin_personUpdatedGranted() throws Exception {
         MvcResult result = this.mvc.perform(post("/token/jwt")
-                .with(httpBasic("testAdmin", "pass")))
+                        .with(httpBasic("testAdmin", "pass")))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String token = result.getResponse().getContentAsString();
 
         this.mvc.perform(post("/person/{id}", "one")
-                .header("Authorization", "Bearer " + token))
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(content().string("person@one"));
     }
 

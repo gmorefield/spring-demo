@@ -7,6 +7,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -114,11 +115,11 @@ public class ClientController {
                 .uri("/document/{docId}/binary", docId)
                 .header(HttpHeaders.ACCEPT_ENCODING, acceptEncodingHeader.orElse("identity"))
                 .retrieve()
-                .onStatus(HttpStatus::isError, response -> response.bodyToMono(String.class)
+                .onStatus(HttpStatusCode::isError, response -> response.bodyToMono(String.class)
                         .flatMap(body -> {
                             log.debug("Body is {}", body);
                             return Mono.error(new RuntimeException(
-                                    "Client call failed with response: " + response.rawStatusCode()));
+                                    "Client call failed with response: " + response.statusCode()));
                         }))
                 // .bodyToFlux(DataBuffer.class);
                 .toEntityFlux(DataBuffer.class)

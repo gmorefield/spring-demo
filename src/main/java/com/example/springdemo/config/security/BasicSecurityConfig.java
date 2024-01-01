@@ -17,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  * Simple example using Basic Authentication allowing:
@@ -33,8 +34,8 @@ public class BasicSecurityConfig {
     private final String basicUser;
     private final String basicPassword;
 
-	// @Autowired
-	// private AuthenticationEntryPoint authEntryPoint;
+    // @Autowired
+    // private AuthenticationEntryPoint authEntryPoint;
 
     public BasicSecurityConfig(@Value("${basic.user}") String user, @Value("${basic.password}") String password) {
         super();
@@ -46,15 +47,14 @@ public class BasicSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         logger.info("BasicSecurity configured");
 
-        http.requestMatchers(matchers -> matchers
-                .antMatchers("/authorize"))
+        http.authorizeHttpRequests(requests -> requests
+                        .requestMatchers(new AntPathRequestMatcher("/authorize"))
+                        .authenticated())
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeRequests(requests -> requests
-                        // .requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll()
-                        // .antMatchers("/favicon.ico", "/error").permitAll()
-                        .anyRequest().authenticated()).httpBasic(basic -> basic.realmName("spring-demo"))
-                .csrf(AbstractHttpConfigurer::disable)
-                .headers(headers -> headers.frameOptions().sameOrigin());
+                .httpBasic(basic -> basic.realmName("spring-demo"))
+                .cors(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers.frameOptions(o -> o.sameOrigin()));
+
         return http.build();
     }
 
@@ -65,8 +65,7 @@ public class BasicSecurityConfig {
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder authentication)
-            throws Exception
-    {
+            throws Exception {
         authentication.inMemoryAuthentication()
                 .withUser(basicUser)
                 .password(new BCryptPasswordEncoder().encode(basicPassword))

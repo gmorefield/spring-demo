@@ -33,12 +33,17 @@ spring:
 
     cloud:
         kubernetes:
+            enabled: false
+            config:
+              enabled: true
             reload:
                 enabled: true
                 strategy: refresh #shutdown
                 mode: event
                 # namespaces:
                 # - my-namespace
+            leader:
+              config-map-name: spring-demo-leader
         vault:
           enabled: false
         discovery:

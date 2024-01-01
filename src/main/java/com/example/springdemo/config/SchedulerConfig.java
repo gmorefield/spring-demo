@@ -10,7 +10,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.ScheduledMethodRunnable;
 
-import java.util.Date;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
@@ -57,8 +58,8 @@ public class SchedulerConfig implements SchedulingConfigurer {
 
         @NotNull
         @Override
-        public ScheduledFuture<?> scheduleAtFixedRate(@NotNull Runnable task, long period) {
-            ScheduledFuture<?> future = super.scheduleAtFixedRate(task, period);
+        public ScheduledFuture<?> scheduleAtFixedRate(@NotNull Runnable task, Duration duration) {
+            ScheduledFuture<?> future = super.scheduleAtFixedRate(task, duration);
 
             ScheduledMethodRunnable runnable = (ScheduledMethodRunnable) task;
             scheduledTasks.put(runnable.getTarget(), future);
@@ -68,8 +69,9 @@ public class SchedulerConfig implements SchedulingConfigurer {
 
         @NotNull
         @Override
-        public ScheduledFuture<?> scheduleAtFixedRate(@NotNull Runnable task, @NotNull Date startTime, long period) {
-            ScheduledFuture<?> future = super.scheduleAtFixedRate(task, startTime, period);
+        public ScheduledFuture<?> scheduleAtFixedRate(@NotNull Runnable task, @NotNull Instant instant,
+                Duration duration) {
+            ScheduledFuture<?> future = super.scheduleAtFixedRate(task, instant, duration);
 
             ScheduledMethodRunnable runnable = (ScheduledMethodRunnable) task;
             scheduledTasks.put(runnable.getTarget(), future);

@@ -7,8 +7,8 @@ import org.springframework.ws.WebServiceMessageFactory;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 import org.springframework.ws.soap.client.core.SoapActionCallback;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
+import jakarta.activation.DataHandler;
+import jakarta.activation.FileDataSource;
 
 // import com.example.springdemo.wsclient.SaveStorageRecordRequest;
 // import com.example.springdemo.wsclient.SaveStorageRecordResponse;

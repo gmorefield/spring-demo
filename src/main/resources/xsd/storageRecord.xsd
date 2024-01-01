@@ -7,9 +7,9 @@ targetNamespace="https://springdemo.example.com/soap" elementFormDefault="qualif
            xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
            xmlns:tns="https://springdemo.example.com/soap"
            targetNamespace="https://springdemo.example.com/soap"
-           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.1"
+           xmlns:jaxb="https://jakarta.ee/xml/ns/jaxb" jaxb:version="3.0"
            elementFormDefault="qualified" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb https://www.oracle.com/webfolder/technetwork/jsc/xml/ns/jaxb/bindingschema_2_0.xsd">
+           xsi:schemaLocation="https://jakarta.ee/xml/ns/jaxb https://jakarta.ee/xml/ns/jaxb/bindingschema_3_0.xsd">
 
     <xs:annotation>
         <xs:appinfo>

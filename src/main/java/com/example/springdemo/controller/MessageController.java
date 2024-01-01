@@ -1,5 +1,7 @@
 package com.example.springdemo.controller;
 
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -20,9 +22,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.jms.Session;
-import javax.jms.TextMessage;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;

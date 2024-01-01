@@ -16,8 +16,8 @@ import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
+import jakarta.activation.DataHandler;
+import jakarta.activation.FileDataSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -90,7 +90,7 @@ public class StorageEndpoint {
 			// dis.close();
 			params.put("checksum", new BigInteger(1, md.digest()).toString(16));
 			System.out.println("checksum:"+ params.get("checksum"));
-			System.out.println("checksum2:" + new String(Base64.encodeBase64(dis.getMessageDigest().digest())));
+			System.out.println("checksum2:" + new String(Base64.encodeBase64(dis.getMessageDigest().digest(),false)));
 			params.put("contentLen", cis.getByteCount());
 			jdbcTemplate.update("update DOCUMENT set checksum = :checksum, content_len = :contentLen WHERE id=:id",
 					new MapSqlParameterSource(params));

@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.Nullable;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.BadJwtException;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonMap;
 
-@Profile({ "jws", "jwt" })
+@Profile({"jws", "jwt"})
 @EnableWebSecurity
 @Configuration
 public class JwtSecurityConfig {
@@ -67,7 +67,7 @@ public class JwtSecurityConfig {
                         .requestMatchers(EndpointRequest.toAnyEndpoint()).hasAuthority("SCOPE_admin")
                         .anyRequest().hasAuthority("SCOPE_execute"))
                 .csrf(csrf -> csrf.disable())
-                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
+                .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()))
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling((exceptions) -> exceptions
                         .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
@@ -136,15 +136,15 @@ public class JwtSecurityConfig {
     }
 
     public Converter<Object, ?> memberOfConverter() {
-        return new Converter<Object,String>() {
+        return new Converter<Object, String>() {
 
             @Override
             @Nullable
             public String convert(@NotNull Object source) {
                 return Arrays.stream(source.toString().split("[\\s,]"))
-                .filter(StringUtils::hasText)
-                .map(group -> group.substring(2).toLowerCase())
-                .collect(Collectors.joining(" "));
+                        .filter(StringUtils::hasText)
+                        .map(group -> group.substring(2).toLowerCase())
+                        .collect(Collectors.joining(" "));
             }
         };
     }

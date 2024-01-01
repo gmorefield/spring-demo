@@ -128,7 +128,7 @@ public class DocumentController {
 
     @GetMapping()
     public Iterable<Document> findAll() {
-        return documentRepository.findAll();
+        return documentRepository.findAll(Sort.by("id"));
     }
 
     @GetMapping("/{docId}")

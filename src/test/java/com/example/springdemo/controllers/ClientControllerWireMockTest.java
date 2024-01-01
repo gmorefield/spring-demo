@@ -129,6 +129,6 @@ public class ClientControllerWireMockTest {
 
         // THEN
         wireMockServer.verify(1, getRequestedFor(urlEqualTo(url)));
-        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(responseEntity.getStatusCode().value()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 }

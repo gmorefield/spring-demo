@@ -10,19 +10,19 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import javax.activation.DataHandler;
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.jws.soap.SOAPBinding.ParameterStyle;
-import javax.jws.soap.SOAPBinding.Style;
-import javax.xml.bind.annotation.XmlSeeAlso;
+import jakarta.activation.DataHandler;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebResult;
+import jakarta.jws.WebService;
+import jakarta.jws.soap.SOAPBinding;
+import jakarta.jws.soap.SOAPBinding.ParameterStyle;
+import jakarta.jws.soap.SOAPBinding.Style;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.namespace.QName;
-import javax.xml.ws.Action;
-import javax.xml.ws.Service;
-import javax.xml.ws.soap.MTOMFeature;
+import jakarta.xml.ws.Action;
+import jakarta.xml.ws.Service;
+import jakarta.xml.ws.soap.MTOMFeature;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -62,7 +62,8 @@ public class StreamingClientTest {
         // "http://localhost:8080/ws");
 
         ReadStorageRecordRequest request = new ReadStorageRecordRequest();
-        request.setName("ideaIC-2022.3-aarch64.dmg");
+//        request.setName("ideaIC-2022.3-aarch64.dmg");
+        request.setName("spring-demo-0.1.0.jar");
         ReadStorageRecordResponse response = readStorage.ReadStorageRecord(request);
         DataHandler dh = response.getStorageRecord().getContent();
         Assertions.assertThat(dh).isInstanceOf(StreamingDataHandler.class);
