@@ -63,7 +63,7 @@ public class StreamingClientTest {
 
         ReadStorageRecordRequest request = new ReadStorageRecordRequest();
 //        request.setName("ideaIC-2022.3-aarch64.dmg");
-        request.setName("spring-demo-0.1.0.jar");
+        request.setName("spring-demo-0.2.0.jar");
         ReadStorageRecordResponse response = readStorage.ReadStorageRecord(request);
         DataHandler dh = response.getStorageRecord().getContent();
         Assertions.assertThat(dh).isInstanceOf(StreamingDataHandler.class);

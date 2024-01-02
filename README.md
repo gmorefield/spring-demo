@@ -93,6 +93,7 @@ Notes:
 | 0.0.1-SNAPSHOT | initial version                                                                   |
 | 0.0.2          | minor config cleanup; added Spring Cache based on ```sample.cache.enabled=true``` |
 | 0.1.0          | merged lots of spring cloud changes                                               |
+| 0.2.0          | upgrade to latest versions (JDK 17, Spring Boot 3.2 / Spring 6.1.2                |
 
 ## Docker setup for misc profile features
 ### springdemo
@@ -158,6 +159,7 @@ vault kv put secret/spring-demo username="xxx" password="xxx"
 ## Misc Notes
 ```sh
 ./mvnw versions:display-dependency-updates
+./mvnw versions:display-plugin-updates
 ```
 
 ### Version updates
