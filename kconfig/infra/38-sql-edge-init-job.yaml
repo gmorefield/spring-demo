@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sqledge-init-job
+  namespace: spring-demo
+spec:
+  parallelism: 1    
+  completions: 1    
+  template:         
+    metadata:
+      name: sqledge-init-job
+      namespace: spring-demo
+    spec:
+      containers:
+      - name: sqledge-init-job
+        image: mcr.microsoft.com/mssql-tools:latest
+        env:
+          - name: SQLCMDPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: datasource
+                key: password
+        command:
+        - /bin/sh
+        - -c
+        - |
+          /opt/mssql-tools/bin/sqlcmd -S sqledge -U sa -C -Q "create database SpringDemo"
+      restartPolicy: Never

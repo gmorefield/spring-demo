@@ -5,9 +5,13 @@ spring:
             enabled: false
     lifecycle:
         timeout-per-shutdown-phase: 20s
+    liquibase:
+        enabled: true
+        change-log: classpath:liquibase/master.xml
+#        contexts: ${spring.profiles.active}
     sql:
         init:
-            mode: embedded
+            mode: never
             platform: h2
     jmx:
         enabled: false

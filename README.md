@@ -105,6 +105,9 @@ docker run --rm --name spring-demo -p 30005:8080 -e 'SPRING_PROFILES_ACTIVE=h2,l
 ### mssql
 ```sh
 docker run --cap-add SYS_PTRACE -e 'ACCEPT_EULA=1' -e 'MSSQL_SA_PASSWORD={password}' -p 1433:1433 --rm --name sqledge --detach mcr.microsoft.com/azure-sql-edge
+
+docker run --rm -ti --platform linux/amd64 mcr.microsoft.com/mssql-tools:latest
+/opt/mssql-tools/bin/sqlcmd -S sqledge -U sa -C -Q "create database TEST" 
 ```
 
 ### activemq: 
@@ -132,6 +135,10 @@ k -n spring-demo get all
 k -n spring-demo describe deployment spring-demo-app
 k -n spring-demo rollout restart deployment spring-demo-app
 k -n spring-demo logs -f -l app=spring-demo-app
+k -n spring-demo delete jobs --field-selector stauts.successful=1
+
+k -n spring-demo run -i --tty --attach sqlcmd --image=mcr.microsoft.com/mssql-tools:latest
+ksd attach sqlcmd -c sqlcmd -i -t
 ```
 ### compile, build, deploy
 ```sh

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                       http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+   <property name="datalength" value="length" dbms="h2"/>
+   <property name="datalength" value="DATALENGTH" dbms="mssql"/>
+
+   <changeSet author="morefigs" id="20240107-01-person" context="!test">
+      <sql dbms="mssql">
+         SET IDENTITY_INSERT PERSON ON;
+      </sql>
+      <insert tableName="PERSON">
+         <column name="ID" value="1" />
+         <column name="FIRST_NAME" value="Luke" />
+         <column name="LAST_NAME" value="Skywalker" />
+      </insert>
+      <sql dbms="mssql">
+         SET IDENTITY_INSERT PERSON OFF;
+      </sql>
+   </changeSet>
+
+   <changeSet author="morefigs" id="20240107-01-document" context="!test">
+      <insert tableName="DOCUMENT">
+         <column name="ID" value="9abb4957-c7cf-471c-8684-25e93a4a8dd9" />
+         <column name="CONTENT_TYPE" value="text/markdown" />
+         <column name="CONTENT_LEN" value="0" />
+         <column name="FILE_NM" value="test.md" />
+         <column name="DOC_BIN" valueBlobFile="../../static/test.md.gz" />
+      </insert>
+
+      <insert tableName="DOCUMENT">
+         <column name="ID" value="3af0017d-e60b-4d8d-a27a-e1b609281ba2" />
+         <column name="CONTENT_TYPE" value="application/json" />
+         <column name="CONTENT_LEN" value="0" />
+         <column name="FILE_NM" value="test.json" />
+         <column name="DOC_BIN" valueBlobFile="../../static/test.json.gz" />
+      </insert>
+
+      <update tableName="DOCUMENT">
+         <column name="CONTENT_LEN" valueComputed="${datalength}(doc_bin)"/>
+         <where>ID in ('9abb4957-c7cf-471c-8684-25e93a4a8dd9','3af0017d-e60b-4d8d-a27a-e1b609281ba2')</where>
+      </update>
+   </changeSet>
+
+</databaseChangeLog>

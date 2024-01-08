@@ -17,7 +17,7 @@ import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTableWhere;
 
 @JdbcTest
 @ActiveProfiles("test")
-@Sql({ "/test-person-repo-data.sql" })
+@Sql({"/test-person-repo-data.sql"})
 public class PersonRepositoryIntegrationTest {
     private PersonRepository personRepository;
     private JdbcTemplate jdbcTemplate;

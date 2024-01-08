@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sqledge-deployment
+  name: sqledge
   namespace: spring-demo
 spec:
   replicas: 1
@@ -50,6 +50,10 @@ spec:
           #   capabilities:
           #     add:
           #       - SYS_PTRACE
+          # lifecycle:
+          #   postStart:
+          #     exec:
+          #       command: ["/bin/sh", "-c", ]
       terminationGracePeriodSeconds: 30
       securityContext:
         fsGroup: 10001

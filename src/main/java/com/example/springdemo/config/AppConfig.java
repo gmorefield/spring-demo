@@ -82,10 +82,12 @@ public class AppConfig implements ApplicationContextAware {
         log.info("Leader Revoked with keys={}", event.getRole());
     }
 
+//    @SuppressWarnings("RedundantSuppression")
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         DataSource ds = applicationContext.getBean(DataSource.class);
         if (ds instanceof HikariDataSource) {
+            @SuppressWarnings("resource")   // DataSource lifecycle managed by Spring
             HikariDataSource hds = (HikariDataSource) ds;
             log.info("maximum-pool-size: {}", hds.getMaximumPoolSize());
         }

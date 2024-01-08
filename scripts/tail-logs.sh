@@ -1,0 +1,1 @@
+kubectl -n spring-demo logs -f -l app=spring-demo-app
