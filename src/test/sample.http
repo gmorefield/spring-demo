@@ -258,6 +258,9 @@ GET {{host}}/tasks/schedules/sample/start
 
 ###
 
+GET {{host}}/uml/fonts
+###
+
 POST {{host}}/uml/generate/PNG
 
 ###
