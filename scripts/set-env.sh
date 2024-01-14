@@ -1,7 +1,7 @@
 alias k=kubectl
 alias ksd="kubectl -n spring-demo"
 
-export PATH="${PWD/scripts}:$PATH"
+export PATH="${PWD}/scripts:$PATH"
 
 echo "Enter db password"
 read LB_PASS

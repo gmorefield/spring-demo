@@ -88,12 +88,13 @@ Notes:
 
 ## Change Log
 
-| Version        | Description                                                                       |
-|----------------|-----------------------------------------------------------------------------------|
-| 0.0.1-SNAPSHOT | initial version                                                                   |
+| Version        | Description                                                                      |
+|----------------|----------------------------------------------------------------------------------|
+| 0.0.1-SNAPSHOT | initial version                                                                  |
 | 0.0.2          | minor config cleanup; added Spring Cache based on ```sample.cache.enabled=true``` |
-| 0.1.0          | merged lots of spring cloud changes                                               |
-| 0.2.0          | upgrade to latest versions (JDK 17, Spring Boot 3.2 / Spring 6.1.2                |
+| 0.1.0          | merged lots of spring cloud changes                                              |
+| 0.2.0          | upgrade to latest versions (JDK 17, Spring Boot 3.2 / Spring 6.1.2               |
+| 0.3.0          | add liquibase support and reorg k8s configs/scripts                              |
 
 ## Docker setup for misc profile features
 ### springdemo
@@ -140,6 +141,13 @@ k -n spring-demo delete jobs --field-selector stauts.successful=1
 k -n spring-demo run -i --tty --attach sqlcmd --image=mcr.microsoft.com/mssql-tools:latest
 ksd attach sqlcmd -c sqlcmd -i -t
 ```
+
+### liquibase
+```shell
+./mvnw compile liquibase:update
+./mvnw compile liquibase:update -Dlb-property-file=/db/changelog/liquibase.properties -Dschema-name=Test
+```
+
 ### compile, build, deploy
 ```sh
 alias ksd="kubectl -n spring-demo"

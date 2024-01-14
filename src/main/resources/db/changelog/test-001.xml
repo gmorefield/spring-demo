@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                       http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <property name="now" value="now()" dbms="mysql,h2"/>
+    <property name="now" value="getdate()" dbms="mssql"/>
+
+    <changeSet author="morefigs" id="00000000-01">
+        <createTable tableName="CUSTOMER" schemaName="${schema-name}">
+            <column autoIncrement="true" computed="false" name="ID" type="int" startWith="2">
+                <constraints nullable="false"
+                             primaryKey="true"
+                             primaryKeyName="PK_CONTACT"/>
+            </column>
+            <column computed="false" name="FIRST_NAME" type="varchar(255)"/>
+            <column computed="false" name="LAST_NAME" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

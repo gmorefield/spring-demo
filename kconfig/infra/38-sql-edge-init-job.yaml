@@ -24,5 +24,8 @@ spec:
         - /bin/sh
         - -c
         - |
+          sleep 15
           /opt/mssql-tools/bin/sqlcmd -S sqledge -U sa -C -Q "create database SpringDemo"
+          /opt/mssql-tools/bin/sqlcmd -S sqledge -U sa -d SpringDemo -C -Q "create schema Test"
+          sleep 15
       restartPolicy: Never

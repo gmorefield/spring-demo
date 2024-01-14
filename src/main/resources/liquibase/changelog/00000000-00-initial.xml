@@ -10,7 +10,12 @@
     <property name="now" value="sysdate" dbms="oracle"/>
     <property name="now" value="getdate()" dbms="mssql"/>
 
-    <changeSet author="morefigs" id="00000000-00">
+    <changeSet author="morefigs" id="00000000-01">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="APP_EVENT" />
+            </not>
+        </preConditions>
         <createTable tableName="APP_EVENT">
             <column computed="false" name="ID" type="varchar(36)">
                 <constraints nullable="false"
@@ -23,6 +28,8 @@
             <column computed="false" name="EVENT_BODY" type="varchar(MAX)"/>
             <column computed="false" name="EVENT_BIN" type="varbinary(MAX)"/>
         </createTable>
+    </changeSet>
+    <changeSet author="morefigs" id="00000000-02">
         <createTable tableName="DOCUMENT">
             <column computed="false" name="ID" type="varchar(36)">
                 <constraints nullable="false"
@@ -38,6 +45,8 @@
             </column>
             <column computed="false" name="CHECKSUM" type="varchar(40)"/>
         </createTable>
+    </changeSet>
+    <changeSet author="morefigs" id="00000000-03">
         <createTable tableName="PERSON">
             <column autoIncrement="true" computed="false" name="ID" type="int" startWith="2">
                 <constraints nullable="false"
