@@ -77,6 +77,12 @@ GET {{host}}/actuator/health/readiness
 
 ###
 
+GET {{host}}/actuator/scheduledtasks
+Authorization: Bearer {{jwtUser.response.body.*}}
+# Authorization: Basic {{user}} {{password}}
+
+###
+
 GET {{host}}/actuator/mappings
 Authorization: Bearer {{jwtUser.response.body.*}}
 # Authorization: Basic {{user}} {{password}}
@@ -136,6 +142,14 @@ GET {{host}}/data/xmlInJson
 
 ###
 
+GET http://localhost:30005/data/loadDates
+
+###
+
+GET {{host}}/data/loadDates
+
+###
+
 GET {{host}}/client/getXml
 Accept: application/xml
 
@@ -171,6 +185,7 @@ Accept: application/xml
 ###
 
 GET {{host}}/client/flux/document/binary/9abb4957-c7cf-471c-8684-25e93a4a8dd9
+Accept-Encoding: gzip
 
 ###
 
@@ -258,10 +273,16 @@ GET {{host}}/tasks/schedules/sample/start
 
 ###
 
-GET {{host}}/uml/fonts
+GET {{host}}/uml/fonts/PNG
+###
+
+GET {{host}}/uml/test
 ###
 
 POST {{host}}/uml/generate/PNG
+###
+
+POST {{host}}/uml/class/PNG
 
 ###
 

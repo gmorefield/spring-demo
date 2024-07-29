@@ -1,5 +1,6 @@
 {
     "configurations": [
+
         {
             "type": "java",
             "name": "Spring Boot-SpringDemoApplication<spring-demo>-local",
@@ -98,6 +99,18 @@
             "mainClass": "com.example.springdemo.SpringDemoApplication",
             "projectName": "spring-demo",
             "args": "--spring.profiles.active=h2,local",
+            "vmArgs": "-Dxhttp.proxyHost=localhost -Dxhttp.proxyPort=8888",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SpringDemoApplication<spring-demo>-sqledge",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.example.springdemo.SpringDemoApplication",
+            "projectName": "spring-demo",
+            "args": "--spring.profiles.active=sqledge,local",
             "vmArgs": "-Dxhttp.proxyHost=localhost -Dxhttp.proxyPort=8888",
             "envFile": "${workspaceFolder}/.env"
         }

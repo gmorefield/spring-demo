@@ -43,3 +43,4 @@ build/
 samples/
 patches/
 output/
+/src/main/resources/developer.properties

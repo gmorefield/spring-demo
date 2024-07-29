@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                       http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <property name="now" value="now()" dbms="mysql,h2"/>
+    <property name="now" value="getdate()" dbms="mssql"/>
+
+    <property name="autoincrement" value="auto_increment" dbms="mysql,h2"/>
+    <property name="autoincrement" value="IDENTITY(1,1)" dbms="mssql"/>
+
+    <property name="timeStamp" value="timestamp" dbms="h2"/>
+    <property name="timeStamp" value="timestamp" dbms="mssql"/>
+    <property name="dateTime" value="timestamp" dbms="h2"/>
+    <property name="dateTime" value="datetime" dbms="mssql"/>
+    <property name="dateTime2" value="timestamp" dbms="h2"/>
+    <property name="dateTime2" value="datetime2" dbms="mssql"/>
+    <property name="dateTime23" value="timestamp" dbms="h2"/>
+    <property name="dateTime23" value="datetime2(3)" dbms="mssql"/>
+
+    <changeSet author="morefigs" id="20240210-01">
+<!--        <createTable tableName="DATES">-->
+<!--            <column autoIncrement="true" computed="false" name="ID" type="int" startWith="1">-->
+<!--                <constraints nullable="false"-->
+<!--                             primaryKey="true"-->
+<!--                             primaryKeyName="PK_DATES"/>-->
+<!--            </column>-->
+<!--            <column computed="false" name="source" type="varchar2(10)"/>-->
+<!--            <column computed="false" name="time_stamp" type="timeStamp"/>-->
+<!--            <column computed="false" name="date_time" type="dateTime"/>-->
+<!--            <column computed="false" name="date_time_2" type="dateTime2"/>-->
+<!--            <column computed="false" name="date_time_2_3" type="dateTime23"/>-->
+<!--        </createTable>-->
+        <sql>
+            CREATE TABLE DATES (
+                ID varchar(36) NOT NULL,
+                source varchar(25) NOT NULL,
+                date_time ${dateTime} NOT NULL,
+                date_time_2 ${dateTime2} NOT NULL,
+                date_time_2_3 ${dateTime23} NOT NULL
+            );
+        </sql>
+    </changeSet>
+</databaseChangeLog>

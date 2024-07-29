@@ -1,0 +1,12 @@
+spring:
+    datasource:
+        driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+        # url: jdbc:sqlserver://localhost;databaseName=model
+        url: jdbc:sqlserver://;serverName=localhost;port=31433;databaseName=SpringDemo;encrypt=true;trustServerCertificate=true
+        username: sa
+        maximum-pool-size: ${spring.datasource.pool-size}
+        # password: redacted
+    sql:
+        init:
+            platform: mssql
+    #         schema-locations: classpath:schema-mssql.sql

@@ -4,5 +4,6 @@
 
     <include file="changelog/00000000-00-initial.xml" relativeToChangelogFile="true" />
     <include file="changelog/20240107-01-sample-data.xml" relativeToChangelogFile="true" />
+    <include file="changelog/20240210-01-dates.xml" relativeToChangelogFile="true" />
 
 </databaseChangeLog>

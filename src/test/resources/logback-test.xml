@@ -4,4 +4,5 @@
     <logger name="com.example" level="info" />
     <logger name="org.springframework" level="error" />
     <logger name="org.springframework.test" level="error" />
+    <logger name="org.springframework.jdbc.core" level="info"/>
 </configuration>

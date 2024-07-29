@@ -136,7 +136,8 @@ k -n spring-demo get all
 k -n spring-demo describe deployment spring-demo-app
 k -n spring-demo rollout restart deployment spring-demo-app
 k -n spring-demo logs -f -l app=spring-demo-app
-k -n spring-demo delete jobs --field-selector stauts.successful=1
+k -n spring-demo delete jobs --field-selector status.successful=1
+k -n spring-demo exec spring-demo-app-xxxx-xx -it -- /bin/sh
 
 k -n spring-demo run -i --tty --attach sqlcmd --image=mcr.microsoft.com/mssql-tools:latest
 ksd attach sqlcmd -c sqlcmd -i -t
