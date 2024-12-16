@@ -2,6 +2,7 @@ package com.example.springdemo.controller;
 
 import com.example.springdemo.data.PersonRepository;
 import com.example.springdemo.model.Person;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -60,4 +61,9 @@ public class PersonController {
         return person;
     }
 
+    @ConditionalOnProperty(name = "spring.sql.init.platform", havingValue = "mssql")
+    @GetMapping(path="/person/add-multiple")
+    public List<Person> addMultiple() {
+        return personRepository.addMultiple(2);
+    }
 }

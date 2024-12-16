@@ -16,14 +16,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.integration.leader.event.OnGrantedEvent;
 import org.springframework.integration.leader.event.OnRevokedEvent;
+import org.springframework.retry.RetryCallback;
+import org.springframework.retry.RetryContext;
+import org.springframework.retry.RetryListener;
+import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 
 @Configuration
+@EnableRetry
 @Slf4j
 public class AppConfig implements ApplicationContextAware {
-    /** 
+    /**
      * The easiest approach is to add @Component to Filter definition, but a FilterRegistrationBean
      * can also be used to register Filters with customization (e.g. url patterns)
      */
@@ -71,18 +77,47 @@ public class AppConfig implements ApplicationContextAware {
     public void onEnvironmentChange(EnvironmentChangeEvent event) {
         log.info("Environment Changed for keys={}", event.getKeys().toString());
     }
+
     @Async
     @EventListener
     public void onLeaderGranted(OnGrantedEvent event) {
         log.info("Leader Granted with role={}", event.getRole());
     }
+
     @Async
     @EventListener
     public void onLeaderRevoked(OnRevokedEvent event) {
         log.info("Leader Revoked with keys={}", event.getRole());
     }
 
-//    @SuppressWarnings("RedundantSuppression")
+    @Component("sampleRetryListener")
+    public static class SampleRetryListener implements RetryListener {
+        @Override
+        public <T, E extends Throwable> boolean open(RetryContext context, RetryCallback<T, E> callback) {
+            log.info("Before retry attempt");
+            return RetryListener.super.open(context, callback);
+        }
+
+        @Override
+        public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
+            log.info("After (retry) attempt(s)");
+            RetryListener.super.close(context, callback, throwable);
+        }
+
+        @Override
+        public <T, E extends Throwable> void onSuccess(RetryContext context, RetryCallback<T, E> callback, T result) {
+            log.info("Successful attempt");
+            RetryListener.super.onSuccess(context, callback, result);
+        }
+
+        @Override
+        public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
+            log.info("Retry error");
+            RetryListener.super.onError(context, callback, throwable);
+        }
+    }
+
+    //    @SuppressWarnings("RedundantSuppression")
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         DataSource ds = applicationContext.getBean(DataSource.class);
