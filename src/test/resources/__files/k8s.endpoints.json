@@ -1,0 +1,72 @@
+{
+  "kind": "Endpoints",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "spring-demo-app",
+    "namespace": "spring-demo",
+    "uid": "ba0e9a84-4752-41c7-ab98-7604d54e1af9",
+    "resourceVersion": "1224330",
+    "creationTimestamp": "2024-11-23T12:38:11Z",
+    "labels": {
+      "name": "spring-demo-app"
+    },
+    "annotations": {
+      "endpoints.kubernetes.io/last-change-trigger-time": "2024-11-23T12:38:53Z"
+    },
+    "managedFields": [
+      {
+        "manager": "kube-controller-manager",
+        "operation": "Update",
+        "apiVersion": "v1",
+        "time": "2024-11-23T12:38:53Z",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              ".": {},
+              "f:endpoints.kubernetes.io/last-change-trigger-time": {}
+            },
+            "f:labels": {
+              ".": {},
+              "f:name": {}
+            }
+          },
+          "f:subsets": {}
+        }
+      }
+    ]
+  },
+  "subsets": [
+    {
+      "addresses": [
+        {
+          "ip": "10.1.2.173",
+          "nodeName": "docker-desktop",
+          "targetRef": {
+            "kind": "Pod",
+            "namespace": "spring-demo",
+            "name": "spring-demo-app-6f7bb7bf47-ggrn9",
+            "uid": "20b0c41c-eb4d-4566-8d82-f36790eabe7c"
+          }
+        },
+        {
+          "ip": "10.1.2.174",
+          "nodeName": "docker-desktop",
+          "targetRef": {
+            "kind": "Pod",
+            "namespace": "spring-demo",
+            "name": "spring-demo-app-6f7bb7bf47-jp2ds",
+            "uid": "30329233-7e89-41b5-b596-74b9575c8194"
+          }
+        }
+      ],
+      "ports": [
+        {
+          "name": "http",
+          "port": 8080,
+          "protocol": "TCP"
+        }
+      ]
+    }
+  ]
+}

@@ -155,6 +155,17 @@ alias ksd="kubectl -n spring-demo"
 ./mvnw package && docker build -t spring-demo:latest . && ksd rollout restart deployment spring-demo-app && ksd get pods --watch
 ```
 
+### endpoints
+[API Reference](https://kubernetes.io/docs/reference/kubernetes-api/service-resources/endpoints-v1/)
+```sh
+kubectl auth can-i list endpoints --as=system:serviceaccount:spring-demo:default -n spring-demo
+
+wget -O - --no-check-certificate \
+  --header="Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+  --header="Accept: application/json;as=Table;g=meta.k8s.io;v=v1" \ 
+  https://kubernetes.default.svc.cluster.local/api/v1/namespaces/spring-demo/endpoints/spring-demo-app
+```
+
 ## HashiCorp Vault
 References
 - [Injecting Secrets](https://developer.hashicorp.com/vault/tutorials/kubernetes/kubernetes-sidecar)

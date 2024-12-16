@@ -117,6 +117,12 @@ Authorization: Basic {{user}} {{password}}
 
 ###
 
+GET {{host}}/person/add-multiple HTTP/1.1
+Content-Type: application/json
+Authorization: Basic {{user}} {{password}}
+
+###
+
 POST {{host}}/kube/ignore
 Content-Type: application/json
 Authorization: Basic {{user}} {{password}}
@@ -131,6 +137,12 @@ GET {{host}}/broadcast/info/spring-demo-headless
 
 ###
 GET {{host}}/broadcast/proxy/spring-demo-headless/actuator/health/liveness
+
+###
+GET {{host}}/broadcast/endpoint/spring-demo-app/actuator/health/liveness
+
+###
+GET {{host}}/broadcast/client-endpoint/spring-demo-app/actuator/health/liveness
 
 ###
 
