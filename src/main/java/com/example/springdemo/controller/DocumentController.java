@@ -49,7 +49,7 @@ import java.util.zip.GZIPOutputStream;
 
 import static org.apache.commons.io.IOUtils.closeQuietly;
 
-@Profile({"mssql", "h2", "kubernetes"})
+@Profile({"mssql", "h2", "kubernetes", "sqledge"})
 @RestController
 @RequestMapping("/document")
 public class DocumentController {
