@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wiremock
+  namespace: wiremock-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wiremock
+  template:
+    metadata:
+      labels:
+        app: wiremock
+    spec:
+      volumes:
+        - name: wmdata
+          persistentVolumeClaim:
+            claimName: wiremock-demo-pv-claim
+      containers:
+        - name: wiremock
+          image: wiremock/wiremock:3.9.2
+          ports:
+            - containerPort: 8888
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: wmdata
+              mountPath: /home/wiremock
+          env:
+            - name: BASIC_CREDS
+              valueFrom:
+                secretKeyRef:
+                  name: admin-api
+                  key: password
+            - name: USER_PASS
+              value: "adm:pass"
+            - name: WIREMOCK_OPTIONS
+              value: "--verbose -port=8888 --no-request-journal --admin-api-basic-auth=$(USER_PASS)"
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee"
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1024Mi
+          # securityContext:
+          #   capabilities:
+          #     add:
+          #       - SYS_PTRACE
+          # lifecycle:
+          #   postStart:
+          #     exec:
+          #       command: ["/bin/sh", "-c", ]
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        fsGroup: 10001
+
+# ---
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: wiremock
+#   namespace: wiremock-demo
+# spec:
+#   selector:
+#     app: wiremock
+#   ports:
+#     - protocol: TCP
+#       port: 8888
+#       targetPort: 8888
+#       # name: sql
+#   type: LoadBalancer
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: wiremock-node
+  namespace: wiremock-demo
+spec:
+  selector:
+    app: wiremock
+  ports:
+    - protocol: TCP
+      port: 8888
+      name: web
+      nodePort: 30088
+  type: NodePort
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: wiremock-headless
+  labels:
+    app: wiremock-headless
+  namespace: wiremock-demo
+spec:
+  ports:
+  - port: 8888
+    name: web
+  clusterIP: None
+  selector:
+    app: wiremock-demo

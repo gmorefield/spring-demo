@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: wmdemo-pv
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 50Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/Users/morefigs/k8s/volumes/wm-demo"
+  storageClassName: manual
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wiremock-demo-pv-claim
+  namespace: wiremock-demo
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Mi
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: admin-api
+  namespace: wiremock-demo
+type: Opaque
+data:
+  password: YWRtOnBhc3M=

@@ -1,0 +1,41 @@
+GET http://localhost:30088/__admin/health
+
+###
+GET http://localhost:30088/__admin/settings
+
+###
+GET http://localhost:30088/__admin/mappings
+
+###
+POST http://localhost:30088/__admin/mappings/reset
+
+###
+GET http://localhost:30088/hello/world
+
+###
+GET http://localhost:30088/test
+
+###
+GET http://localhost:30088/proxy/test
+
+###
+GET http://localhost:30088/proxy/hello/world
+
+
+###
+GET http://localhost:30088/person
+
+###
+GET http://localhost:30088/actuator/mappings
+
+###
+GET http://localhost:30088/client/flux/document/binary/9abb4957-c7cf-471c-8684-25e93a4a8dd9
+
+###
+GET http://localhost:30088/sdemo/person
+
+###
+GET http://localhost:30088/sdemo/actuator/mappings
+
+###
+GET http://localhost:30088/sdemo/client/flux/document/binary/9abb4957-c7cf-471c-8684-25e93a4a8dd9
