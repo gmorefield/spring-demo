@@ -2,8 +2,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <include file="changelog/00000000-00-initial.xml" relativeToChangelogFile="true" />
-    <include file="changelog/20240107-01-sample-data.xml" relativeToChangelogFile="true" />
-    <include file="changelog/20240210-01-dates.xml" relativeToChangelogFile="true" />
+    <include file="global-props.xml" relativeToChangelogFile="true" />
+
+    <include file="changelog/changelog-0.1.0-initial.xml" relativeToChangelogFile="true" />
+    <include file="changelog/changelog-0.2.0-sample-data.xml" relativeToChangelogFile="true" />
+    <include file="changelog/changelog-0.3.0-dates.xml" relativeToChangelogFile="true" />
+    <include file="changelog/changelog-0.4.0-workqueue.xml" relativeToChangelogFile="true" />
+    <include file="changelog/changelog-0.4.1-workqueue.xml" relativeToChangelogFile="true" />
 
 </databaseChangeLog>

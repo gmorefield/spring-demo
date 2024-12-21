@@ -143,12 +143,48 @@ k -n spring-demo run -i --tty --attach sqlcmd --image=mcr.microsoft.com/mssql-to
 ksd attach sqlcmd -c sqlcmd -i -t
 ```
 
-### liquibase
+### Liquibase
+References
+* [Properties](https://docs.liquibase.com/concepts/connections/creating-config-properties.html)
+  * Can reference liquibase properties with `liquibase.` prefix
+  * e.g `<property name="schema-name" value="${liquibase.liquibaseSchemaName}"/>`
+* [Parameters](https://docs.liquibase.com/parameters/home.html)
+  * prefix with parameter in properties file
+  * e.g. `parameter.my_parameter = something`
+* [Tag](https://docs.liquibase.com/commands/utility/tag.html)
+  * useful for setting rollback point
+* [Preconditions](https://docs.liquibase.com/concepts/changelogs/preconditions.html)
+* [Contexts](https://docs.liquibase.com/concepts/changelogs/attributes/contexts.html)
+  * useful for denoting tests or other scenarios
+  * the order of operations is !, AND, and then OR (comma is same as or)
+    * eg. `test, qa and main` is the same as `(test) OR (qa and main)`
+
+To update runtime
 ```shell
 ./mvnw compile liquibase:update
+```
+To load test schema
+```shell
 ./mvnw compile liquibase:update -Dlb-property-file=/db/changelog/liquibase.properties -Dschema-name=Test
 ```
-
+To load runtime into alternate schema
+```shell
+# see changes to apply (output in target/liquibase/migrate.sql)
+./mvnw compile liquibase:updateSQL -Dlb-property-file=/liquibase/liquibase.properties -Dliquibase.liquibaseSchemaName=trial
+# apply changes
+./mvnw compile liquibase:update -Dlb-property-file=/liquibase/liquibase.properties -Dschema-name=trial -Dliquibase.liquibaseSchemaName=trial -Dliquibase.schemas=trial
+```
+To tag current version
+```shell
+./mvnw compile liquibase:tag -Dlb-property-file=/liquibase/liquibase.properties -Dliquibase.liquibaseSchemaName=trial -Dliquibase.tag=tag1
+```
+To rollback
+```shell
+# to see rollback changes
+./mvnw compile liquibase:rollbackSQL -Dlb-property-file=/liquibase/liquibase.properties -Dliquibase.liquibaseSchemaName=trial -Dliquibase.rollbackTag=tag1
+# to apply rollback (also supports changesets and date)
+./mvnw compile liquibase:rollback -Dlb-property-file=/liquibase/liquibase.properties -Dliquibase.liquibaseSchemaName=trial -Dliquibase.rollbackTag=tag1
+```
 ### compile, build, deploy
 ```sh
 alias ksd="kubectl -n spring-demo"

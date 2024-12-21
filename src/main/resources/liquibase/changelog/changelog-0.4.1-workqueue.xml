@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                       http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet author="morefigs" id="001">
+        <createIndex schemaName="${schema-name}" tableName="orderedqueue" indexName="idx_orderedqueue_status">
+            <column name="status"></column>
+        </createIndex>
+    </changeSet>
+    <changeSet author="morefigs" id="002">
+        <createIndex schemaName="${schema-name}" tableName="orderedqueue" indexName="idx_orderedqueue_order_id">
+            <column name="order_id"></column>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="version-tag" author="morefigs">
+        <tagDatabase tag="v0.4.1"/>
+    </changeSet>
+</databaseChangeLog>

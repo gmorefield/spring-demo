@@ -7,6 +7,8 @@ spring:
     liquibase:
         enabled: true
         contexts: test
+        parameters:
+            "liquibase.liquibaseSchemaName": PUBLIC
     sql:
         init:
             data-locations: optional:classpath:data-test.sql

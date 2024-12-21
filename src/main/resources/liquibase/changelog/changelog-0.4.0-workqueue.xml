@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                       http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet author="morefigs" id="001">
+        <sql>
+            create table ${schema-prefix}workqueue (
+            wid varchar(36) not null,
+            status varchar(1) not null,
+            retry_cnt int not null default 0,
+            msg varchar(25) null,
+            create_dt ${dateTime23} not null default ${now},
+            update_dt ${dateTime23} not null default ${now}
+
+            <!--                        CONSTRAINT pk_workqueue primary key (wid)-->
+            );
+        </sql>
+        <rollback>
+            <dropTable schemaName="${schema-name}" tableName="workqueue"/>
+        </rollback>
+    </changeSet>
+    <changeSet author="morefigs" id="002">
+        <addPrimaryKey schemaName="${schema-name}" tableName="workqueue" columnNames="wid"
+                       constraintName="pk_workqueue"/>
+    </changeSet>
+
+    <changeSet author="morefigs" id="003">
+        <createTable schemaName="${schema-name}" tableName="orderedqueue">
+            <column autoIncrement="true" computed="false" name="id" type="int" startWith="1">
+                <constraints nullable="false"
+                             primaryKey="true"
+                             primaryKeyName="pk_orderedqueue"/>
+            </column>
+            <column name="wid" type="varchar(36)">
+<!--                <constraints nullable="false"-->
+<!--                             primaryKey="true"-->
+<!--                             primaryKeyName="pk_orderedqueue"/>-->
+            </column>
+            <column name="order_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="retry_cnt" type="int" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="msg" type="varchar(25)"/>
+            <column name="create_dt" type="${dateTime23}" defaultValue="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="update_dt" type="${dateTime23}" defaultValue="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="morefigs" id="004">
+        <addUniqueConstraint schemaName="${schema-name}" tableName="orderedqueue" columnNames="wid"/>
+    </changeSet>
+
+    <changeSet id="version-tag" author="morefigs">
+        <tagDatabase tag="v0.4.0"/>
+    </changeSet>
+</databaseChangeLog>

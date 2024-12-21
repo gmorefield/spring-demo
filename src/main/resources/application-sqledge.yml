@@ -10,3 +10,6 @@ spring:
         init:
             platform: mssql
     #         schema-locations: classpath:schema-mssql.sql
+    liquibase:
+        parameters:
+            "liquibase.liquibaseSchemaName": dbo

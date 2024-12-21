@@ -3,25 +3,22 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <property name="datalength" value="length" dbms="h2"/>
-    <property name="datalength" value="DATALENGTH" dbms="mssql"/>
-
-    <changeSet author="morefigs" id="20240107-01-person" context="!test">
+    <changeSet author="morefigs" id="001-person" context="!test">
         <sql dbms="mssql">
-            SET IDENTITY_INSERT PERSON ON;
+            SET IDENTITY_INSERT ${schema-prefix}PERSON ON;
         </sql>
-        <insert tableName="PERSON">
+        <insert schemaName="${schema-name}" tableName="PERSON">
             <column name="ID" value="1"/>
             <column name="FIRST_NAME" value="Luke"/>
             <column name="LAST_NAME" value="Skywalker"/>
         </insert>
         <sql dbms="mssql">
-            SET IDENTITY_INSERT PERSON OFF;
+            SET IDENTITY_INSERT ${schema-prefix}PERSON OFF;
         </sql>
     </changeSet>
 
-    <changeSet author="morefigs" id="20240107-01-document" context="!test">
-        <insert tableName="DOCUMENT">
+    <changeSet author="morefigs" id="002-document" context="!test">
+        <insert schemaName="${schema-name}" tableName="DOCUMENT">
             <column name="ID" value="9abb4957-c7cf-471c-8684-25e93a4a8dd9"/>
             <column name="CONTENT_TYPE" value="text/markdown"/>
             <column name="CONTENT_LEN" value="0"/>
@@ -30,8 +27,8 @@
         </insert>
     </changeSet>
 
-    <changeSet author="morefigs" id="20240107-02-document" context="!test">
-        <insert tableName="DOCUMENT">
+    <changeSet author="morefigs" id="003-document" context="!test">
+        <insert schemaName="${schema-name}" tableName="DOCUMENT">
             <column name="ID" value="3af0017d-e60b-4d8d-a27a-e1b609281ba2"/>
             <column name="CONTENT_TYPE" value="application/json"/>
             <column name="CONTENT_LEN" value="0"/>
@@ -40,11 +37,14 @@
         </insert>
     </changeSet>
 
-    <changeSet author="morefigs" id="20240107-03-document" context="!test">
-        <update tableName="DOCUMENT">
+    <changeSet author="morefigs" id="004-document" context="!test">
+        <update schemaName="${schema-name}" tableName="DOCUMENT">
             <column name="CONTENT_LEN" valueComputed="${datalength}(doc_bin)"/>
             <where>ID in ('9abb4957-c7cf-471c-8684-25e93a4a8dd9','3af0017d-e60b-4d8d-a27a-e1b609281ba2')</where>
         </update>
     </changeSet>
 
+    <changeSet id="version-tag" author="morefigs">
+        <tagDatabase tag="v0.2.0"/>
+    </changeSet>
 </databaseChangeLog>

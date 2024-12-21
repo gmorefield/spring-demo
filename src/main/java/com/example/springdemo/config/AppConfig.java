@@ -94,25 +94,24 @@ public class AppConfig implements ApplicationContextAware {
     public static class SampleRetryListener implements RetryListener {
         @Override
         public <T, E extends Throwable> boolean open(RetryContext context, RetryCallback<T, E> callback) {
-            log.info("Before retry attempt");
+            // method is called one time before all retries
             return RetryListener.super.open(context, callback);
         }
 
         @Override
         public <T, E extends Throwable> void close(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
-            log.info("After (retry) attempt(s)");
+            // method called once at the end
             RetryListener.super.close(context, callback, throwable);
         }
 
         @Override
         public <T, E extends Throwable> void onSuccess(RetryContext context, RetryCallback<T, E> callback, T result) {
-            log.info("Successful attempt");
             RetryListener.super.onSuccess(context, callback, result);
         }
 
         @Override
         public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
-            log.info("Retry error");
+            log.info("Retry {} error {}", context.getRetryCount(), throwable.getClass().getSimpleName());
             RetryListener.super.onError(context, callback, throwable);
         }
     }
