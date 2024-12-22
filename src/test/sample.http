@@ -529,3 +529,45 @@ Content-ID: <root@espringdemo>
 </soapenv:Envelope>
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+#
+# QUEUE
+#
+
+GET {{host}}/queue/addMany?items=5000
+
+###
+
+GET {{host}}/queue/manyNext?threads=15
+
+###
+
+GET {{host}}/queue/manyPrefetch?threads=15&prefetch=50
+
+###
+
+GET {{host}}/queue/resetErrors
+
+###
+#
+# ORDERED
+#
+
+GET {{host}}/queue/order/addMany?items=5000&order=150
+
+###
+
+GET {{host}}/queue/order/next
+
+###
+
+GET {{host}}/queue/order/manyNext?threads=15
+
+###
+
+GET {{host}}/queue/order/manyPrefetch?threads=15&prefetch=50
+
+###
+
+GET {{host}}/queue/order/resetErrors

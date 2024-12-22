@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                       http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet author="morefigs" id="001">
+        <dropPrimaryKey schemaName="${schema-name}" tableName="workqueue"
+                       constraintName="pk_workqueue"/>
+    </changeSet>
+    <changeSet author="morefigs" id="002">
+        <addUniqueConstraint schemaName="${schema-name}" tableName="workqueue" columnNames="wid" constraintName="uq_workqueue_wid"/>
+    </changeSet>
+    <changeSet author="morefigs" id="003">
+        <addColumn schemaName="${schema-name}" tableName="workqueue">
+            <column autoIncrement="true" computed="false" name="id" type="int" startWith="1">
+                <constraints nullable="false"
+                             primaryKey="true"
+                             primaryKeyName="pk_workqueue"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="morefigs" id="004">
+        <createIndex schemaName="${schema-name}" tableName="workqueue" indexName="ix_workqueue_status">
+            <column name="status"></column>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="version-tag" author="morefigs">
+        <tagDatabase tag="v0.4.2"/>
+    </changeSet>
+</databaseChangeLog>
