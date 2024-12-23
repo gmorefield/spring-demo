@@ -82,7 +82,10 @@ public class QueueController {
                         .replace("#order#", String.valueOf(order.orElse(25))),
                 Collections.emptyMap(),
                 Integer.class);
-        return Map.of("rowsAdded", count);
+
+        Map data = Map.of("rowsAdded", count);
+        log.info("order/addMany complete: {}", data);
+        return data;
     }
 
     @GetMapping("/order/resetErrors")
@@ -144,7 +147,10 @@ public class QueueController {
         int count = jdbcTemplate.queryForObject(sql.replace("#count#", itemCount),
                 Collections.emptyMap(),
                 Integer.class);
-        return Map.of("rowsAdded", count);
+
+        Map data = Map.of("rowsAdded", count);
+        log.info("addMany complete: {}", data);
+        return data;
     }
 
     @GetMapping("/resetErrors")

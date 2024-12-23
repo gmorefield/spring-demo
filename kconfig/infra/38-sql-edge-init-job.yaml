@@ -25,7 +25,19 @@ spec:
         - -c
         - |
           sleep 15
-          /opt/mssql-tools/bin/sqlcmd -S sqledge -U sa -C -Q "create database SpringDemo"
-          /opt/mssql-tools/bin/sqlcmd -S sqledge -U sa -d SpringDemo -C -Q "create schema Test"
-          sleep 15
+          sleep_time=15
+          
+          for i in $(seq 1 5); do
+            /opt/mssql-tools/bin/sqlcmd -S sqledge -U sa -C -Q "create database SpringDemo"
+            rc=$?
+            if [ $rc -eq 0 ]; then
+              echo "SpringDemo db created"
+              /opt/mssql-tools/bin/sqlcmd -S sqledge -U sa -d SpringDemo -C -Q "create schema Test"
+              echo "Create schema Test finished with rc=$?"
+              break
+            else
+              echo "Create SpringDemo failed with exit code $?. Retrying in $sleep_time seconds..."
+              sleep $sleep_time
+            fi
+          done
       restartPolicy: Never
