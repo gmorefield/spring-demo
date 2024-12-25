@@ -10,5 +10,6 @@
     <include file="changelog/changelog-0.4.0-workqueue.xml" relativeToChangelogFile="true" />
     <include file="changelog/changelog-0.4.1-workqueue.xml" relativeToChangelogFile="true" />
     <include file="changelog/changelog-0.4.2-workqueue.xml" relativeToChangelogFile="true" />
+    <include file="changelog/changelog-0.5.0-quartz.xml" relativeToChangelogFile="true" />
 
 </databaseChangeLog>

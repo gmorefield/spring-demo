@@ -185,6 +185,11 @@ To rollback
 # to apply rollback (also supports changesets and date)
 ./mvnw compile liquibase:rollback -Dlb-property-file=/liquibase/liquibase.properties -Dliquibase.liquibaseSchemaName=trial -Dliquibase.rollbackTag=tag1
 ```
+To dropAll
+```shell
+# to drop all tables
+./mvnw compile liquibase:dropAll -Dlb-property-file=/liquibase/liquibase.properties -Dliquibase.liquibaseSchemaName=Test -Dliquibase.schemas=Test
+```
 ### compile, build, deploy
 ```sh
 alias ksd="kubectl -n spring-demo"
@@ -245,3 +250,18 @@ vault kv put secret/spring-demo username="xxx" password="xxx"
 ```sh
 ./mvnw install:install-file -DlocalRepositoryPath=/Users/morefigs/.m2/repository -DcreateChecksum=true -Dpackaging=jar -Dfile=/Users/morefigs/Downloads/plantuml-1.2023.6.jar -DgroupId=plantuml -DartifactId=plantuml -Dversion=v1.2023.6
 ```
+
+### Quartz
+* References
+  * [Project Home](https://www.quartz-scheduler.org/)
+  * [Full Docs](https://github.com/quartz-scheduler/quartz/blob/main/docs/index.adoc)
+  * [How to Setup Databases](https://github.com/quartz-scheduler/quartz/wiki/How-to-Setup-Databases#using-liquibase-tool)
+  * Spring Integration
+    * [Quartz Scheduler](https://docs.spring.io/spring-boot/reference/io/quartz.html)
+  * [Configuration Reference](https://www.quartz-scheduler.org/documentation/quartz-2.3.0/configuration/ConfigMain.html)
+
+### Review possibilities
+* Kustomize
+  * [docs](https://kubectl.docs.kubernetes.io/references/kustomize/)
+  * [images transformer](https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/images/)
+    * [dynamic images](https://stackoverflow.com/questions/66317628/how-to-use-dynamic-variable-image-tag-in-a-kubernetes-deployment)

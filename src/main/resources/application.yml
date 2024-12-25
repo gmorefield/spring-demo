@@ -56,6 +56,50 @@ spring:
               composite-indicator:
                 enabled: false
 
+    quartz:
+      auto-startup: true
+#      scheduler-name: quartzClusteredScheduler
+      job-store-type: jdbc
+      # to prefer jobs read from database rather than configuration (default=false)
+      overwrite-existing-jobs: false
+      startup-delay: 30s
+      jdbc:
+        initialize-schema: never
+#      wait-for-jobs-to-complete-on-shutdown: false
+      properties:
+        org:
+          quartz:
+            scheduler:
+              skipUpdateCheck: true
+              instanceId: AUTO
+              instanceIdGenerator:
+                class: org.quartz.simpl.HostnameInstanceIdGenerator
+            #              shutdownHook: true
+#              makeSchedulerThreadDaemon: true
+#              interruptJobsOnShutdown: true
+#            plugin:
+#              shutdownhook:
+#                class: org.quartz.plugins.management.ShutdownHookPlugin
+#                cleanShutdown: true
+            jobStore:
+#              driverDelegateClass: org.quartz.impl.jdbcjobstore.MSSQLDelegate
+#              isClustered: true
+#              misfireThreshold: 60000
+              # useProperties controls whether JobDataMaps should store values as strings or as serialized Java objects
+              useProperties: true
+              clusterCheckinInterval: 20000
+#              clusterCheckinTimeout: 60000
+#            threadPool: #Connection Pool
+#              class: org.quartz.simpl.SimpleThreadPool
+#              threadCount: 10
+#              threadPriority: 5
+#              threadsInheritContextClassLoaderOfInitializingThread: true
+#              makeThreadDaemons: true
+
+
+          # setting to JobStoreTX causes startup to fail
+#        "org.quartz.jobStore.class": org.quartz.impl.jdbcjobstore.JobStoreTX
+
 # control logging levels
 logging:
   level:

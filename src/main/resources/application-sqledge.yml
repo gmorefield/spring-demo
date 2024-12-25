@@ -13,3 +13,12 @@ spring:
     liquibase:
         parameters:
             "liquibase.liquibaseSchemaName": dbo
+    quartz:
+        properties:
+            org:
+                quartz:
+                    jobStore:
+                        driverDelegateClass: org.quartz.impl.jdbcjobstore.MSSQLDelegate
+                        isClustered: true
+#            "org.quartz.jobStore.driverDelegateClass": org.quartz.impl.jdbcjobstore.MSSQLDelegate
+#            "org.quartz.jobStore.isClustered": true

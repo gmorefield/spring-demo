@@ -13,3 +13,6 @@ spring:
     liquibase:
         parameters:
             "liquibase.liquibaseSchemaName": dbo
+    quartz:
+        properties:
+            "org.quartz.jobStore.driverDelegateClass": org.quartz.impl.jdbcjobstore.MSSQLDelegate

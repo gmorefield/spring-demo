@@ -14,6 +14,8 @@ spring:
             data-locations: optional:classpath:data-test.sql
             continue-on-error: false
             mode: never
+    quartz:
+        auto-startup: false
 
 logging:
     level:

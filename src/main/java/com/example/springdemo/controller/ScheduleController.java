@@ -40,7 +40,7 @@ public class ScheduleController {
             config.getScheduledTasks().get(sampleTask).cancel(false);
             return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.status(CONFLICT).build();
+            return ResponseEntity.notFound().build();
         }
     }
 
