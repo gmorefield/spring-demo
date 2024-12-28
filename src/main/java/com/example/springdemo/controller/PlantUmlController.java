@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 
 @RestController
 @RequestMapping("uml")
+@ConditionalOnProperty(name="spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
 public class PlantUmlController {
     @PostMapping(path = {"generate/{format}", "generate"})
     public ResponseEntity<StreamingResponseBody> generateDiagram(@PathVariable(value = "format", required = false) @Valid FileFormat fileFormat) {

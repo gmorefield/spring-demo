@@ -1,5 +1,6 @@
 package com.example.springdemo.soap;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import org.springframework.xml.xsd.XsdSchema;
 import java.util.Collections;
 
 @Configuration
+@ConditionalOnProperty(name="spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
 public class MtomServerConfig extends WsConfigurationSupport {
 
     @Bean

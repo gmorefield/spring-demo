@@ -4,6 +4,7 @@ import com.example.springdemo.filter.RequestLoggingFilter;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.availability.AvailabilityChangeEvent;
 import org.springframework.boot.availability.LivenessState;
 import org.springframework.boot.availability.ReadinessState;
@@ -34,6 +35,7 @@ public class AppConfig implements ApplicationContextAware {
      * can also be used to register Filters with customization (e.g. url patterns)
      */
     @Bean
+    @ConditionalOnProperty(name="spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
     public FilterRegistrationBean<RequestLoggingFilter> filterRegistrationBean() {
         FilterRegistrationBean<RequestLoggingFilter> registrationBean = new FilterRegistrationBean<>();
         RequestLoggingFilter customFilter = new RequestLoggingFilter();

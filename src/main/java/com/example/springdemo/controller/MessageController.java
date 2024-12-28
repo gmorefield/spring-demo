@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.Lifecycle;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jms.annotation.JmsListener;
@@ -39,6 +40,7 @@ import java.util.stream.IntStream;
 @RestController
 @RequestMapping(path = "/message")
 @Profile({"activemq", "mq"})
+@ConditionalOnProperty(name="spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
 public class MessageController {
     private static final Logger log = LoggerFactory.getLogger(MessageController.class);
 

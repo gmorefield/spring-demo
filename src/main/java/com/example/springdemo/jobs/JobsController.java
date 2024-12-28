@@ -12,6 +12,7 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -36,12 +37,14 @@ import static org.springframework.http.ResponseEntity.status;
 @RequestMapping("/jobs")
 @RestController
 @Slf4j
+@ConditionalOnProperty(name = "spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
 public class JobsController {
 
     private final SchedulerFactoryBean schedulerFactory;
     private final List<Job> availableJobs;
 
     public JobsController(SchedulerFactoryBean schedulerFactory, ObjectProvider<Job> jobsProvider) {
+        log.info("Configuring JobsController");
         this.schedulerFactory = schedulerFactory;
         this.availableJobs = jobsProvider.stream().toList();
     }

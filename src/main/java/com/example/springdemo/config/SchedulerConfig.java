@@ -1,6 +1,7 @@
 package com.example.springdemo.config;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -22,6 +23,7 @@ import java.util.concurrent.ScheduledFuture;
  */
 @Configuration
 @EnableScheduling
+@ConditionalOnProperty(name="spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
 public class SchedulerConfig implements SchedulingConfigurer {
 
     private final Map<Object, ScheduledFuture<?>> scheduledTasks = new IdentityHashMap<>();

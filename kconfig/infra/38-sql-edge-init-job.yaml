@@ -24,10 +24,10 @@ spec:
         - /bin/sh
         - -c
         - |
-          sleep 15
-          sleep_time=15
+          sleep_time=20
+          sleep $sleep_time
           
-          for i in $(seq 1 5); do
+          for i in $(seq 1 10); do
             /opt/mssql-tools/bin/sqlcmd -S sqledge -U sa -C -Q "create database SpringDemo"
             rc=$?
             if [ $rc -eq 0 ]; then

@@ -14,7 +14,7 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
 @Configuration
 @Slf4j
-public class JobConfig {
+public class JobsConfig {
 
     @Bean
     public JobDetail pingJobDetail() {

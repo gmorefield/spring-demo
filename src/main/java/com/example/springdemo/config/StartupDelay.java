@@ -3,6 +3,7 @@ package com.example.springdemo.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.TimeUnit;
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit;
  * with the K8s Liveness check
  */
 @Configuration
+@ConditionalOnProperty(name="spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
 public class StartupDelay implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(StartupDelay.class);
     private final int delay;

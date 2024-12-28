@@ -3,6 +3,7 @@ package com.example.springdemo.controller;
 import com.example.springdemo.model.Person;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +35,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("client")
 @Slf4j
+@ConditionalOnProperty(name="spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
 public class ClientController {
     private final RestTemplate restClient;
     private final WebClient webClient;

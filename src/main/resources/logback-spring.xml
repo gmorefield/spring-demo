@@ -67,7 +67,7 @@
         </encoder>
     </appender>
 
-    <springProfile name="kubernetes">
+    <springProfile name="kubernetes &amp; !job">
         <appender name="logstashJsonFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>/app/logs/spring-demo-${HOSTNAME}.log</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">

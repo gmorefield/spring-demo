@@ -3,6 +3,7 @@ package com.example.springdemo.controller;
 import lombok.Builder;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
@@ -36,6 +37,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping("data")
+@ConditionalOnProperty(name="spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
 public class DataController {
     private static final ZoneId DB_ZONE = ZoneId.of("America/New_York");
 

@@ -6,6 +6,7 @@ import com.example.springdemo.model.Document;
 import com.example.springdemo.soap.model.SaveStorageRecordResponse;
 import com.example.springdemo.util.JsonConverter;
 import org.apache.commons.io.output.CountingOutputStream;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Page;
@@ -52,6 +53,7 @@ import static org.apache.commons.io.IOUtils.closeQuietly;
 @Profile({"mssql", "h2", "kubernetes", "sqledge"})
 @RestController
 @RequestMapping("/document")
+@ConditionalOnProperty(name="spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
 public class DocumentController {
 
     private final AsyncTaskExecutor taskExecutor;

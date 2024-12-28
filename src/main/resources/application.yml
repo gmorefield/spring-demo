@@ -89,6 +89,7 @@ spring:
               useProperties: true
               clusterCheckinInterval: 20000
 #              clusterCheckinTimeout: 60000
+#              tablePrefix: test.QRTZ_
 #            threadPool: #Connection Pool
 #              class: org.quartz.simpl.SimpleThreadPool
 #              threadCount: 10

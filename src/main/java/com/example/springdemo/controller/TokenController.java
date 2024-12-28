@@ -3,6 +3,7 @@ package com.example.springdemo.controller;
 import com.example.springdemo.config.security.JwtProperties;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Profile({ "jws", "jwt" })
 @RestController
+@ConditionalOnProperty(name="spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
 public class TokenController {
 
     private final JwtEncoder encoder;
