@@ -88,6 +88,7 @@ public class QueueRepository {
                  where id in (
                         select top #FETCH_COUNT# w2.id
                           from workqueue w2
+                          with (UPDLOCK, READPAST)
                          where w2.status = 'R'
                          order by w2.id
                        )

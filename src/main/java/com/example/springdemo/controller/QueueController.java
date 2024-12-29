@@ -33,14 +33,16 @@ public class QueueController {
     }
 
     @GetMapping("/order/manyNext")
-    public Map orderManyNext(@RequestParam(value = "threads", required = false) Optional<Integer> threads) throws InterruptedException {
-        return queueService.orderManyNext(threads.orElse(10));
+    public Map orderManyNext(@RequestParam(value = "threads", required = false) Optional<Integer> threads,
+                             @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate) throws InterruptedException {
+        return queueService.orderManyNext(threads.orElse(10), errorRate.orElse(1));
     }
 
     @GetMapping("/order/manyPrefetch")
     public Map orderManyPrefetch(@RequestParam(value = "threads", required = false) Optional<Integer> threads,
-                                 @RequestParam(value = "prefetch", required = false) Optional<Integer> fetch) throws InterruptedException {
-        return queueService.orderManyPrefetch(threads.orElse(10), fetch.orElse(20));
+                                 @RequestParam(value = "prefetch", required = false) Optional<Integer> fetch,
+                                 @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate) throws InterruptedException {
+        return queueService.orderManyPrefetch(threads.orElse(10), fetch.orElse(20), errorRate.orElse(1));
     }
 
     @GetMapping("/order/addMany")
@@ -66,14 +68,16 @@ public class QueueController {
     }
 
     @GetMapping("/manyNext")
-    public Map manyNext(@RequestParam(value = "threads", required = false) Optional<Integer> threads) throws InterruptedException {
-        return queueService.manyNext(threads.orElse(10));
+    public Map manyNext(@RequestParam(value = "threads", required = false) Optional<Integer> threads,
+                        @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate) throws InterruptedException {
+        return queueService.manyNext(threads.orElse(10), errorRate.orElse(1));
     }
 
     @GetMapping("/manyPrefetch")
     public Map manyPrefetch(@RequestParam(value = "threads", required = false) Optional<Integer> threads,
-                            @RequestParam(value = "prefetch", required = false) Optional<Integer> fetch) throws InterruptedException {
-        return queueService.manyPrefetch(threads.orElse(10), fetch.orElse(20));
+                            @RequestParam(value = "prefetch", required = false) Optional<Integer> fetch,
+                            @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate) throws InterruptedException {
+        return queueService.manyPrefetch(threads.orElse(10), fetch.orElse(20), errorRate.orElse(1));
     }
 
     @GetMapping("/addMany")

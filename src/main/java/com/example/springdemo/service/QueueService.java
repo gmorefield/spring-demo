@@ -26,31 +26,31 @@ public class QueueService {
     }
 
     public QueueController.OrderedWorkItem orderNext() {
-        log.info("Fetching next...");
+        log.info("Fetching next ordered...");
         return queueRepository.orderedFetchNext();
     }
 
-    public Map orderManyNext(int threadCount) throws InterruptedException {
+    public Map orderManyNext(int threadCount, int errorRate) throws InterruptedException {
         log.info("Processing order/manyNext with {} threads...", threadCount);
 
-        return processItems("order/manyNext", threadCount, queueRepository::orderedFetchNext, queueRepository::orderedSetStatus);
+        return processItems("order/manyNext", threadCount, errorRate, queueRepository::orderedFetchNext, queueRepository::orderedSetStatus);
     }
 
-    public Map orderManyPrefetch(final int threadCount, final int fetchSize) throws InterruptedException {
+    public Map orderManyPrefetch(final int threadCount, final int fetchSize, int errorRate) throws InterruptedException {
         log.info("Processing order/manyPrefetch with {} threads and prefetch size {}...", threadCount, fetchSize);
 
         final QueueController.PrefetchBlockingQueue<QueueController.OrderedWorkItem> blockingQueue = new QueueController.PrefetchBlockingQueue<>(threadCount, fetchSize,
                 queueRepository::orderedFetchMany);
-        return processItems("order/manyPrefetch", threadCount, blockingQueue::fetch, queueRepository::orderedSetStatus);
+        return processItems("order/manyPrefetch", threadCount, errorRate, blockingQueue::fetch, queueRepository::orderedSetStatus);
     }
 
     public int orderAddMany(final int itemCount, final int uniqueOrders) {
-        log.info("Adding {} items...", itemCount);
+        log.info("Adding {} ordered items...", itemCount);
         return queueRepository.orderedAddMany(itemCount, uniqueOrders);
     }
 
     public int orderResetErrors() {
-        log.info("Resetting errors...");
+        log.info("Resetting ordered errors...");
         return queueRepository.orderedResetErrors();
     }
 
@@ -59,19 +59,19 @@ public class QueueService {
         return queueRepository.orderedFetchNext();
     }
 
-    public Map manyNext(final int threadCount) throws InterruptedException {
+    public Map manyNext(final int threadCount, int errorRate) throws InterruptedException {
         log.info("Processing manyNext with {} threads...", threadCount);
 
-        return processItems("manyNext", threadCount, queueRepository::fetchNext, queueRepository::setStatus);
+        return processItems("manyNext", threadCount, errorRate, queueRepository::fetchNext, queueRepository::setStatus);
     }
 
-    public Map manyPrefetch(final int threadCount, final int fetchSize) throws InterruptedException {
+    public Map manyPrefetch(final int threadCount, final int fetchSize, int errorRate) throws InterruptedException {
         log.info("Processing manyPrefetch with {} threads and prefetch size {}...", threadCount, fetchSize);
 
         final QueueController.PrefetchBlockingQueue<QueueController.OrderedWorkItem> blockingQueue = new QueueController.PrefetchBlockingQueue<>(threadCount, fetchSize,
                 queueRepository::fetchMany);
 
-        return processItems("manyPrefetch", threadCount, blockingQueue::fetch, queueRepository::setStatus);
+        return processItems("manyPrefetch", threadCount, errorRate, blockingQueue::fetch, queueRepository::setStatus);
     }
 
     public int addMany(final int itemCount) {
@@ -84,7 +84,7 @@ public class QueueService {
         return queueRepository.resetErrors();
     }
 
-    private Map processItems(final String methodName, final int threadCount, final ThrowingSupplier<QueueController.OrderedWorkItem> itemSupplier,
+    private Map processItems(final String methodName, final int threadCount, final int errorRate, final ThrowingSupplier<QueueController.OrderedWorkItem> itemSupplier,
                              final BiConsumer<QueueController.OrderedWorkItem, String> statusConsumer) throws InterruptedException {
         AtomicInteger itemsProcessed = new AtomicInteger(0);
         AtomicInteger errorCount = new AtomicInteger(0);
@@ -102,7 +102,7 @@ public class QueueService {
                             TimeUnit.MILLISECONDS.sleep(random.nextInt(0, 50));
                         } catch (InterruptedException ignored) {
                         }
-                        String status = (random.nextInt(1, 101) == 3) ? "E" : "C";
+                        String status = (errorRate > 0 && random.nextInt(1, 101) <= errorRate) ? "E" : "C";
                         statusConsumer.accept(item, status);
                         itemsProcessed.incrementAndGet();
                         if ("E".equals(status)) {
@@ -127,7 +127,8 @@ public class QueueService {
         }
 
         long duration = System.currentTimeMillis() - start;
-        Map stats = Map.of("count", itemsProcessed.intValue(),
+        Map stats = Map.of("methodName", methodName,
+                "count", itemsProcessed.intValue(),
                 "errors", errorCount.intValue(),
                 "threads", threadCount,
                 "total-s", duration > 0 ? duration / 1000 : 0,

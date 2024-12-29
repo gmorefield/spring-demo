@@ -34,3 +34,41 @@ spec:
 #              resources:
           restartPolicy: OnFailure
 
+---
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: spring-demo-cron-prefetch
+  namespace: spring-demo
+spec:
+  schedule: "*/2 * * * *"  # run every 2 minutes
+  timeZone: America/New_York
+  suspend: false
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 15
+  successfulJobsHistoryLimit: 10
+  failedJobsHistoryLimit: 10
+
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: spring-demo-cron
+              image: spring-demo:latest
+              env:
+                - name: BPL_JAVA_NMT_ENABLED
+                  value: "false"
+                - name: SPRING_PROFILES_ACTIVE
+                  value: "local,job"
+                - name: SPRING_DATASOURCE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: datasource
+                      key: password
+              imagePullPolicy: IfNotPresent
+              command: ["java", "-jar", "/app.jar", "--action=manyPrefetch"]
+          #              resources:
+          restartPolicy: OnFailure
+

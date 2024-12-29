@@ -53,4 +53,52 @@ public class JobsConfig {
                 .withSchedule(cronSchedule("0 0/5 * * * ?"))
                 .build();
     }
+
+    @Bean
+    public JobDetail queueResetJob() {
+        return JobBuilder.newJob()
+                .ofType(SpringBeanMethodInvokingJob.class)
+                .storeDurably()
+                .withIdentity("queueResetJob", "queue")
+                .usingJobData("targetBean", "queueService")
+                .usingJobData("targetMethod", "resetErrors")
+                .build();
+    }
+
+    @Bean
+    public Trigger queueResetTrigger() {
+        return TriggerBuilder.newTrigger()
+                .forJob("queueResetJob", "queue")
+                .withSchedule(simpleSchedule()
+                        .withIntervalInMinutes(5)
+                        .repeatForever()
+                        .withMisfireHandlingInstructionIgnoreMisfires()
+                )
+                .withIdentity("queueResetJob.periodic", "queue")
+                .build();
+    }
+
+    @Bean
+    public JobDetail orderedQueueResetJob() {
+        return JobBuilder.newJob()
+                .ofType(SpringBeanMethodInvokingJob.class)
+                .storeDurably()
+                .withIdentity("orderedQueueResetJob", "queue")
+                .usingJobData("targetBean", "queueService")
+                .usingJobData("targetMethod", "orderResetErrors")
+                .build();
+    }
+
+    @Bean
+    public Trigger orderedQueueResetTrigger() {
+        return TriggerBuilder.newTrigger()
+                .forJob("orderedQueueResetJob", "queue")
+                .withSchedule(simpleSchedule()
+                        .withIntervalInMinutes(5)
+                        .repeatForever()
+                        .withMisfireHandlingInstructionIgnoreMisfires()
+                )
+                .withIdentity("orderedQueueResetJob.periodic", "queue")
+                .build();
+    }
 }
