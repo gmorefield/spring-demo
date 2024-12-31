@@ -6,6 +6,7 @@ import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -55,6 +56,7 @@ public class JobsConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "spring.sql.init.platform", havingValue = "mssql")
     public JobDetail queueResetJob() {
         return JobBuilder.newJob()
                 .ofType(SpringBeanMethodInvokingJob.class)
@@ -66,6 +68,7 @@ public class JobsConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "spring.sql.init.platform", havingValue = "mssql")
     public Trigger queueResetTrigger() {
         return TriggerBuilder.newTrigger()
                 .forJob("queueResetJob", "queue")
@@ -79,6 +82,7 @@ public class JobsConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "spring.sql.init.platform", havingValue = "mssql")
     public JobDetail orderedQueueResetJob() {
         return JobBuilder.newJob()
                 .ofType(SpringBeanMethodInvokingJob.class)
@@ -90,6 +94,7 @@ public class JobsConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "spring.sql.init.platform", havingValue = "mssql")
     public Trigger orderedQueueResetTrigger() {
         return TriggerBuilder.newTrigger()
                 .forJob("orderedQueueResetJob", "queue")

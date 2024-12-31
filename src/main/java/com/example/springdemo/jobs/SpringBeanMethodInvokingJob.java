@@ -28,7 +28,7 @@ public class SpringBeanMethodInvokingJob extends QuartzJobBean {
             getInvoker(applicationContext, data.getString("targetBean"), data.getString("targetMethod"))
                     .invoke();
         } catch (Exception e) {
-            throw new JobExecutionException("Failed to execute job with targetBean=%,targetMethod=%"
+            throw new JobExecutionException("Failed to execute job with targetBean=%s,targetMethod=%s"
                     .formatted(data.getString("targetBean"), data.getString("targetMethod")), e);
         }
     }

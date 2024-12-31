@@ -44,3 +44,4 @@ samples/
 patches/
 output/
 /src/main/resources/developer.properties
+/jmeter.log
