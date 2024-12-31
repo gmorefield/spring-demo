@@ -234,15 +234,30 @@ GET {{host}}/state/demo
 Content-Type: application/json
 
 ###
-GET {{host}}/tasks/schedules
+#
+# SCHEDULES
+#
+GET {{host}}/tasks?includeCanceled=false
 
 ###
-GET {{host}}/tasks/schedules/sample/stop
+POST {{host}}/tasks
+Content-Type: application/json
+
+{
+   "triggerType": "FIXED_DELAY",
+   "targetBean": "sampleTask",
+   "targetMethod": "heapEcho",
+   "period": "PT5s",
+   "initialDelay": "PT0s"
+}
 
 ###
-GET {{host}}/tasks/schedules/sample/start
+DELETE {{host}}/tasks/com.example.springdemo.tasks.SampleTask.heapEcho
 
 ###
+#
+# Plant UML
+#
 GET {{host}}/uml/fonts/PNG
 ###
 GET {{host}}/uml/test

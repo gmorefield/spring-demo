@@ -8,6 +8,8 @@ public class SampleTask {
 
     @Scheduled(cron = "${sample.task.free-memory.schedule:-}")
     public void heapEcho() {
-        System.out.format("*** FreeMemory = %d%n", Runtime.getRuntime().freeMemory());
+        System.out.format("*** [%s] FreeMemory = %d%n",
+                Thread.currentThread().getName(),
+                Runtime.getRuntime().freeMemory());
     }
 }
