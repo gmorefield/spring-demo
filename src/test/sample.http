@@ -266,6 +266,33 @@ POST {{host}}/tasks/refresh
 ###
 GET {{host}}/tasks/persisted?includeInactive=true
 
+###
+# broadcast schedules
+#
+GET {{host}}/broadcast/endpoint/spring-demo-app/tasks?includeCanceled=false
+
+###
+POST {{host}}/broadcast/endpoint/spring-demo-app/tasks/refresh
+
+###
+DELETE {{host}}/broadcast/endpoint/spring-demo-app/tasks/com.example.springdemo.tasks.SampleTask.timeEcho
+
+###
+DELETE {{host}}/broadcast/endpoint/spring-demo-app/tasks
+
+###
+POST {{host}}/broadcast/endpoint/spring-demo-app/tasks
+Content-Type: application/json
+
+{
+   "triggerType": "FIXED_DELAY",
+   "targetBean": "sampleTask",
+   "targetMethod": "uuidEcho",
+   "interval": "PT20s",
+   "initialDelay": "PT0s"
+}
+
+
 
 ###
 #
