@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet author="morefigs" id="001">
+        <createTable schemaName="${schema-name}" tableName="trigger_spec">
+            <column autoIncrement="true" computed="false" name="id" type="int" startWith="1">
+                <constraints nullable="false"
+                             primaryKey="true"
+                             primaryKeyName="pk_trigger_spec"/>
+            </column>
+            <column computed="false" name="trigger_type" type="varchar(50)"/>
+            <column computed="false" name="target_bean" type="varchar(50)"/>
+            <column computed="false" name="target_method" type="varchar(50)"/>
+            <column computed="false" name="cron_expression" type="varchar(50)"/>
+            <column computed="false" name="initial_delay" type="varchar(50)"/>
+            <column computed="false" name="interval" type="varchar(50)"/>
+            <column computed="false" name="enabled" type="${boolean}"/>
+            <column computed="false" name="update_dt" type="datetime" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="morefigs" id="002" context="!test">
+        <insert schemaName="${schema-name}" tableName="trigger_spec">
+            <column name="trigger_type" value="FIXED_DELAY"/>
+            <column name="target_bean" value="sampleTask"/>
+            <column name="target_method" value="heapEcho"/>
+            <column name="initial_delay" value="PT0s"/>
+            <column name="interval" value="PT20s"/>
+            <column name="enabled" value="true"/>
+        </insert>
+    </changeSet>
+    <changeSet author="morefigs" id="003" context="!test">
+        <insert schemaName="${schema-name}" tableName="trigger_spec">
+            <column name="trigger_type" value="FIXED_DELAY"/>
+            <column name="target_bean" value="sampleTask"/>
+            <column name="target_method" value="timeEcho"/>
+            <column name="initial_delay" value="PT0s"/>
+            <column name="interval" value="PT20s"/>
+            <column name="enabled" value="true"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="version-tag" author="morefigs">
+        <tagDatabase tag="v0.6.0"/>
+    </changeSet>
+</databaseChangeLog>

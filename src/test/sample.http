@@ -246,13 +246,26 @@ Content-Type: application/json
 {
    "triggerType": "FIXED_DELAY",
    "targetBean": "sampleTask",
-   "targetMethod": "heapEcho",
-   "period": "PT5s",
+   "targetMethod": "uuidEcho",
+   "interval": "PT20s",
    "initialDelay": "PT0s"
 }
 
 ###
 DELETE {{host}}/tasks/com.example.springdemo.tasks.SampleTask.heapEcho
+
+###
+DELETE {{host}}/tasks/com.example.springdemo.tasks.SampleTask.timeEcho
+
+###
+DELETE {{host}}/tasks
+
+###
+POST {{host}}/tasks/refresh
+
+###
+GET {{host}}/tasks/persisted?includeInactive=true
+
 
 ###
 #

@@ -20,6 +20,9 @@
     <property name="datetime23" value="timestamp" dbms="h2"/>
     <property name="datetime23" value="datetime2(3)" dbms="mssql"/>
 
+    <property name="boolean" value="boolean" dbms="h2"/>
+    <property name="boolean" value="bit" dbms="mssql"/>
+
     <!-- global properties to address schema -->
     <property name="schema-name" value="${liquibase.liquibaseSchemaName}"/>
 
