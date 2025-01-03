@@ -15,7 +15,7 @@ public class PlantUmlTest {
         String script = "@startuml;actor Kaka;@enduml";
         System.out.println("Generate UML for: "+script);
         SourceStringReader reader = new SourceStringReader(script.replace(';','\n'));
-        FileOutputStream fos = new FileOutputStream(new File("/Users/morefigs/Downloads/plantuml-sample.png"));
+        FileOutputStream fos = new FileOutputStream(new File("target/plantuml-sample.png"));
         reader.outputImage(fos, new FileFormatOption(FileFormat.PNG, false));
     }
 }
