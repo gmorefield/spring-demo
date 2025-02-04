@@ -143,6 +143,16 @@ k -n spring-demo run -i --tty --attach sqlcmd --image=mcr.microsoft.com/mssql-to
 ksd attach sqlcmd -c sqlcmd -i -t
 ```
 
+### ingress-nginx
+```sh
+start-demo.sh ingress-nginx
+start-demo.sh ingress
+
+curl --resolve spring-demo.kubernetes.docker.internal:80:127.0.0.1 http://spring-demo.kubernetes.docker.internal/actuator/health/liveness
+```
+References
+* [install guide](https://kubernetes.github.io/ingress-nginx/deploy/#docker-desktop)
+
 ### Liquibase
 References
 * [Properties](https://docs.liquibase.com/concepts/connections/creating-config-properties.html)

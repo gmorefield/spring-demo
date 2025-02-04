@@ -163,6 +163,7 @@ server:
     port: 8080
     session-timeout: 1800
     max-threads: 50
+    max-http-request-header-size: 16000
 
 # all info.* properties show in /actuator/info
 info:

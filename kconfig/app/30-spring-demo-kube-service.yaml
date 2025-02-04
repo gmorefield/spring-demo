@@ -11,6 +11,7 @@ spec:
   ports:
     - port: 8080
       name: http
+      targetPort: 8080
       nodePort: 30005
   selector:
     app: spring-demo-app

@@ -47,6 +47,7 @@
 		<jakarta-xml-bind.version>4.0.0</jakarta-xml-bind.version>
 		<glassfish-jaxb.version>4.0.1</glassfish-jaxb.version> -->
 		<lb-property-file>/liquibase/liquibase.properties</lb-property-file>
+		<quartz.version>2.5.0</quartz.version>
 	</properties>
 	<dependencies>
 		<dependency>

@@ -107,11 +107,11 @@ public class BroadcastController {
         }).collect(Collectors.toList());
     }
 
-    @GetMapping("/endpoint/{serviceName}/**")
-    public List<JsonNode> broadcastGetToServiceUsingEndpoint(@PathVariable String serviceName, HttpServletRequest request)
+    @GetMapping("/endpoint/{namespace}/{serviceName}/**")
+    public List<JsonNode> broadcastGetToServiceUsingEndpoint(@PathVariable String namespace, @PathVariable String serviceName, HttpServletRequest request)
             throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
         String restOfUrl = getUrlPathForBroadcast(request);
-        List<String> addresses = gatherEndpoints(serviceName, request);
+        List<String> addresses = gatherEndpoints(namespace, serviceName, request);
 
         return addresses.stream().map(addr -> {
             JsonNode response = webClient.get()
@@ -130,12 +130,12 @@ public class BroadcastController {
         }).collect(Collectors.toList());
     }
 
-    @PostMapping("/endpoint/{serviceName}/**")
-    public List<JsonNode> broadcastPostToServiceUsingEndpoint(@PathVariable String serviceName, @RequestBody Optional<JsonNode> body, final HttpServletRequest request)
+    @PostMapping("/endpoint/{namespace}/{serviceName}/**")
+    public List<JsonNode> broadcastPostToServiceUsingEndpoint(@PathVariable String namespace, @PathVariable String serviceName, @RequestBody Optional<JsonNode> body, final HttpServletRequest request)
             throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
 
         String restOfUrl = getUrlPathForBroadcast(request);
-        List<String> addresses = gatherEndpoints(serviceName, request);
+        List<String> addresses = gatherEndpoints(namespace, serviceName, request);
 
         return addresses.stream().map(addr -> {
             JsonNode response = webClient.post()
@@ -155,12 +155,12 @@ public class BroadcastController {
         }).collect(Collectors.toList());
     }
 
-    @DeleteMapping("/endpoint/{serviceName}/**")
-    public List<JsonNode> broadcastDeleteToServiceUsingEndpoint(@PathVariable String serviceName, @RequestBody Optional<JsonNode> body, final HttpServletRequest request)
+    @DeleteMapping("/endpoint/{namespace}/{serviceName}/**")
+    public List<JsonNode> broadcastDeleteToServiceUsingEndpoint(@PathVariable String namespace, @PathVariable String serviceName, @RequestBody Optional<JsonNode> body, final HttpServletRequest request)
             throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
 
         String restOfUrl = getUrlPathForBroadcast(request);
-        List<String> addresses = gatherEndpoints(serviceName, request);
+        List<String> addresses = gatherEndpoints(namespace, serviceName, request);
 
         return addresses.stream().map(addr -> {
             JsonNode response = webClient.delete()
@@ -183,14 +183,14 @@ public class BroadcastController {
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         log.info("proxy path = {}", path);
 
-        int thirdSlash = ordinalIndexOf(path, "/", 4);
-        String restOfUrl = thirdSlash == -1 ? "" : path.substring(thirdSlash);
+        int slash = ordinalIndexOf(path, "/", 5);
+        String restOfUrl = slash == -1 ? "" : path.substring(slash);
         log.info("restOfUrl = {}", restOfUrl);
 
         return restOfUrl;
     }
 
-    private List<String> gatherEndpoints(final String serviceName, final HttpServletRequest request) throws CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+    private List<String> gatherEndpoints(final String namespace, final String serviceName, final HttpServletRequest request) throws CertificateException, IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
 
         String token = Files.readString(Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/token"));
 
@@ -217,7 +217,7 @@ public class BroadcastController {
         HttpClient httpClient = HttpClient.newBuilder().sslContext(sslContext).build();
 
         Endpoints endpoints = webClient.mutate().clientConnector(new JdkClientHttpConnector(httpClient)).build().get()
-                .uri("https://kubernetes.default.svc.cluster.local/api/v1/namespaces/spring-demo/endpoints/{service}", serviceName)
+                .uri("https://kubernetes.default.svc.cluster.local/api/v1/namespaces/{namespace}/endpoints/{service}", namespace, serviceName)
                 .header("Authorization", "Bearer " + token)
                 .retrieve()
                 .bodyToMono(Endpoints.class)
