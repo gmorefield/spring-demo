@@ -152,6 +152,8 @@ curl --resolve spring-demo.kubernetes.docker.internal:80:127.0.0.1 http://spring
 ```
 References
 * [install guide](https://kubernetes.github.io/ingress-nginx/deploy/#docker-desktop)
+* [annotations](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/)
+* [ngx_http_proxy_module](https://nginx.org/en/docs/http/ngx_http_proxy_module.html)
 
 ### Liquibase
 References

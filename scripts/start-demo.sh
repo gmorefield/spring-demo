@@ -21,6 +21,13 @@ elif [ "$group" == "helm-ingress-nginx" ]; then
   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/cloud-generic.yaml
 elif [ "$group" == "ingress" ]; then
   kubectl apply -f kconfig/ingress/ && kubectl -n ingress-nginx get svc
+elif [ "$group" == "all" ]; then
+  kubectl apply -f kconfig/infra/ && sleep 30 && \
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.6.4/deploy/static/provider/cloud/deploy.yaml && \
+  sleep 20 && \
+  kubectl apply -f kconfig/ingress/ && kubectl -n ingress-nginx get svc && \
+  kubectl apply -f kconfig/app/ && \
+  kubectl -n spring-demo get pods --watch
 else
   kubectl apply -f kconfig/infra/ && sleep 30 && kubectl apply -f kconfig/app/ && kubectl -n spring-demo get pods --watch
 fi

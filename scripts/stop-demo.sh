@@ -16,6 +16,12 @@ elif [ "$group" == "ingress-nginx" ]; then
   kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.6.4/deploy/static/provider/cloud/deploy.yaml
 elif [ "$group" == "ingress" ]; then
   kubectl delete -f kconfig/ingress/
+elif [ "$group" == "all" ]; then
+  kubectl delete -f kconfig/wiremock/
+  kubectl delete -f kconfig/ingress/
+  kubectl delete -f kconfig/app/
+  kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.6.4/deploy/static/provider/cloud/deploy.yaml
+  kubectl delete -f kconfig/infra/
 else
   kubectl delete -f kconfig/app/ && kubectl delete -f kconfig/infra/
 fi
