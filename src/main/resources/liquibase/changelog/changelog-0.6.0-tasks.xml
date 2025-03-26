@@ -20,6 +20,7 @@
             <column computed="false" name="update_dt" type="datetime" defaultValueDate="${now}">
                 <constraints nullable="false"/>
             </column>
+            <column computed="false" name="context" type="varchar(50)"/>
         </createTable>
     </changeSet>
     <changeSet author="morefigs" id="002" context="!test">
@@ -40,6 +41,7 @@
             <column name="initial_delay" value="PT0s"/>
             <column name="interval" value="PT20s"/>
             <column name="enabled" value="true"/>
+            <column name="context" value="timeEcho"/>
         </insert>
     </changeSet>
 

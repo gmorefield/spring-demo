@@ -1,11 +1,14 @@
 package com.example.springdemo.tasks;
 
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class SampleTask {
 
@@ -17,8 +20,9 @@ public class SampleTask {
     }
 
     public void timeEcho() {
-        System.out.format("*** [%s] Time = %s%n",
+        System.out.format("*** [%s] [%s] Time = %s%n",
                 Thread.currentThread().getName(),
+                MDC.get("ctx"),
                 OffsetDateTime.now());
     }
 

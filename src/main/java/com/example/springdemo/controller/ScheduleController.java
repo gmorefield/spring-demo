@@ -4,6 +4,7 @@ import com.example.springdemo.data.TasksRepository;
 import com.example.springdemo.model.TriggerSpec;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MDC;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
@@ -105,7 +106,7 @@ public class ScheduleController implements ApplicationContextAware, SchedulingCo
     @PostMapping()
     public ResponseEntity<?> addTrigger(@RequestBody TriggerSpec spec) throws NoSuchMethodException {
         Object targetObject = appContext.getBean(spec.getTargetBean());
-        ScheduledMethodRunnable runnable = new ScheduledMethodRunnable(targetObject, spec.getTargetMethod());
+        ScheduledMethodRunnable runnable = new ContextAwareScheduledMethodRunnable(targetObject, spec.getTargetMethod(), spec.getContext());
 
         // TODO: consider switching to use of TaskScheduler outside of initial configuration
         if (spec.getTriggerType() == TriggerSpec.TriggerType.CRON) {
@@ -250,5 +251,27 @@ public class ScheduleController implements ApplicationContextAware, SchedulingCo
                         log.error("Failed to add trigger {}", spec, e);
                     }
                 });
+    }
+
+    public static class ContextAwareScheduledMethodRunnable extends ScheduledMethodRunnable {
+
+        private String context;
+
+        public ContextAwareScheduledMethodRunnable(Object target, String methodName, String context) throws NoSuchMethodException {
+            super(target, methodName);
+            this.context = context;
+        }
+
+        @Override
+        public void run() {
+            if (StringUtils.isNotEmpty(context)) {
+                try (MDC.MDCCloseable closeable = MDC.putCloseable("ctx", context)) {
+                    super.run();
+                }
+            }
+            else {
+                super.run();
+            }
+        }
     }
 }

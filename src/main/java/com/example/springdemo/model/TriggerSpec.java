@@ -18,6 +18,7 @@ public class TriggerSpec {
     private String targetBean;
     private String targetMethod;
     private boolean enabled;
+    private String context;
 
     public enum TriggerType {
         CRON, FIXED_RATE, FIXED_DELAY, ONE_TIME

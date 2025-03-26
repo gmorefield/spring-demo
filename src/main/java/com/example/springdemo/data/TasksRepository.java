@@ -33,6 +33,7 @@ public class TasksRepository {
                 .targetMethod(resultSet.getString("target_method"))
                 .triggerType(TriggerSpec.TriggerType.valueOf(resultSet.getString("trigger_type")))
                 .enabled(resultSet.getBoolean("enabled"))
+                .context(resultSet.getString("context"))
                 .build();
     }
 }
