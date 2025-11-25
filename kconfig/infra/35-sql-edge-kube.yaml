@@ -19,8 +19,8 @@ spec:
       #       claimName: mssql-data
       containers:
         - name: azuresqledge
-          image: mcr.microsoft.com/azure-sql-edge:latest
-#          image: mcr.microsoft.com/mssql/server:2022-latest
+#          image: mcr.microsoft.com/azure-sql-edge:latest
+          image: mcr.microsoft.com/mssql/server:2022-latest
           ports:
             - containerPort: 1433
           imagePullPolicy: IfNotPresent
@@ -50,7 +50,7 @@ spec:
             limits:
               cpu: 1000m
 #              memory: 2Gi
-              memory: 1024Mi
+              memory: 2048Mi
           # securityContext:
           #   capabilities:
           #     add:
