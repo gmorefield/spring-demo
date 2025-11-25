@@ -2,7 +2,7 @@ spring:
     datasource:
         driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
         # url: jdbc:sqlserver://localhost;databaseName=model
-        url: jdbc:sqlserver://localhost;trustServerCertificate=true
+        url: jdbc:sqlserver://localhost;trustServerCertificate=true;sendStringParametersAsUnicode=false;
         username: sa
         maximum-pool-size: ${spring.datasource.pool-size}
         # password: redacted
