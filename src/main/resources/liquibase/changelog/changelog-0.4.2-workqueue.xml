@@ -8,6 +8,10 @@
     <changeSet author="morefigs" id="001">
         <dropPrimaryKey schemaName="${schema-name}" tableName="workqueue"
                        constraintName="pk_workqueue"/>
+        <rollback>
+            <addPrimaryKey schemaName="${schema-name}" tableName="workqueue" columnNames="id"
+                       constraintName="pk_workqueue"/>
+        </rollback>
     </changeSet>
     <changeSet author="morefigs" id="002">
         <addUniqueConstraint schemaName="${schema-name}" tableName="workqueue" columnNames="wid" constraintName="uq_workqueue_wid"/>

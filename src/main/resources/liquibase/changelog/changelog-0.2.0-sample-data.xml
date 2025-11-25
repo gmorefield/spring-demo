@@ -25,6 +25,11 @@
             <column name="FILE_NM" value="test.md"/>
             <column name="DOC_BIN" valueBlobFile="../../static/test.md.gz"/>
         </insert>
+        <rollback>
+            <delete tableName="DOCUMENT" schemaName="${schema-name}">
+                <where>ID='9abb4957-c7cf-471c-8684-25e93a4a8dd9'</where>
+            </delete>
+        </rollback>
     </changeSet>
 
     <changeSet author="morefigs" id="003-document" context="!test">
@@ -35,6 +40,11 @@
             <column name="FILE_NM" value="test.json"/>
             <column name="DOC_BIN" valueBlobFile="../../static/test.json.gz"/>
         </insert>
+        <rollback>
+            <delete tableName="DOCUMENT" schemaName="${schema-name}">
+                <where>ID='3af0017d-e60b-4d8d-a27a-e1b609281ba2'</where>
+            </delete>
+        </rollback>
     </changeSet>
 
     <changeSet author="morefigs" id="004-document" context="!test">
@@ -42,6 +52,7 @@
             <column name="CONTENT_LEN" valueComputed="${datalength}(doc_bin)"/>
             <where>ID in ('9abb4957-c7cf-471c-8684-25e93a4a8dd9','3af0017d-e60b-4d8d-a27a-e1b609281ba2')</where>
         </update>
+        <rollback/>
     </changeSet>
 
     <changeSet id="version-tag" author="morefigs">

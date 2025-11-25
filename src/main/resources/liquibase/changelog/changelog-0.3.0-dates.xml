@@ -32,6 +32,9 @@
                 date_time_2_3 ${datetime23} NOT NULL
             );
         </sql>
+        <rollback>
+            <dropTable schemaName="${schema-name}" tableName="DATES"/>
+        </rollback>
     </changeSet>
 
     <changeSet id="version-tag" author="morefigs">

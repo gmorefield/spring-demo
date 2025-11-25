@@ -725,13 +725,14 @@
 				<artifactId>liquibase-maven-plugin</artifactId>
 				<!--suppress MavenModelInspection -->
 				<configuration>
-				   <propertyFile>${lb-property-file}</propertyFile>
-				   <!--suppress UnresolvedMavenProperty -->
+					<contexts>local</contexts>
+					<propertyFile>${lb-property-file}</propertyFile>
+					<!--suppress UnresolvedMavenProperty -->
 					<username>${env.LIQUIBASE_COMMAND_USERNAME}</username>
-				   <!--suppress UnresolvedMavenProperty -->
+					<!--suppress UnresolvedMavenProperty -->
 					<password>${env.LIQUIBASE_COMMAND_PASSWORD}</password>
 				</configuration>
-			 </plugin>
+			</plugin>
 		</plugins>
 	</build>
 

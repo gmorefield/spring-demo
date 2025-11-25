@@ -32,6 +32,11 @@
             <column name="interval" value="PT20s"/>
             <column name="enabled" value="true"/>
         </insert>
+        <rollback>
+            <delete tableName="trigger_spec" schemaName="${schema-name}">
+                <where>target_bean='sampleTask' AND target_method='heapEcho'</where>
+            </delete>
+        </rollback>
     </changeSet>
     <changeSet author="morefigs" id="003" context="!test">
         <insert schemaName="${schema-name}" tableName="trigger_spec">
@@ -43,6 +48,11 @@
             <column name="enabled" value="true"/>
             <column name="context" value="timeEcho"/>
         </insert>
+        <rollback>
+            <delete tableName="trigger_spec" schemaName="${schema-name}">
+                <where>target_bean='sampleTask' AND target_method='timeEcho'</where>
+            </delete>
+        </rollback>
     </changeSet>
 
     <changeSet id="version-tag" author="morefigs">

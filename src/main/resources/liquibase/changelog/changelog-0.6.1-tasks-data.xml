@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="001" author="morefigs" context="!test">
+        <delete  schemaName="${schema-name}"
+                 tableName="trigger_spec">
+        </delete>
+        <rollback>
+            <loadData  commentLineStartsWith="#"
+                             encoding="UTF-8"
+                             file="changelog-0.6.1/trigger_spec_orig.csv"
+                             quotchar="'"
+                             relativeToChangelogFile="true"
+                             schemaName="${schema-name}"
+                             separator=","
+                             tableName="trigger_spec"
+                             usePreparedStatements="false">
+                <column name="trigger_type" header="trigger_type" type="STRING"/>
+                <column name="target_bean" header="target_bean" type="STRING"/>
+                <column name="target_method" header="target_method" type="STRING"/>
+                <column name="initial_delay" header="initial_delay" type="STRING"/>
+                <column name="interval" header="interval" type="STRING"/>
+                <column name="enabled" header="enabled" type="BOOLEAN"/>
+            </loadData>
+        </rollback>
+    </changeSet>
+    <changeSet id="002" author="morefigs">
+        <addColumn tableName="trigger_spec" schemaName="${schema-name}">
+            <column name="trigger_name" type="varchar(50)">
+                <constraints nullable="false" uniqueConstraintName="uq_trigger_spec_name"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="morefigs" id="003" context="!test">
+        <loadUpdateData  commentLineStartsWith="#"
+                         encoding="UTF-8"
+                         file="changelog-0.6.1/trigger_spec_data.csv"
+                         onlyUpdate="false"
+                         primaryKey="trigger_name"
+                         quotchar="'"
+                         relativeToChangelogFile="true"
+                         schemaName="${schema-name}"
+                         separator=","
+                         tableName="trigger_spec"
+                         usePreparedStatements="false">
+            <column name="trigger_name" header="trigger_name" type="STRING"/>
+            <column name="trigger_type" header="trigger_type" type="STRING"/>
+            <column name="target_bean" header="target_bean" type="STRING"/>
+            <column name="target_method" header="target_method" type="STRING"/>
+            <column name="initial_delay" header="initial_delay" type="STRING"/>
+            <column name="interval" header="interval" type="STRING"/>
+            <column name="enabled" header="enabled" type="BOOLEAN"/>
+        </loadUpdateData>
+        <rollback>
+            <delete  schemaName="${schema-name}"
+                     tableName="trigger_spec">
+            </delete>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="version-tag" author="morefigs">
+        <tagDatabase tag="v0.6.1"/>
+    </changeSet>
+</databaseChangeLog>
