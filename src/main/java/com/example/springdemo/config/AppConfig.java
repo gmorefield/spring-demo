@@ -113,7 +113,7 @@ public class AppConfig implements ApplicationContextAware {
 
         @Override
         public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
-            log.info("Retry {} error {}", context.getRetryCount(), throwable.getClass().getSimpleName());
+            log.info("{}: Retry {} error {}", context.getAttribute(RetryContext.NAME), context.getRetryCount(), throwable.getClass().getSimpleName());
             RetryListener.super.onError(context, callback, throwable);
         }
     }

@@ -57,7 +57,7 @@ public class QueueRepository {
         return count;
     }
 
-    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true))
+    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "fetchNext")
     public QueueController.OrderedWorkItem fetchNext() {
         String sql = """
                 DECLARE @itemTable TABLE (
@@ -90,7 +90,7 @@ public class QueueRepository {
         return result.orElse(new QueueController.OrderedWorkItem());
     }
 
-    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true))
+    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "fetchMany")
     public List<QueueController.OrderedWorkItem> fetchMany(Integer count) {
         String sql = """
                 DECLARE @itemTable TABLE (
@@ -260,7 +260,7 @@ public class QueueRepository {
         }
     }
 
-    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true))
+    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "orderedFetchNext")
     public QueueController.OrderedWorkItem orderedFetchNext() {
         String sql = """
                 --DECLARE @item varchar(36);
@@ -307,7 +307,7 @@ public class QueueRepository {
         return result.orElse(new QueueController.OrderedWorkItem());
     }
 
-    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true))
+    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "orderedFetchMany")
     public List<QueueController.OrderedWorkItem> orderedFetchMany(Integer count) {
         String sql = """
                 DECLARE @itemTable TABLE (
