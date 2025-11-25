@@ -8,6 +8,7 @@ import org.springframework.util.function.ThrowingSupplier;
 
 import java.security.SecureRandom;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -30,6 +31,11 @@ public class QueueService {
         return queueRepository.orderedFetchNext();
     }
 
+    public Map<String,Integer> orderStatus() {
+        log.info("Fetching order status counts...");
+        return queueRepository.getOrderedStatusCounts();
+    }
+
     public Map orderManyNext(int threadCount, int errorRate) throws InterruptedException {
         log.info("Processing order/manyNext with {} threads...", threadCount);
 
@@ -44,14 +50,30 @@ public class QueueService {
         return processItems("order/manyPrefetch", threadCount, errorRate, blockingQueue::fetch, queueRepository::orderedSetStatus);
     }
 
+    public int orderMergeSingle(final UUID wid, final int orderId) {
+        return queueRepository.orderedMergeSingle(wid, orderId);
+    }
+
+    public int orderAddSingle(final UUID wid, final int orderId) {
+        return queueRepository.orderedAddSingle(wid, orderId);
+    }
+
+    public int orderAddUniqueSingle(final UUID wid, final int orderId) {
+        return queueRepository.orderedAddUniqueSingle(wid, orderId);
+    }
+
     public int orderAddMany(final int itemCount, final int uniqueOrders) {
-        log.info("Adding {} ordered items...", itemCount);
         return queueRepository.orderedAddMany(itemCount, uniqueOrders);
     }
 
     public int orderResetErrors() {
         log.info("Resetting ordered errors...");
         return queueRepository.orderedResetErrors();
+    }
+
+    public Map<String,Integer> status() {
+        log.info("Fetching status counts...");
+        return queueRepository.getStatusCounts();
     }
 
     public QueueController.OrderedWorkItem next() {

@@ -536,7 +536,9 @@ Content-ID: <root@espringdemo>
 #
 # QUEUE
 #
+GET {{host}}/queue/status
 
+###
 GET {{host}}/queue/addMany?items=15000
 
 ###
@@ -552,6 +554,9 @@ GET {{host}}/queue/resetErrors
 #
 # ORDERED
 #
+GET {{host}}/queue/order/status
+
+###
 GET {{host}}/queue/order/addMany?items=15000&order=150
 
 ###

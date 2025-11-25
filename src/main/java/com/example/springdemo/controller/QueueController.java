@@ -2,6 +2,7 @@ package com.example.springdemo.controller;
 
 import com.example.springdemo.service.QueueService;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,11 @@ public class QueueController {
         this.queueService = queueService;
     }
 
+    @GetMapping("/order/status")
+    public Map orderStatus() {
+        return queueService.orderStatus();
+    }
+
     @GetMapping("/order/next")
     public OrderedWorkItem orderNext() {
         return queueService.orderNext();
@@ -45,6 +51,36 @@ public class QueueController {
         return queueService.orderManyPrefetch(threads.orElse(10), fetch.orElse(20), errorRate.orElse(1));
     }
 
+    @GetMapping("/order/addSingle")
+    public Map orderAddSingle(@RequestParam(value = "wid") @NotNull String wid,
+                              @RequestParam(value = "order") @NotNull Integer order) {
+        int countAdded = queueService.orderAddSingle(java.util.UUID.fromString(wid), order);
+
+        Map data = Map.of("rowsAdded", countAdded);
+        log.info("order/addSingle complete: {}", data);
+        return data;
+    }
+
+    @GetMapping("/order/mergeSingle")
+    public Map orderMergeSingle(@RequestParam(value = "wid") @NotNull String wid,
+                                @RequestParam(value = "order") @NotNull Integer order) {
+        int countMerged = queueService.orderMergeSingle(java.util.UUID.fromString(wid), order);
+
+        Map data = Map.of("rowsMerged", countMerged);
+        log.info("order/mergeSingle complete: {}", data);
+        return data;
+    }
+
+    @GetMapping("/order/addUniqueSingle")
+    public Map orderAddUniqueSingle(@RequestParam(value = "wid") @NotNull String wid,
+                                @RequestParam(value = "order") @NotNull Integer order) {
+        int countMerged = queueService.orderAddUniqueSingle(java.util.UUID.fromString(wid), order);
+
+        Map data = Map.of("rowsMerged", countMerged);
+        log.info("order/addUniqueSingle complete: {}", data);
+        return data;
+    }
+
     @GetMapping("/order/addMany")
     public Map orderAddMany(@RequestParam(value = "items", required = false) Optional<Integer> items,
                             @RequestParam(value = "order", required = false) Optional<Integer> order) {
@@ -60,6 +96,11 @@ public class QueueController {
         int count = queueService.orderResetErrors();
         log.info("reset complete: {}", Map.of("count", count));
         return Map.of("rowsReset", count);
+    }
+
+    @GetMapping("/status")
+    public Map status() {
+        return queueService.status();
     }
 
     @GetMapping("/next")

@@ -9,9 +9,11 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Repository
@@ -21,6 +23,22 @@ public class QueueRepository {
 
     public QueueRepository(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    public Map<String, Integer> getStatusCounts() {
+        String sql = """
+                SELECT status, COUNT(*) AS count
+                FROM workqueue with (nolock)
+                GROUP BY status
+                """;
+
+        return jdbcTemplate.query(sql, rs -> {
+            Map<String, Integer> resultMap = new HashMap<>();
+            while (rs.next()) {
+                resultMap.put(rs.getString("status"), rs.getInt("count"));
+            }
+            return resultMap;
+        });
     }
 
     public int addMany(final int itemCount) {
@@ -117,6 +135,71 @@ public class QueueRepository {
                    and dateadd(SECOND, 10*retry_cnt, update_dt) < getdate()
                 """;
         return jdbcTemplate.update(sql, Collections.emptyMap());
+    }
+
+    public Map<String, Integer> getOrderedStatusCounts() {
+        String sql = """
+                SELECT status, COUNT(*) AS count
+                FROM orderedqueue with (nolock)
+                GROUP BY status
+                """;
+
+        return jdbcTemplate.query(sql, rs -> {
+            Map<String, Integer> resultMap = new HashMap<>();
+            while (rs.next()) {
+                resultMap.put(rs.getString("status"), rs.getInt("count"));
+            }
+            return resultMap;
+        });
+    }
+
+    // Add single ordered item with random order id between 1 and uniqueOrders, ignoring duplicates
+    public int orderedMergeSingle(final UUID newId, final int orderId) {
+        String sql = """
+                merge into orderedqueue as oq
+                using ( values( :wid, :order_id ) ) as src(wid, order_id)
+                   on oq.wid = src.wid
+                 when not matched by target then
+                    insert (wid,order_id,status)
+                    values (:wid,:order_id,'R');
+                """;
+        return jdbcTemplate.update(sql,
+                Map.of("wid", newId.toString(), "order_id", String.valueOf(orderId))
+        );
+    }
+
+    // Add single ordered item with random order id between 1 and uniqueOrders
+    public int orderedAddSingle(final UUID newId, final int orderId) {
+        String sql = """
+                insert into orderedqueue (wid,order_id,status) values (:wid,:order_id,'R');
+                """;
+        try {
+            return jdbcTemplate.update(sql,
+                    Map.of("wid", newId.toString(), "order_id", String.valueOf(orderId))
+            );
+        }
+        catch(Exception e) {
+            return 0;
+        }
+    }
+
+    // Add single ordered item with random order id between 1 and uniqueOrders
+    public int orderedAddUniqueSingle(final UUID newId, final int orderId) {
+        String sql = """
+                insert into orderedqueue (wid,order_id,status)
+                select :wid, :order_id, 'R'
+                where not exists (
+                    select 1 from orderedqueue where wid = :wid
+                );
+                """;
+        try {
+            return jdbcTemplate.update(sql,
+                    Map.of("wid", newId.toString(), "order_id", String.valueOf(orderId))
+            );
+        }
+        catch(Exception e) {
+            return 0;
+        }
     }
 
     public int orderedAddMany(final int itemCount, final int uniqueOrders) {
