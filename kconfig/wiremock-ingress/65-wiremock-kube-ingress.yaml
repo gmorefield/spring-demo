@@ -1,31 +1,21 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: spring-demo-external
+  name: wiremock-demo-external
   namespace: ingress-nginx
 spec:
   type: ExternalName
-  externalName: spring-demo-app.spring-demo.svc.cluster.local
+  externalName: wiremock-node.wiremock-demo.svc.cluster.local
   ports:
-  - port: 8080
-    targetPort: 8080
-
----
-
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ingress-nginx-controller
-  namespace: ingress-nginx
-data:
-  large-client-header-buffers: "4 16k"
+  - port: 8888
+    targetPort: 8888
 
 ---
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: spring-demo-ingress
+  name: wiremock-demo-ingress
   namespace: ingress-nginx
   annotations:
     # kubernetes.io/ingress.class: nginx
@@ -50,14 +40,14 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: spring-demo.kubernetes.docker.internal
+  - host: wiremock-demo.kubernetes.docker.internal
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: spring-demo-external
-            # namespace: spring-demo
+            name: wiremock-demo-external
+            # namespace: wiremock-demo
             port:
-              number: 8080
+              number: 8888

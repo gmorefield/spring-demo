@@ -35,7 +35,7 @@ spec:
             - name: USER_PASS
               value: "adm:pass"
             - name: WIREMOCK_OPTIONS
-              value: "--verbose -port=8888 --no-request-journal --admin-api-basic-auth=$(USER_PASS)"
+              value: "--verbose -port=8888 --no-request-journal --admin-api-basic-auth=$(USER_PASS) --logged-response-body-size-limit=1000000 --disable-request-logging"
             - name: JAVA_TOOL_OPTIONS
               value: "-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee"
           resources:
