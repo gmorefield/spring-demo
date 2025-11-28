@@ -18,3 +18,10 @@ spring:
     liquibase:
         parameters:
             "liquibase.liquibaseSchemaName": PUBLIC
+    quartz:
+        properties:
+            org:
+                quartz:
+                    jobStore:
+                        driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+                        isClustered: false

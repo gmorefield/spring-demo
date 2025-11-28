@@ -15,6 +15,14 @@
         <sql dbms="mssql">
             SET IDENTITY_INSERT ${schema-prefix}PERSON OFF;
         </sql>
+        <sql dbms="h2">
+            ALTER TABLE ${schema-prefix}PERSON ALTER COLUMN ID RESTART WITH 2;
+        </sql>
+        <rollback>
+            <delete tableName="PERSON" schemaName="${schema-name}">
+                <where>ID=1</where>
+            </delete>
+        </rollback>
     </changeSet>
 
     <changeSet author="morefigs" id="002-document" context="!test">

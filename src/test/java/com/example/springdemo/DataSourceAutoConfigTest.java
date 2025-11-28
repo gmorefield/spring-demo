@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest()
-@ActiveProfiles({ "h2", "test" })
+@ActiveProfiles({ "test", "h2" })
 public class DataSourceAutoConfigTest {
 
     @Test

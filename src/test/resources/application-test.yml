@@ -16,6 +16,9 @@ spring:
             mode: never
     quartz:
         auto-startup: false
+    config:
+        import: optional:classpath:application-${junit.db.type}.yml
+#        import: env:TEST_DB_CONFIG
 
 logging:
     level:

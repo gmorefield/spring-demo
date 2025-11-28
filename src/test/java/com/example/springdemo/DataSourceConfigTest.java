@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
@@ -12,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import javax.sql.DataSource;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -35,11 +37,12 @@ public class DataSourceConfigTest {
     }
 
     @Test
-    public void testPropsDataSource(@Autowired @Qualifier("propsDataSource") DataSource propsDataSource) {
+    public void testPropsDataSource(@Autowired @Qualifier("propsDataSource") DataSource propsDataSource,
+                                    @Value("${spring.datasource.url}") String datasourceUrl) {
         assertNotNull(propsDataSource, "propsDataSource should not be null");
         assertInstanceOf(HikariDataSource.class, propsDataSource);
         HikariDataSource hds = (HikariDataSource) propsDataSource;
-        assertTrue(hds.getJdbcUrl().contains("props"), hds.getJdbcUrl());
+        assertThat(hds.getJdbcUrl()).isEqualTo(datasourceUrl);
         assertEquals(30, hds.getMaximumPoolSize());
     }
 

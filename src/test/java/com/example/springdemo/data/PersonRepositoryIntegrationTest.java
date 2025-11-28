@@ -3,21 +3,23 @@ package com.example.springdemo.data;
 import com.example.springdemo.model.Person;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
 import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTableWhere;
 
 @JdbcTest
+@AutoConfigureTestDatabase(replace = NONE)
 @ActiveProfiles("test")
-@Sql({"/test-person-repo-data.sql"})
+//@Sql(value = {"/test-person-repo-data.sql"}, config = @SqlConfig())
 public class PersonRepositoryIntegrationTest {
     private PersonRepository personRepository;
     private JdbcTemplate jdbcTemplate;
@@ -53,12 +55,13 @@ public class PersonRepositoryIntegrationTest {
         Person expected = new Person(0, "Hans", "Solo");
 
         Person actual = personRepository.save(expected);
-        assertEquals(2, actual.getId());
+        assertThat(actual.getId()).isGreaterThan(1L);
         assertEquals(expected.getFirstName(), actual.getFirstName());
         assertEquals(expected.getLastName(), actual.getLastName());
 
         assertThat(countRowsInTable(jdbcTemplate, "Person")).isEqualTo(2);
         assertThat(countRowsInTableWhere(jdbcTemplate, "Person",
-                "id=2 and first_name='Hans' and last_name='Solo'")).isEqualTo(1);
+                "id=" + actual.getId() + " and first_name='Hans' and last_name='Solo'"))
+                .isEqualTo(1);
     }
 }

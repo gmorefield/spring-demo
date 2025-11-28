@@ -14,14 +14,15 @@ import javax.xml.transform.Source;
 
 import java.util.Base64;
 
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 import static org.springframework.ws.test.server.RequestCreators.withPayload;
 import static org.springframework.ws.test.server.ResponseMatchers.payload;
 
 // @ExtendWith(SpringExtension.class)
 // @ContextConfiguration(classes = { MtomServerConfig.class, StorageEndpoint.class })
 @SpringBootTest
-@AutoConfigureTestDatabase
-@ActiveProfiles({ "h2", "test" })
+@AutoConfigureTestDatabase(replace = NONE)
+@ActiveProfiles({ "test" })
 public class StrorageEndpointIntegrationTest {
 
     @Autowired
