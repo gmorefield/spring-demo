@@ -1,0 +1,21 @@
+meta {
+  name: ordered-queue-items-add-single
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/queue/order/addSingle?wid=8ac55790-57ff-447a-a5aa-6286e5012407&order=3977
+  body: none
+  auth: inherit
+}
+
+params:query {
+  wid: 8ac55790-57ff-447a-a5aa-6286e5012407
+  order: 3977
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

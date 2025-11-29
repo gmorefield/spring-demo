@@ -1,6 +1,7 @@
 alias k=kubectl
 alias ksd="kubectl -n spring-demo"
 alias kin="kubectl -n ingress-nginx"
+alias kwm="kubectl -n wiremock-demo"
 
 export PATH="${PWD}/scripts:$PATH"
 

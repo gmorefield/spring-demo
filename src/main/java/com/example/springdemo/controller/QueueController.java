@@ -110,15 +110,23 @@ public class QueueController {
 
     @GetMapping("/manyNext")
     public Map manyNext(@RequestParam(value = "threads", required = false) Optional<Integer> threads,
-                        @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate) throws InterruptedException {
-        return queueService.manyNext(threads.orElse(10), errorRate.orElse(1));
+                        @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate,
+                        @RequestParam(value = "useFetch", required = false) Optional<Boolean> useFetch) throws InterruptedException {
+        return queueService.manyNext(threads.orElse(10),
+                errorRate.orElse(1),
+                useFetch.orElse(true)
+                );
     }
 
     @GetMapping("/manyPrefetch")
     public Map manyPrefetch(@RequestParam(value = "threads", required = false) Optional<Integer> threads,
                             @RequestParam(value = "prefetch", required = false) Optional<Integer> fetch,
-                            @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate) throws InterruptedException {
-        return queueService.manyPrefetch(threads.orElse(10), fetch.orElse(20), errorRate.orElse(1));
+                            @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate,
+                            @RequestParam(value = "useFetch", required = false) Optional<Boolean> useFetch) throws InterruptedException {
+        return queueService.manyPrefetch(threads.orElse(10),
+                fetch.orElse(20),
+                errorRate.orElse(1),
+                useFetch.orElse(true));
     }
 
     @GetMapping("/addMany")
@@ -172,63 +180,4 @@ public class QueueController {
         }
     }
 
-    public static class PrefetchBlockingQueue<T> extends ArrayBlockingQueue {
-        private final ReentrantLock takeLock = new ReentrantLock();
-        private final int minSize;
-        private final int fetchSize;
-        private final ItemProvider<Integer, List<T>> supplier;
-        private transient boolean draining = false;
-        private final AtomicInteger finalChecks;
-
-        @FunctionalInterface
-        public interface ItemProvider<T, R> {
-            R apply(T count);
-        }
-
-        public PrefetchBlockingQueue(int minSize, int fetchSize, ItemProvider<Integer, List<T>> supplier) {
-            super(minSize + fetchSize, true);
-            this.finalChecks = new AtomicInteger(1);
-            this.minSize = minSize;
-            this.fetchSize = fetchSize;
-            this.supplier = supplier;
-        }
-
-        public <T> T fetch() throws InterruptedException {
-            final ReentrantLock lock = this.takeLock;
-            lock.lockInterruptibly();
-            try {
-                if (size() < minSize && !draining) {
-                    List<T> items = (List<T>) fetchMany();
-                    addAll(items);
-                }
-                if (size() <= 0) {
-                    return (T) new OrderedWorkItem();
-                }
-            } finally {
-                lock.unlock();
-            }
-            return (T) super.take();
-        }
-
-        private List<T> fetchMany() {
-            List<T> items = Collections.emptyList();
-            try {
-                items = supplier.apply(fetchSize);
-                if (items.isEmpty()) {
-                    if (finalChecks.decrementAndGet() <= 0) {
-                        log.info("Prefetch was empty. Started draining");
-                        draining = true;
-                    }
-                } else if (finalChecks.intValue() < minSize) {
-                    finalChecks.set(minSize);
-                }
-                return items;
-            } catch (Exception e) {
-                //TODO: enhance this to handle multiple attempts
-                draining = true;
-                log.error("Failed to prefetch orderedqueue items. Will drain queue: {}", e.getMessage());
-            }
-            return items;
-        }
-    }
 }

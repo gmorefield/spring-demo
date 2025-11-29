@@ -1,0 +1,3 @@
+﻿trigger_type,target_bean,target_method,initial_delay,interval,enabled,context
+FIXED_DELAY,sampleTask,heapEcho,PT0s,PT20s,TRUE,
+FIXED_DELAY,sampleTask,timeEcho,PT0s,PT20s,TRUE,timeEcho

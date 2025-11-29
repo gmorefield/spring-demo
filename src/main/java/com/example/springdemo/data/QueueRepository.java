@@ -2,6 +2,7 @@ package com.example.springdemo.data;
 
 import com.example.springdemo.controller.QueueController;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.retry.annotation.Backoff;
@@ -57,29 +58,31 @@ public class QueueRepository {
         return count;
     }
 
+    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "selectNext")
+    public QueueController.OrderedWorkItem retrieveNext(int count) {
+        List<QueueController.OrderedWorkItem> stream = jdbcTemplate.query("{ CALL SELECT_NEXT(:count) }",
+                Map.of("count", count), (row, index) -> {
+                    QueueController.OrderedWorkItem item = new QueueController.OrderedWorkItem();
+                    item.setWid(row.getString("wid"));
+                    item.setId(row.getString("id"));
+                    return item;
+                });
+        Optional<QueueController.OrderedWorkItem> result = stream.stream().findFirst();
+        return result.orElse(new QueueController.OrderedWorkItem());
+    }
+
+    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "selectNext")
+    public QueueController.OrderedWorkItem selectNext() {
+        return getOrderedWorkItem("{ CALL SELECT_NEXT(:msg) }");
+    }
+
     @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "fetchNext")
     public QueueController.OrderedWorkItem fetchNext() {
-        String sql = """
-                DECLARE @itemTable TABLE (
-                    wid varchar(36),
-                    id int
-                );
-                update workqueue
-                  with (ROWLOCK)
-                   set status='I',
-                       update_dt = getdate(),
-                       msg = :msg
-                output inserted.wid, inserted.id into @itemTable
-                 where id = (
-                        select top 1 w2.id
-                          from workqueue w2
-                          with (UPDLOCK, READPAST)
-                         where (w2.status='R')
-                         order by w2.id
-                       )
-                   and (status='R');
-                select * from workqueue where id = (select id from @itemTable);
-                """;
+        return getOrderedWorkItem("{ CALL OUTPUT_NEXT(:msg) }");
+    }
+
+    @NotNull
+    private QueueController.OrderedWorkItem getOrderedWorkItem(String sql) {
         List<QueueController.OrderedWorkItem> stream = jdbcTemplate.query(sql, Map.of("msg", Thread.currentThread().getId()), (row, index) -> {
             QueueController.OrderedWorkItem item = new QueueController.OrderedWorkItem();
             item.setWid(row.getString("wid"));
@@ -90,35 +93,27 @@ public class QueueRepository {
         return result.orElse(new QueueController.OrderedWorkItem());
     }
 
+    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "selectMany")
+    public List<QueueController.OrderedWorkItem> selectMany(Integer count) {
+        return getOrderedWorkItems(count, "{ CALL SELECT_MANY(:count, :msg) }");
+    }
+
     @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "fetchMany")
     public List<QueueController.OrderedWorkItem> fetchMany(Integer count) {
-        String sql = """
-                DECLARE @itemTable TABLE (
-                    wid varchar(36),
-                    id int
-                );
-                update workqueue
-                  with (ROWLOCK)
-                   set status='I',
-                       update_dt = getdate(),
-                       msg = :msg
-                output inserted.wid, inserted.id into @itemTable
-                 where id in (
-                        select top #FETCH_COUNT# w2.id
-                          from workqueue w2
-                          with (UPDLOCK, READPAST)
-                         where w2.status = 'R'
-                         order by w2.id
-                       )
-                   and (status='R');
-                select * from workqueue where id in (select id from @itemTable);
-                """.replace("#FETCH_COUNT#", String.valueOf(count));
-        List<QueueController.OrderedWorkItem> items = jdbcTemplate.query(sql, Map.of("msg", Thread.currentThread().getId()), (row, index) -> {
-            QueueController.OrderedWorkItem item = new QueueController.OrderedWorkItem();
-            item.setWid(row.getString("wid"));
-            item.setId(row.getString("id"));
-            return item;
-        });
+        return getOrderedWorkItems(count, "{ CALL OUTPUT_MANY(:count, :msg) }");
+    }
+
+    @NotNull
+    private List<QueueController.OrderedWorkItem> getOrderedWorkItems(Integer count, String sql) {
+        List<QueueController.OrderedWorkItem> items = jdbcTemplate.query(sql, Map.of(
+                        "msg", Thread.currentThread().getId(),
+                        "count", count),
+                (row, index) -> {
+                    QueueController.OrderedWorkItem item = new QueueController.OrderedWorkItem();
+                    item.setWid(row.getString("wid"));
+                    item.setId(row.getString("id"));
+                    return item;
+                });
 
         log.debug("Returned items: {}", items.stream()
                 .map(QueueController.OrderedWorkItem::getId)
@@ -177,8 +172,7 @@ public class QueueRepository {
             return jdbcTemplate.update(sql,
                     Map.of("wid", newId.toString(), "order_id", String.valueOf(orderId))
             );
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             return 0;
         }
     }
@@ -196,8 +190,7 @@ public class QueueRepository {
             return jdbcTemplate.update(sql,
                     Map.of("wid", newId.toString(), "order_id", String.valueOf(orderId))
             );
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             return 0;
         }
     }
@@ -263,7 +256,6 @@ public class QueueRepository {
     @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "orderedFetchNext")
     public QueueController.OrderedWorkItem orderedFetchNext() {
         String sql = """
-                --DECLARE @item varchar(36);
                 DECLARE @itemTable TABLE (
                     wid varchar(36),
                     id int
@@ -274,8 +266,6 @@ public class QueueRepository {
                        update_dt = getdate(),
                        msg = :msg
                 output inserted.wid, inserted.id into @itemTable
-                --where wid = (
-                --    select top 1 w2.wid
                  where id = (
                     select top 1 w2.id
                       from orderedqueue  w2
@@ -286,16 +276,11 @@ public class QueueRepository {
                                  where w3.order_id = w2.order_id
                                    and w3.status in ('I','E')
                            )
-                     --order by w2.create_dt
                      order by w2.id
                    )
                    and (status='R');
-                --select @item = wid from @itemTable;
-                --select * from orderedqueue where wid = (select wid from @itemTable); --@item;
                 select * from orderedqueue where id = (select id from @itemTable); --@item;
                 """;
-//        try (Stream<OrderedWorkItem> stream = jdbcTemplate.queryForStream(sql, Map.of("msg", Thread.currentThread().getId()), (row, index) -> {
-//        try {
         List<QueueController.OrderedWorkItem> stream = jdbcTemplate.query(sql, Map.of("msg", Thread.currentThread().getId()), (row, index) -> {
             QueueController.OrderedWorkItem item = new QueueController.OrderedWorkItem();
             item.setWid(row.getString("wid"));

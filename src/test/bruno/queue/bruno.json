@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "queue",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

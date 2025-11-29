@@ -8,6 +8,7 @@ spring:
         enabled: true
         contexts: test
         parameters:
+            liquibase.searchPath: src/test/resources
             "liquibase.liquibaseSchemaName": PUBLIC
     sql:
         init:

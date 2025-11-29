@@ -4,6 +4,13 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <changeSet author="morefigs" id="001-person" context="!test">
+        <preConditions onSqlOutput="TEST" onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM ${schema-prefix}PERSON
+                WHERE ID = 1
+            </sqlCheck>
+        </preConditions>
         <sql dbms="mssql">
             SET IDENTITY_INSERT ${schema-prefix}PERSON ON;
         </sql>
@@ -26,6 +33,13 @@
     </changeSet>
 
     <changeSet author="morefigs" id="002-document" context="!test">
+        <preConditions onSqlOutput="TEST" onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM ${schema-prefix}DOCUMENT
+                WHERE ID = '9abb4957-c7cf-471c-8684-25e93a4a8dd9'
+            </sqlCheck>
+        </preConditions>
         <insert schemaName="${schema-name}" tableName="DOCUMENT">
             <column name="ID" value="9abb4957-c7cf-471c-8684-25e93a4a8dd9"/>
             <column name="CONTENT_TYPE" value="text/markdown"/>
@@ -41,6 +55,13 @@
     </changeSet>
 
     <changeSet author="morefigs" id="003-document" context="!test">
+        <preConditions onSqlOutput="TEST" onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM ${schema-prefix}DOCUMENT
+                WHERE ID = '3af0017d-e60b-4d8d-a27a-e1b609281ba2'
+            </sqlCheck>
+        </preConditions>
         <insert schemaName="${schema-name}" tableName="DOCUMENT">
             <column name="ID" value="3af0017d-e60b-4d8d-a27a-e1b609281ba2"/>
             <column name="CONTENT_TYPE" value="application/json"/>
@@ -63,7 +84,7 @@
         <rollback/>
     </changeSet>
 
-    <changeSet id="version-tag" author="morefigs">
+    <changeSet id="version-tag" author="morefigs" context="!test">
         <tagDatabase tag="v0.2.0"/>
     </changeSet>
 </databaseChangeLog>

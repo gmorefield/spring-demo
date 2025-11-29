@@ -1,0 +1,22 @@
+meta {
+  name: ordered-queue-items-prefetchMany
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/queue/order/manyPrefetch?threads=10&prefetch=30&errorRate=1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  threads: 10
+  prefetch: 30
+  errorRate: 1
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

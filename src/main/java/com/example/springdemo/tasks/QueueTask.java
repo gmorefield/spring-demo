@@ -33,9 +33,10 @@ public class QueueTask implements ApplicationRunner, ApplicationContextAware {
         int threadCount = getIntArgument(args, "threads", 10);
         int fetchSize = getIntArgument(args, "preFetch", 20);
         int errorRate = getIntArgument(args, "errorRate", 1);
+        int useFetch = getIntArgument(args, "useFetch", 1);
 
         if ("manyPrefetch".equals(action)) {
-            queueService.manyPrefetch(threadCount, fetchSize, errorRate);
+            queueService.manyPrefetch(threadCount, fetchSize, errorRate, useFetch>0);
         } else if ("orderedManyPrefetch".equals(action)) {
             queueService.orderManyPrefetch(threadCount, fetchSize, errorRate);
         }

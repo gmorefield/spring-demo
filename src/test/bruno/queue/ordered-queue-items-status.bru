@@ -1,0 +1,16 @@
+meta {
+  name: ordered-queue-items-status
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/queue/order/status
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

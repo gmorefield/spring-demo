@@ -2,6 +2,7 @@ package com.example.springdemo.service;
 
 import com.example.springdemo.controller.QueueController;
 import com.example.springdemo.data.QueueRepository;
+import com.example.springdemo.util.PrefetchBlockingQueue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.function.ThrowingSupplier;
@@ -45,7 +46,7 @@ public class QueueService {
     public Map orderManyPrefetch(final int threadCount, final int fetchSize, int errorRate) throws InterruptedException {
         log.info("Processing order/manyPrefetch with {} threads and prefetch size {}...", threadCount, fetchSize);
 
-        final QueueController.PrefetchBlockingQueue<QueueController.OrderedWorkItem> blockingQueue = new QueueController.PrefetchBlockingQueue<>(threadCount, fetchSize,
+        final PrefetchBlockingQueue<QueueController.OrderedWorkItem> blockingQueue = new PrefetchBlockingQueue<>(threadCount, fetchSize,
                 queueRepository::orderedFetchMany);
         return processItems("order/manyPrefetch", threadCount, errorRate, blockingQueue::fetch, queueRepository::orderedSetStatus);
     }
@@ -78,20 +79,28 @@ public class QueueService {
 
     public QueueController.OrderedWorkItem next() {
         log.info("Fetching next...");
-        return queueRepository.orderedFetchNext();
+        return queueRepository.fetchNext();
     }
 
-    public Map manyNext(final int threadCount, int errorRate) throws InterruptedException {
-        log.info("Processing manyNext with {} threads...", threadCount);
-
-        return processItems("manyNext", threadCount, errorRate, queueRepository::fetchNext, queueRepository::setStatus);
+    public QueueController.OrderedWorkItem selectNext() {
+        log.info("Selecting next...");
+        return queueRepository.selectNext();
     }
 
-    public Map manyPrefetch(final int threadCount, final int fetchSize, int errorRate) throws InterruptedException {
+    public Map manyNext(final int threadCount, int errorRate, boolean useFetch) throws InterruptedException {
+        log.info("Processing manyNext with {} threads with {}...", threadCount,
+                (useFetch ? "fetchNext" : "selectNext"));
+
+        return processItems("manyNext", threadCount, errorRate,
+                useFetch ? queueRepository::fetchNext : queueRepository::selectNext,
+                queueRepository::setStatus);
+    }
+
+    public Map manyPrefetch(final int threadCount, final int fetchSize, int errorRate, boolean useFetch) throws InterruptedException {
         log.info("Processing manyPrefetch with {} threads and prefetch size {}...", threadCount, fetchSize);
 
-        final QueueController.PrefetchBlockingQueue<QueueController.OrderedWorkItem> blockingQueue = new QueueController.PrefetchBlockingQueue<>(threadCount, fetchSize,
-                queueRepository::fetchMany);
+        final PrefetchBlockingQueue<QueueController.OrderedWorkItem> blockingQueue = new PrefetchBlockingQueue<>(threadCount, fetchSize,
+                (useFetch ? queueRepository::fetchMany : queueRepository::selectMany));
 
         return processItems("manyPrefetch", threadCount, errorRate, blockingQueue::fetch, queueRepository::setStatus);
     }

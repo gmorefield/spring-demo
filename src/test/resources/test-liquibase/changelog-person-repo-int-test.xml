@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet author="morefigs" id="001-person" context="test">
+        <preConditions onSqlOutput="TEST" onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                  FROM ${schema-prefix}PERSON
+                 WHERE ID = 1
+            </sqlCheck>
+        </preConditions>
+        <sql dbms="mssql">
+            SET IDENTITY_INSERT ${schema-prefix}PERSON ON;
+        </sql>
+        <insert schemaName="${schema-name}" tableName="PERSON">
+            <column name="ID" value="1"/>
+            <column name="FIRST_NAME" value="Luke"/>
+            <column name="LAST_NAME" value="Skywalker"/>
+        </insert>
+        <sql dbms="mssql">
+            SET IDENTITY_INSERT ${schema-prefix}PERSON OFF;
+        </sql>
+        <sql dbms="h2">
+            ALTER TABLE ${schema-prefix}PERSON ALTER COLUMN ID RESTART WITH 2;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

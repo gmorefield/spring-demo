@@ -13,5 +13,9 @@
     <include file="changelog/changelog-0.5.0-quartz.xml" relativeToChangelogFile="true" />
     <include file="changelog/changelog-0.6.0-tasks.xml" relativeToChangelogFile="true" />
     <include file="changelog/changelog-0.6.1-tasks-data.xml" relativeToChangelogFile="true" />
+    <include file="changelog/changelog-0.7.0-queue-functions-h2.xml" relativeToChangelogFile="true" />
+    <include file="changelog/changelog-0.7.0-queue-functions-mssql.xml" relativeToChangelogFile="true" />
+
+    <includeAll path="test-liquibase" errorIfMissingOrEmpty="false" />
 
 </databaseChangeLog>
