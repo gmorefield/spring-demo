@@ -9,18 +9,31 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
 public class QueueRepository {
     private final NamedParameterJdbcTemplate jdbcTemplate;
+
+    public enum FETCH_TYPE_ORDERED {
+        OUTPUT_NOT_EXISTS,
+        OUTPUT_PARTITION,
+        OUTPUT_CROSS_APPLY,
+        OUTPUT_SUB_SELECT,
+        SELECT_NOT_EXISTS,
+        SELECT_PARTITION,
+        SELECT_CROSS_APPLY,
+        SELECT_SUB_SELECT
+    }
 
     public QueueRepository(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -95,16 +108,16 @@ public class QueueRepository {
 
     @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "selectMany")
     public List<QueueController.OrderedWorkItem> selectMany(Integer count) {
-        return getOrderedWorkItems(count, "{ CALL SELECT_MANY(:count, :msg) }");
+        return getWorkItems(count, "{ CALL SELECT_MANY(:count, :msg) }");
     }
 
     @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "fetchMany")
     public List<QueueController.OrderedWorkItem> fetchMany(Integer count) {
-        return getOrderedWorkItems(count, "{ CALL OUTPUT_MANY(:count, :msg) }");
+        return getWorkItems(count, "{ CALL OUTPUT_MANY(:count, :msg) }");
     }
 
     @NotNull
-    private List<QueueController.OrderedWorkItem> getOrderedWorkItems(Integer count, String sql) {
+    private List<QueueController.OrderedWorkItem> getWorkItems(Integer count, String sql) {
         List<QueueController.OrderedWorkItem> items = jdbcTemplate.query(sql, Map.of(
                         "msg", Thread.currentThread().getId(),
                         "count", count),
@@ -219,15 +232,18 @@ public class QueueRepository {
         try {
             jdbcTemplate.update(
                     """
-                            update orderedqueue
-                              with (ROWLOCK) 
+                            update orderedqueue with (ROWLOCK)
                                set status=:status
-                                 , update_dt=getdate()
+                                 , update_dt=:now
                                  , retry_cnt=%s
                              --where wid=:wid
                              where id=:id
-                            """.formatted(status.equals("C") ? "0" : "retry_cnt+1"),
-                    Map.of("wid", item.getWid(), "id", item.getId(), "status", status));
+                            """.formatted(status.equals("C") ? String.valueOf(fetchCounter.get()) : "retry_cnt+1"),
+                    Map.of("wid", item.getWid(), "id", item.getId(),
+                            "status", status, "now", LocalDateTime.now()));
+
+//            String now = LocalDateTime.now().toString();
+//            fetchOrder.add(item.getLongKey() + " END " + fetchCounter.get() + " " + now + " " + Thread.currentThread().getName());
         } catch (Exception e) {
             log.warn("setStatus failed {}", e.getMessage());
             throw e;
@@ -292,34 +308,26 @@ public class QueueRepository {
         return result.orElse(new QueueController.OrderedWorkItem());
     }
 
-    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "orderedFetchMany")
-    public List<QueueController.OrderedWorkItem> orderedFetchMany(Integer count) {
-        String sql = """
-                DECLARE @itemTable TABLE (
-                    wid varchar(36),
-                    id int
-                );
-                update orderedqueue
-                  with (ROWLOCK)
-                   set status='I',
-                       update_dt = getdate(),
-                       msg = :msg
-                output inserted.wid, inserted.id into @itemTable
-                 where id in (
-                        select top #FETCH_COUNT# s.id
-                          from (
-                            select row_number() over (partition by order_id order by id) as RowNum, *
-                              from orderedqueue o
-                             where o.status != 'C'
-                          ) as s
-                         where s.RowNum = 1
-                           and s.status = 'R'
-                         order by id
-                       )
-                   and (status='R');
-                select * from orderedqueue where id in (select id from @itemTable);
-                """.replace("#FETCH_COUNT#", String.valueOf(count));
-        List<QueueController.OrderedWorkItem> items = jdbcTemplate.query(sql, Map.of("msg", Thread.currentThread().getId()), (row, index) -> {
+    public final static AtomicInteger fetchCounter = new AtomicInteger(0);
+//    public final static ConcurrentLinkedQueue<String> fetchOrder = new ConcurrentLinkedQueue<>();
+
+    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "orderFetchMany")
+    public List<QueueController.OrderedWorkItem> orderFetchMany(Integer count, FETCH_TYPE_ORDERED fetchType) {
+        String sql = switch (fetchType) {
+            case OUTPUT_NOT_EXISTS -> "{ CALL OUTPUT_MANY_ORDERED_NOTEXISTS(:count, :msg) }";
+            case OUTPUT_PARTITION -> "{ CALL OUTPUT_MANY_ORDERED_PART(:count, :msg) }";
+            case OUTPUT_CROSS_APPLY -> "{ CALL OUTPUT_MANY_ORDERED_CROSS(:count, :msg) }";
+            case OUTPUT_SUB_SELECT -> "{ CALL OUTPUT_MANY_ORDERED_SUB(:count, :msg) }";
+            case SELECT_NOT_EXISTS -> "{ CALL SELECT_MANY_ORDERED_NOTEXISTS(:count, :msg) }";
+            case SELECT_PARTITION -> "{ CALL SELECT_MANY_ORDERED_PART(:count, :msg) }";
+            case SELECT_CROSS_APPLY -> "{ CALL SELECT_MANY_ORDERED_CROSS(:count, :msg) }";
+            case SELECT_SUB_SELECT -> "{ CALL SELECT_MANY_ORDERED_SUB(:count, :msg) }";
+        };
+
+        int currentFetch = fetchCounter.incrementAndGet();
+        List<QueueController.OrderedWorkItem> items = jdbcTemplate.query(sql, Map.of(
+                "msg", System.currentTimeMillis() + "-" + fetchType.name().substring(0, 4) + "-" + currentFetch,
+                "count", count), (row, index) -> {
             QueueController.OrderedWorkItem item = new QueueController.OrderedWorkItem();
             item.setWid(row.getString("wid"));
             item.setOrderId(row.getString("order_id"));
@@ -327,10 +335,39 @@ public class QueueRepository {
             return item;
         });
 
+//        if (items.stream().map(QueueController.OrderedWorkItem::getOrderId).distinct().count() < items.size()) {
+//            log.warn("***orderFetchMany {} - items contain duplicate order IDs: {}", currentFetch, items.stream()
+//                    .map(QueueController.OrderedWorkItem::getShortKey)
+//                    .collect(Collectors.toList()));
+//        }
+//
+//        String now = LocalDateTime.now().toString();
+//        items.stream().map(i->i.getLongKey() + " BEG " + (currentFetch) + " " + now + " " + Thread.currentThread().getName()).forEach(fetchOrder::add);
+
         log.debug("Returned orders: {}", items.stream()
                 .map(QueueController.OrderedWorkItem::getOrderId)
                 .collect(Collectors.toList()));
         return items;
+    }
+
+    public List<Map<String, Object>> orderVerify() {
+        String sql = """
+                WITH OrderedItems AS (
+                    SELECT
+                        order_id,
+                        id,
+                        LAG(id) OVER (PARTITION BY order_id ORDER BY update_dt) AS previous_id
+                    FROM orderedqueue
+                    WHERE status != 'R'
+                )
+                SELECT
+                    order_id,
+                    id,
+                    previous_id
+                FROM OrderedItems
+                WHERE previous_id IS NOT NULL AND id <= previous_id;
+                """;
+        return jdbcTemplate.queryForList(sql, Collections.emptyMap());
     }
 
     public int orderedResetErrors() {

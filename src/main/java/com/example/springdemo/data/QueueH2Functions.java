@@ -63,6 +63,99 @@ public class QueueH2Functions {
     }
 
     public static ResultSet selectMany(Connection conn, int limit, String msg) throws SQLException {
+        return selectManyWork(conn, limit, msg);
+    }
+
+    public static ResultSet outputNext(Connection conn, String msg) throws SQLException {
+        return selectNext(conn, msg);
+    }
+
+    public static ResultSet outputMany(Connection conn, int limit, String msg) throws SQLException {
+        return selectManyWork(conn, limit, msg);
+    }
+
+    // NOTE: This one doesn't work properly for more limit of 1 since it can return multiple rows per order_id
+    public static ResultSet outputManyOrderedNotExists(Connection conn, int limit, String msg) throws SQLException {
+        String tableName = "orderedqueue";
+        String query = """
+                SELECT id
+                  FROM %1$s o
+                 WHERE o.status = 'R'
+                   AND NOT EXISTS (
+                       SELECT 1
+                         FROM %1$s s
+                        WHERE s.order_id = o.order_id
+                          AND s.status NOT IN ('C', 'R')
+                   )
+                 ORDER BY o.id
+                 LIMIT ?
+                   FOR UPDATE
+                 """.formatted(tableName);
+
+        return selectMany(conn, query, tableName, limit, msg);
+    }
+
+    public static ResultSet outputManyOrderedPart(Connection conn, int limit, String msg) throws SQLException {
+        String tableName = "orderedqueue";
+        String query = """
+                SELECT o.id
+                  FROM (
+                       SELECT row_number() OVER (PARTITION BY order_id ORDER BY id) as rn, id, status
+                         FROM %1$s i
+                        WHERE i.status != 'C'
+                  ) AS o
+                 WHERE o.rn = 1
+                   AND o.status = 'R'
+                 ORDER BY o.id
+                 LIMIT ?
+                   FOR UPDATE
+                 """.formatted(tableName);
+
+        return selectMany(conn, query, tableName, limit, msg);
+    }
+
+    public static ResultSet outputManyOrderedCross(Connection conn, int limit, String msg) throws SQLException {
+        return outputManyOrderedSub(conn, limit, msg);
+    }
+
+    public static ResultSet outputManyOrderedSub(Connection conn, int limit, String msg) throws SQLException {
+        String tableName = "orderedqueue";
+        String query = """
+                SELECT o.id
+                  FROM %1s o
+                 WHERE o.status = 'R'
+                   AND o.id = (
+                       SELECT MIN(i.id)
+                         FROM %1$s i
+                        WHERE i.order_id = o.order_id
+                          AND i.status != 'C'
+                   )
+                 ORDER BY o.id
+                 LIMIT ?
+                   FOR UPDATE
+                 """.formatted(tableName);
+
+        return selectMany(conn, query, tableName, limit, msg);
+    }
+
+    // ------------------------------------------------------------------------
+    // Helper methods
+    // ------------------------------------------------------------------------
+
+    private static ResultSet selectManyWork(Connection conn, int limit, String msg) throws SQLException {
+        String tableName = "workqueue";
+        String query = """
+                SELECT id
+                  FROM %1$s
+                 WHERE status = 'R'
+                 ORDER BY id
+                 LIMIT ?
+                   FOR UPDATE SKIP LOCKED
+                 """.formatted(tableName);
+        return selectMany(conn, query, tableName, limit, msg);
+    }
+
+    private static ResultSet selectMany(Connection conn, String query, String tableName, int limit, String msg) throws SQLException {
         String url = conn.getMetaData().getURL();
         if (url.equals("jdbc:columnlist:connection")) {
             return getMetaResultSet();
@@ -71,18 +164,11 @@ public class QueueH2Functions {
         try {
             conn.setAutoCommit(false);
 
-            PreparedStatement selectPs = conn.prepareStatement("""
-                    SELECT id
-                      FROM workqueue
-                     WHERE status = 'R'
-                     ORDER BY id
-                     LIMIT ?
-                       FOR UPDATE SKIP LOCKED
-                     """);
+            PreparedStatement selectPs = conn.prepareStatement(query);
             selectPs.setInt(1, limit);
             ResultSet rs = selectPs.executeQuery();
 
-            ArrayList<Integer> ids = new java.util.ArrayList<>();
+            ArrayList<Integer> ids = new ArrayList<>();
             while (rs.next()) {
                 ids.add(rs.getInt("id"));
             }
@@ -99,11 +185,11 @@ public class QueueH2Functions {
 
             if (ids.get(0) != -1) {
                 PreparedStatement updatePs = conn.prepareStatement("""
-                        UPDATE workqueue
+                        UPDATE %1$s
                            SET status = 'I',
                                update_dt = CURRENT_TIMESTAMP,
                                msg = ?
-                         WHERE id IN (""" + inClause + ")");
+                         WHERE id IN (%2$s)""".formatted(tableName, inClause.toString()));
                 updatePs.setString(1, msg);
                 for (int i = 0; i < ids.size(); i++) {
                     updatePs.setInt(i + 2, ids.get(i));
@@ -116,8 +202,8 @@ public class QueueH2Functions {
 
             PreparedStatement ps = conn.prepareStatement("""
                     SELECT *
-                      FROM workqueue
-                     WHERE id IN (""" + inClause + ")");
+                      FROM %1$s
+                     WHERE id IN (%2$s)""".formatted(tableName, inClause.toString()));
             for (int i = 0; i < ids.size(); i++) {
                 ps.setInt(i + 1, ids.get(i));
             }
@@ -131,14 +217,6 @@ public class QueueH2Functions {
 //        } finally {
 //            conn.setAutoCommit(true);
         }
-    }
-
-    public static ResultSet outputNext(Connection conn, String msg) throws SQLException {
-        return selectNext(conn, msg);
-    }
-
-    public static ResultSet outputMany(Connection conn, int limit, String msg) throws SQLException {
-        return selectMany(conn, limit, msg);
     }
 
     @NotNull

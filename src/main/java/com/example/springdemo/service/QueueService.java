@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.function.ThrowingSupplier;
 
 import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -16,6 +18,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+
+import static java.util.Collections.emptyMap;
 
 @Service
 @Slf4j
@@ -32,7 +36,7 @@ public class QueueService {
         return queueRepository.orderedFetchNext();
     }
 
-    public Map<String,Integer> orderStatus() {
+    public Map<String, Integer> orderStatus() {
         log.info("Fetching order status counts...");
         return queueRepository.getOrderedStatusCounts();
     }
@@ -40,15 +44,15 @@ public class QueueService {
     public Map orderManyNext(int threadCount, int errorRate) throws InterruptedException {
         log.info("Processing order/manyNext with {} threads...", threadCount);
 
-        return processItems("order/manyNext", threadCount, errorRate, queueRepository::orderedFetchNext, queueRepository::orderedSetStatus);
+        return processItems("order/manyNext", threadCount, errorRate, queueRepository::orderedFetchNext, queueRepository::orderedSetStatus, emptyMap());
     }
 
-    public Map orderManyPrefetch(final int threadCount, final int fetchSize, int errorRate) throws InterruptedException {
-        log.info("Processing order/manyPrefetch with {} threads and prefetch size {}...", threadCount, fetchSize);
+    public Map orderManyPrefetch(final int threadCount, final int fetchSize, int errorRate, QueueRepository.FETCH_TYPE_ORDERED fetchType) throws InterruptedException {
+        log.info("Processing order/manyPrefetch [{}] with {} threads and prefetch size {}...", fetchType, threadCount, fetchSize);
 
         final PrefetchBlockingQueue<QueueController.OrderedWorkItem> blockingQueue = new PrefetchBlockingQueue<>(threadCount, fetchSize,
-                queueRepository::orderedFetchMany);
-        return processItems("order/manyPrefetch", threadCount, errorRate, blockingQueue::fetch, queueRepository::orderedSetStatus);
+                (limit) -> queueRepository.orderFetchMany(limit, fetchType));
+        return processItems("order/manyPrefetch", threadCount, errorRate, blockingQueue::fetch, queueRepository::orderedSetStatus, Map.of("fetchType", fetchType.name()));
     }
 
     public int orderMergeSingle(final UUID wid, final int orderId) {
@@ -72,7 +76,12 @@ public class QueueService {
         return queueRepository.orderedResetErrors();
     }
 
-    public Map<String,Integer> status() {
+    public List<Map<String, Object>> orderVerify() {
+        log.info("Verifying ordered items...");
+        return queueRepository.orderVerify();
+    }
+
+    public Map<String, Integer> status() {
         log.info("Fetching status counts...");
         return queueRepository.getStatusCounts();
     }
@@ -93,7 +102,7 @@ public class QueueService {
 
         return processItems("manyNext", threadCount, errorRate,
                 useFetch ? queueRepository::fetchNext : queueRepository::selectNext,
-                queueRepository::setStatus);
+                queueRepository::setStatus, Map.of("useFetch", useFetch));
     }
 
     public Map manyPrefetch(final int threadCount, final int fetchSize, int errorRate, boolean useFetch) throws InterruptedException {
@@ -102,7 +111,7 @@ public class QueueService {
         final PrefetchBlockingQueue<QueueController.OrderedWorkItem> blockingQueue = new PrefetchBlockingQueue<>(threadCount, fetchSize,
                 (useFetch ? queueRepository::fetchMany : queueRepository::selectMany));
 
-        return processItems("manyPrefetch", threadCount, errorRate, blockingQueue::fetch, queueRepository::setStatus);
+        return processItems("manyPrefetch", threadCount, errorRate, blockingQueue::fetch, queueRepository::setStatus, Map.of("useFetch", useFetch));
     }
 
     public int addMany(final int itemCount) {
@@ -116,7 +125,7 @@ public class QueueService {
     }
 
     private Map processItems(final String methodName, final int threadCount, final int errorRate, final ThrowingSupplier<QueueController.OrderedWorkItem> itemSupplier,
-                             final BiConsumer<QueueController.OrderedWorkItem, String> statusConsumer) throws InterruptedException {
+                             final BiConsumer<QueueController.OrderedWorkItem, String> statusConsumer, Map context) throws InterruptedException {
         AtomicInteger itemsProcessed = new AtomicInteger(0);
         AtomicInteger errorCount = new AtomicInteger(0);
         Executor executor = Executors.newFixedThreadPool(threadCount);
@@ -142,7 +151,7 @@ public class QueueService {
                         item = itemSupplier.get();
                     }
                 } catch (Exception e) {
-                    log.error("Thread " + Thread.currentThread().getName() + " (" + Thread.currentThread().getId() + ") failed: {}", e.getClass().getSimpleName());
+                    log.error("Thread " + Thread.currentThread().getName() + " (" + Thread.currentThread().getId() + ") failed: {}", e.getClass().getSimpleName(), e);
                 } finally {
                     latch.countDown();
                 }
@@ -150,7 +159,9 @@ public class QueueService {
         }
 
         while (!latch.await(20, TimeUnit.SECONDS)) {
-            log.info("--> {} threads active, {} items processed, {} errors, {} duration",
+            log.info("-->{} {} {} threads active, {} items processed, {} errors, {} duration",
+                    methodName,
+                    context,
                     latch.getCount(),
                     itemsProcessed.intValue(),
                     errorCount.intValue(),
@@ -158,12 +169,13 @@ public class QueueService {
         }
 
         long duration = System.currentTimeMillis() - start;
-        Map stats = Map.of("methodName", methodName,
+        Map stats = new HashMap(Map.of("methodName", methodName,
                 "count", itemsProcessed.intValue(),
                 "errors", errorCount.intValue(),
                 "threads", threadCount,
                 "total-s", duration > 0 ? duration / 1000 : 0,
-                "avg-ms", itemsProcessed.intValue() > 0 ? Math.round(duration / itemsProcessed.intValue()) : 0);
+                "avg-ms", itemsProcessed.intValue() > 0 ? Math.round(duration / itemsProcessed.intValue()) : 0));
+        stats.putAll(context);
         log.info("{} complete: {}", methodName, stats);
 
         return stats;

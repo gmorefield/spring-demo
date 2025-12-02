@@ -1,18 +1,17 @@
 meta {
-  name: ordered-queue-items-add
+  name: queue-items-addMany
   type: http
-  seq: 3
+  seq: 2
 }
 
 get {
-  url: {{host}}/queue/order/addMany?items=15000&order=150
+  url: {{host}}/queue/addMany?items=15000
   body: none
   auth: inherit
 }
 
 params:query {
   items: 15000
-  order: 150
 }
 
 settings {

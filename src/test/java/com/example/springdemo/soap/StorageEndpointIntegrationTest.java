@@ -23,7 +23,7 @@ import static org.springframework.ws.test.server.ResponseMatchers.payload;
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ActiveProfiles({ "test" })
-public class StrorageEndpointIntegrationTest {
+public class StorageEndpointIntegrationTest {
 
     @Autowired
     private ApplicationContext applicationContext;

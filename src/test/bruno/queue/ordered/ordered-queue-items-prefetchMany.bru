@@ -1,11 +1,11 @@
 meta {
   name: ordered-queue-items-prefetchMany
   type: http
-  seq: 3
+  seq: 2
 }
 
 get {
-  url: {{host}}/queue/order/manyPrefetch?threads=10&prefetch=30&errorRate=1
+  url: {{host}}/queue/order/manyPrefetch?threads=10&prefetch=30
   body: none
   auth: inherit
 }
@@ -13,7 +13,8 @@ get {
 params:query {
   threads: 10
   prefetch: 30
-  errorRate: 1
+  ~errorRate: 0
+  ~fetchType: SUB_SELECT
 }
 
 settings {

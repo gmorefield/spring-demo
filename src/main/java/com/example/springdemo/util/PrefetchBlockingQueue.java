@@ -12,12 +12,13 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class PrefetchBlockingQueue<T> extends ArrayBlockingQueue {
     private static final Logger logger = LoggerFactory.getLogger(PrefetchBlockingQueue.class);
-    private final ReentrantLock takeLock = new ReentrantLock();
+    private final ReentrantLock takeLock = new ReentrantLock(true);
     private final int minSize;
     private final int fetchSize;
     private final ItemProvider<Integer, List<T>> supplier;
     private transient boolean draining = false;
     private final AtomicInteger finalChecks;
+//    private final List<T> cache = new ArrayList<>();
 
     @FunctionalInterface
     public interface ItemProvider<T, R> {
@@ -32,13 +33,31 @@ public class PrefetchBlockingQueue<T> extends ArrayBlockingQueue {
         this.supplier = supplier;
     }
 
-    public <T> T fetch() throws InterruptedException {
+    public T fetch() throws InterruptedException {
         final ReentrantLock lock = this.takeLock;
         lock.lockInterruptibly();
         try {
             if (size() < minSize && !draining) {
                 List<T> items = (List<T>) fetchMany();
                 addAll(items);
+
+//                cache.addAll(items);
+//                if (cache.size() != this.size()) {
+//                    logger.info("Prefetch: items={},size={},cache={},counter={}", items.size(), this.size(), cache.size(), QueueRepository.fetchCounter.get());
+////                    logger.error("***Cache size {} does not match queue size {}***", cache.size(), this.size());
+////                    throw new IllegalStateException("Cache size does not match queue size.");
+//                }
+//                if (!cache.isEmpty() && cache.get(0) instanceof QueueController.OrderedWorkItem) {
+//                    if (cache.stream().map(i -> ((QueueController.OrderedWorkItem) i).getOrderId()).distinct().count() != cache.size()) {
+//                        String details = cache.stream()
+//                                .map(i -> ((QueueController.OrderedWorkItem) i).getShortKey())
+//                                .collect(Collectors.joining(", "));
+//                        logger.error("***Duplicate groups detected in prefetched items: {}", details);
+//                        throw new IllegalStateException("Duplicate groups detected in prefetched items.");
+//                    }
+//                } else {
+//                    logger.info("Prefetched {} items.", items.size());
+//                }
             }
             if (size() <= 0) {
                 return (T) new QueueController.OrderedWorkItem();
@@ -46,7 +65,20 @@ public class PrefetchBlockingQueue<T> extends ArrayBlockingQueue {
         } finally {
             lock.unlock();
         }
-        return (T) super.take();
+        T next = (T) super.take();
+
+//        lock.lockInterruptibly();
+//        try {
+//            if (!cache.remove(next)) {
+//                logger.warn("***Item {} taken from queue was not found in cache: {}", ((QueueController.OrderedWorkItem) next).getLongKey(),
+//                        cache.stream()
+//                                .map(i -> ((QueueController.OrderedWorkItem) i).getLongKey())
+//                                .collect(Collectors.joining(", ")));
+//            }
+//        } finally {
+//            lock.unlock();
+//        }
+        return next;
     }
 
     private List<T> fetchMany() {

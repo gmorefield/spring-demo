@@ -58,7 +58,7 @@
         </createTable>
     </changeSet>
     <changeSet author="morefigs" id="004">
-        <addUniqueConstraint schemaName="${schema-name}" tableName="orderedqueue" columnNames="wid"/>
+        <addUniqueConstraint constraintName="uq_orderedqueue_wid" schemaName="${schema-name}" tableName="orderedqueue" columnNames="wid"/>
     </changeSet>
 
     <changeSet id="version-tag" author="morefigs">

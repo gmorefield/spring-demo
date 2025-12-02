@@ -3,6 +3,8 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <!-- Work Queue Functions -->
+
     <changeSet id="001" author="morefigs" dbms="h2">
         <sql>
             CREATE ALIAS SELECT_NEXT FOR "com.example.springdemo.data.QueueH2Functions.selectNext";
@@ -19,6 +21,7 @@
             DROP ALIAS IF EXISTS SELECT_MANY;
         </rollback>
     </changeSet>
+
     <changeSet id="003" author="morefigs" dbms="h2">
         <sql>
             CREATE ALIAS OUTPUT_NEXT FOR "com.example.springdemo.data.QueueH2Functions.outputNext";
@@ -35,6 +38,75 @@
             DROP ALIAS IF EXISTS OUTPUT_MANY;
         </rollback>
     </changeSet>
+
+    <!-- Ordered Queue Functions -->
+
+    <changeSet id="005" author="morefigs" dbms="h2">
+        <sql>
+            CREATE ALIAS OUTPUT_MANY_ORDERED_NOTEXISTS FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedNotExists";
+        </sql>
+        <rollback>
+            DROP ALIAS IF EXISTS OUTPUT_MANY_ORDERED_NOTEXISTS;
+        </rollback>
+    </changeSet>
+    <changeSet id="006" author="morefigs" dbms="h2">
+        <sql>
+            CREATE ALIAS OUTPUT_MANY_ORDERED_PART FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedPart";
+        </sql>
+        <rollback>
+            DROP ALIAS IF EXISTS OUTPUT_MANY_ORDERED_PART;
+        </rollback>
+    </changeSet>
+    <changeSet id="007" author="morefigs" dbms="h2">
+        <sql>
+            CREATE ALIAS OUTPUT_MANY_ORDERED_CROSS FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedCross";
+        </sql>
+        <rollback>
+            DROP ALIAS IF EXISTS OUTPUT_MANY_ORDERED_CROSS;
+        </rollback>
+    </changeSet>
+    <changeSet id="008" author="morefigs" dbms="h2">
+        <sql>
+            CREATE ALIAS OUTPUT_MANY_ORDERED_SUB FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedSub";
+        </sql>
+        <rollback>
+            DROP ALIAS IF EXISTS OUTPUT_MANY_ORDERED_SUB;
+        </rollback>
+    </changeSet>
+
+    <changeSet id="009" author="morefigs" dbms="h2">
+        <sql>
+            CREATE ALIAS SELECT_MANY_ORDERED_NOTEXISTS FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedNotExists";
+        </sql>
+        <rollback>
+            DROP ALIAS IF EXISTS SELECT_MANY_ORDERED_NOTEXISTS;
+        </rollback>
+    </changeSet>
+    <changeSet id="010" author="morefigs" dbms="h2">
+        <sql>
+            CREATE ALIAS SELECT_MANY_ORDERED_PART FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedPart";
+        </sql>
+        <rollback>
+            DROP ALIAS IF EXISTS SELECT_MANY_ORDERED_PART;
+        </rollback>
+    </changeSet>
+    <changeSet id="011" author="morefigs" dbms="h2">
+        <sql>
+            CREATE ALIAS SELECT_MANY_ORDERED_CROSS FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedCross";
+        </sql>
+        <rollback>
+            DROP ALIAS IF EXISTS SELECT_MANY_ORDERED_CROSS;
+        </rollback>
+    </changeSet>
+    <changeSet id="012" author="morefigs" dbms="h2">
+        <sql>
+            CREATE ALIAS SELECT_MANY_ORDERED_SUB FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedSub";
+        </sql>
+        <rollback>
+            DROP ALIAS IF EXISTS SELECT_MANY_ORDERED_SUB;
+        </rollback>
+    </changeSet>
+
     <!-- keepTagOnRollback not available until 4.32.0 -->
     <changeSet id="version-tag" author="morefigs" dbms="h2">
         <tagDatabase tag="v0.7.0"/>

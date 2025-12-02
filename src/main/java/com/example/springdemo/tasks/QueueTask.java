@@ -1,5 +1,6 @@
 package com.example.springdemo.tasks;
 
+import com.example.springdemo.data.QueueRepository;
 import com.example.springdemo.service.QueueService;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.ApplicationArguments;
@@ -26,7 +27,7 @@ public class QueueTask implements ApplicationRunner, ApplicationContextAware {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if (!args.containsOption("action")) {
-            new IllegalArgumentException("--action is required");
+            throw new IllegalArgumentException("--action is required");
         }
 
         String action = args.getOptionValues("action").get(0);
@@ -38,7 +39,7 @@ public class QueueTask implements ApplicationRunner, ApplicationContextAware {
         if ("manyPrefetch".equals(action)) {
             queueService.manyPrefetch(threadCount, fetchSize, errorRate, useFetch>0);
         } else if ("orderedManyPrefetch".equals(action)) {
-            queueService.orderManyPrefetch(threadCount, fetchSize, errorRate);
+            queueService.orderManyPrefetch(threadCount, fetchSize, errorRate, QueueRepository.FETCH_TYPE_ORDERED.OUTPUT_PARTITION);
         }
     }
 

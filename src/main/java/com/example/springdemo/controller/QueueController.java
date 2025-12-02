@@ -1,5 +1,6 @@
 package com.example.springdemo.controller;
 
+import com.example.springdemo.data.QueueRepository;
 import com.example.springdemo.service.QueueService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -9,13 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
 
 @RequestMapping("/queue")
 @RestController
@@ -47,8 +44,12 @@ public class QueueController {
     @GetMapping("/order/manyPrefetch")
     public Map orderManyPrefetch(@RequestParam(value = "threads", required = false) Optional<Integer> threads,
                                  @RequestParam(value = "prefetch", required = false) Optional<Integer> fetch,
-                                 @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate) throws InterruptedException {
-        return queueService.orderManyPrefetch(threads.orElse(10), fetch.orElse(20), errorRate.orElse(1));
+                                 @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate,
+                                 @RequestParam(value = "fetchType", required = false) Optional<QueueRepository.FETCH_TYPE_ORDERED> fetchType) throws InterruptedException {
+        return queueService.orderManyPrefetch(threads.orElse(10),
+                fetch.orElse(20),
+                errorRate.orElse(1),
+                fetchType.orElse(QueueRepository.FETCH_TYPE_ORDERED.OUTPUT_PARTITION));
     }
 
     @GetMapping("/order/addSingle")
@@ -73,7 +74,7 @@ public class QueueController {
 
     @GetMapping("/order/addUniqueSingle")
     public Map orderAddUniqueSingle(@RequestParam(value = "wid") @NotNull String wid,
-                                @RequestParam(value = "order") @NotNull Integer order) {
+                                    @RequestParam(value = "order") @NotNull Integer order) {
         int countMerged = queueService.orderAddUniqueSingle(java.util.UUID.fromString(wid), order);
 
         Map data = Map.of("rowsMerged", countMerged);
@@ -98,6 +99,12 @@ public class QueueController {
         return Map.of("rowsReset", count);
     }
 
+    @GetMapping("/order/verify")
+    public List<Map<String, Object>> orderVerify() {
+        return queueService.orderVerify();
+    }
+
+
     @GetMapping("/status")
     public Map status() {
         return queueService.status();
@@ -115,7 +122,7 @@ public class QueueController {
         return queueService.manyNext(threads.orElse(10),
                 errorRate.orElse(1),
                 useFetch.orElse(true)
-                );
+        );
     }
 
     @GetMapping("/manyPrefetch")
@@ -145,6 +152,16 @@ public class QueueController {
         log.info("reset complete: {}", Map.of("count", count));
         return Map.of("rowsReset", count);
     }
+
+//    @GetMapping("/fetchOrder")
+//    public List<String> getFetchOrder() {
+//        return QueueRepository.fetchOrder.stream().toList();
+//    }
+//
+//    @DeleteMapping("/fetchOrder")
+//    public void clearFetchOrder() {
+//        QueueRepository.fetchOrder.clear();
+//    }
 
 
     public static class OrderedWorkItem {
@@ -177,6 +194,35 @@ public class QueueController {
 
         public void setId(String id) {
             this.id = id;
+        }
+
+        @Override
+        public String toString() {
+            // return a JSON-like string representation
+            return "{" +
+                    "\"wid\":\"" + wid + "\"," +
+                    "\"orderId\":\"" + orderId + "\"," +
+                    "\"id\":\"" + id + "\"" +
+                    "}";
+        }
+
+        public String getShortKey() {
+            return orderId + "-" + id;
+        }
+
+        public String getLongKey() {
+            return orderId + "-" + id + "-" + wid;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+            OrderedWorkItem that = (OrderedWorkItem) obj;
+            if (wid != null ? !wid.equals(that.wid) : that.wid != null) return false;
+            if (orderId != null ? !orderId.equals(that.orderId) : that.orderId != null) return false;
+            if (id != null ? !id.equals(that.id) : that.id != null) return false;
+            return true;
         }
     }
 

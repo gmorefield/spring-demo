@@ -9,7 +9,7 @@ metadata:
 spec:
 # serviceName is needed for StatefulSet
 #  serviceName: spring-demo-headless
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: spring-demo-app
@@ -48,7 +48,7 @@ spec:
             path: /actuator/health/readiness
             port: 8080
             scheme: HTTP
-          initialDelaySeconds: 3
+          initialDelaySeconds: 20
           periodSeconds: 3
           successThreshold: 1
           timeoutSeconds: 3
@@ -57,7 +57,7 @@ spec:
             path: /actuator/health/liveness
             port: 8080
             scheme: HTTP
-          initialDelaySeconds: 15
+          initialDelaySeconds: 30
           periodSeconds: 20
           successThreshold: 1
           timeoutSeconds: 3

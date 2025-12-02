@@ -1,0 +1,16 @@
+meta {
+  name: tasks-delete-all
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{host}}/tasks
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

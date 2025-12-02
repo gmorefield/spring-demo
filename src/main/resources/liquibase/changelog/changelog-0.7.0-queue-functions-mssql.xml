@@ -3,30 +3,87 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <!-- Work Queue Procedures -->
+
     <changeSet id="001-select-next" author="morefigs" dbms="mssql">
-        <sqlFile path="objects/mssql/queue/selectNext/selectNext-v1.0.0.sql" relativeToChangelogFile="true" />
+        <sqlFile path="objects/mssql/workqueue/selectNext/selectNext-v1.0.0.sql" relativeToChangelogFile="true" />
         <rollback>
             <sql>DROP PROCEDURE SELECT_NEXT</sql>
         </rollback>
     </changeSet>
     <changeSet id="002-select-many" author="morefigs" dbms="mssql">
-        <sqlFile path="objects/mssql/queue/selectMany/selectMany-v1.0.0.sql" relativeToChangelogFile="true" />
+        <sqlFile path="objects/mssql/workqueue/selectMany/selectMany-v1.0.0.sql" relativeToChangelogFile="true" />
         <rollback>
             <sql>DROP PROCEDURE SELECT_MANY</sql>
         </rollback>
     </changeSet>
+
     <changeSet id="003-output-next" author="morefigs" dbms="mssql">
-        <sqlFile path="objects/mssql/queue/outputNext/outputNext-v1.0.0.sql" relativeToChangelogFile="true" />
+        <sqlFile path="objects/mssql/workqueue/outputNext/outputNext-v1.0.0.sql" relativeToChangelogFile="true" />
         <rollback>
             <sql>DROP PROCEDURE OUTPUT_NEXT</sql>
         </rollback>
     </changeSet>
     <changeSet id="004-output-many" author="morefigs" dbms="mssql">
-        <sqlFile path="objects/mssql/queue/outputMany/outputMany-v1.0.0.sql" relativeToChangelogFile="true" />
+        <sqlFile path="objects/mssql/workqueue/outputMany/outputMany-v1.0.0.sql" relativeToChangelogFile="true" />
         <rollback>
             <sql>DROP PROCEDURE OUTPUT_MANY</sql>
         </rollback>
     </changeSet>
+
+    <!-- Ordered Queue Procedures -->
+
+    <changeSet id="005-output-many-ordered-notexists" author="morefigs" dbms="mssql">
+        <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedNotExists/outputManyOrderedNotExists-v1.0.0.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sql>DROP PROCEDURE OUTPUT_MANY_ORDERED_NOTEXISTS</sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="006-output-many-ordered-part" author="morefigs" dbms="mssql">
+        <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedPart/outputManyOrderedPart-v1.0.0.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sql>DROP PROCEDURE OUTPUT_MANY_ORDERED_PART</sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="007-output-ordered-cross" author="morefigs" dbms="mssql">
+        <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedCross/outputManyOrderedCross-v1.0.0.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sql>DROP PROCEDURE OUTPUT_MANY_ORDERED_CROSS</sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="008-output-ordered-sub" author="morefigs" dbms="mssql">
+        <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedSub/outputManyOrderedSub-v1.0.0.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sql>DROP PROCEDURE OUTPUT_MANY_ORDERED_SUB</sql>
+        </rollback>
+    </changeSet>
+
+    <!-- ordered queue procedures for SELECT -->
+    <changeSet id="009-select-many-ordered-notexists" author="morefigs" dbms="mssql">
+        <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedNotExists/selectManyOrderedNotExists-v1.0.0.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sql>DROP PROCEDURE SELECT_MANY_ORDERED_NOTEXISTS</sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="010-select-many-ordered-part" author="morefigs" dbms="mssql">
+        <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedPart/selectManyOrderedPart-v1.0.0.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sql>DROP PROCEDURE SELECT_MANY_ORDERED_PART</sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="011-select-ordered-cross" author="morefigs" dbms="mssql">
+        <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedCross/selectManyOrderedCross-v1.0.0.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sql>DROP PROCEDURE SELECT_MANY_ORDERED_CROSS</sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="012-select-ordered-sub" author="morefigs" dbms="mssql">
+        <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedSub/selectManyOrderedSub-v1.0.0.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sql>DROP PROCEDURE SELECT_MANY_ORDERED_SUB</sql>
+        </rollback>
+    </changeSet>
+
     <!-- keepTagOnRollback not available until 4.32.0 -->
     <changeSet id="version-tag" author="morefigs" dbms="mssql">
         <tagDatabase tag="v0.7.0"/>

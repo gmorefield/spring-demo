@@ -1,0 +1,16 @@
+meta {
+  name: ordered-queue-items-verify
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{host}}/queue/order/verify
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

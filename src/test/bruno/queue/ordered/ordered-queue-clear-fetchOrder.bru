@@ -1,0 +1,16 @@
+meta {
+  name: ordered-queue-clear-fetchOrder
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{host}}/queue/fetchOrder
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

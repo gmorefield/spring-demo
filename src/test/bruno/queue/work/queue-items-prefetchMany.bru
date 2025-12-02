@@ -1,11 +1,11 @@
 meta {
   name: queue-items-prefetchMany
   type: http
-  seq: 6
+  seq: 2
 }
 
 get {
-  url: {{host}}/queue/manyPrefetch?threads=10&prefetch=30&errorRate=1&useFetch=false
+  url: {{host}}/queue/manyPrefetch?threads=10&prefetch=30&errorRate=1&useFetch=true
   body: none
   auth: inherit
 }
@@ -14,7 +14,7 @@ params:query {
   threads: 10
   prefetch: 30
   errorRate: 1
-  useFetch: false
+  useFetch: true
 }
 
 settings {

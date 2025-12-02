@@ -1,0 +1,16 @@
+meta {
+  name: jobs-pause-all
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/jobs/pauseAll
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

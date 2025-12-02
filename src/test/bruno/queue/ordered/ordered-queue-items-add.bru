@@ -1,0 +1,21 @@
+meta {
+  name: ordered-queue-items-add
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/queue/order/addMany?items=15000&order=500
+  body: none
+  auth: inherit
+}
+
+params:query {
+  items: 15000
+  order: 500
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
