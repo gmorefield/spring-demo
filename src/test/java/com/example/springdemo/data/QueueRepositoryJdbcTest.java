@@ -161,8 +161,8 @@ public class QueueRepositoryJdbcTest {
     // -----------------------------------------------------
 
     @ParameterizedTest
-    @EnumSource(value = QueueRepository.FETCH_TYPE_ORDERED.class, mode = EnumSource.Mode.EXCLUDE, names = {"OUTPUT_NOT_EXISTS", "SELECT_NOT_EXISTS"})
-    public void testOrderedSelectMany_whenMultipleRowsWithSameOrder_returnsFirstAvailableItems(QueueRepository.FETCH_TYPE_ORDERED fetchType) {
+    @EnumSource(value = QueueRepository.FETCH_TYPE.class, mode = EnumSource.Mode.EXCLUDE, names = {"OUTPUT_NOT_EXISTS", "SELECT_NOT_EXISTS", "OUTPUT_JOIN", "SELECT_JOIN"})
+    public void testOrderedSelectMany_whenMultipleRowsWithSameOrder_returnsFirstAvailableItems(QueueRepository.FETCH_TYPE fetchType) {
         namedJdbcTemplate.update(ADD_ORDEREDQUEUE_ITEMS, Collections.emptyMap());
         List<QueueController.OrderedWorkItem> actuals = queueRepository.orderFetchMany(3, fetchType);
         assertThat(actuals).hasSize(1);
@@ -171,8 +171,8 @@ public class QueueRepositoryJdbcTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = QueueRepository.FETCH_TYPE_ORDERED.class, mode = EnumSource.Mode.EXCLUDE, names = {"OUTPUT_NOT_EXISTS", "SELECT_NOT_EXISTS"})
-    public void testOrderedSelectMany_whenMultipleRowsWithFirstInError_returnsNoItems(QueueRepository.FETCH_TYPE_ORDERED fetchType) {
+    @EnumSource(value = QueueRepository.FETCH_TYPE.class, mode = EnumSource.Mode.EXCLUDE, names = {"OUTPUT_NOT_EXISTS", "SELECT_NOT_EXISTS", "OUTPUT_JOIN", "SELECT_JOIN"})
+    public void testOrderedSelectMany_whenMultipleRowsWithFirstInError_returnsNoItems(QueueRepository.FETCH_TYPE fetchType) {
         namedJdbcTemplate.update(ADD_ORDEREDQUEUE_ITEMS, Collections.emptyMap());
         namedJdbcTemplate.update(UPDATE_ORDERQUEUE_ITEM, Map.of(
                 "status", "E",
@@ -184,8 +184,8 @@ public class QueueRepositoryJdbcTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = QueueRepository.FETCH_TYPE_ORDERED.class, mode = EnumSource.Mode.EXCLUDE, names = {"OUTPUT_NOT_EXISTS", "SELECT_NOT_EXISTS"})
-    public void testOrderedSelectMany_whenMultipleRowsWithFirstInProgress_returnsNoItems(QueueRepository.FETCH_TYPE_ORDERED fetchType) {
+    @EnumSource(value = QueueRepository.FETCH_TYPE.class, mode = EnumSource.Mode.EXCLUDE, names = {"OUTPUT_NOT_EXISTS", "SELECT_NOT_EXISTS", "OUTPUT_JOIN", "SELECT_JOIN"})
+    public void testOrderedSelectMany_whenMultipleRowsWithFirstInProgress_returnsNoItems(QueueRepository.FETCH_TYPE fetchType) {
         namedJdbcTemplate.update(ADD_ORDEREDQUEUE_ITEMS, Collections.emptyMap());
         namedJdbcTemplate.update(UPDATE_ORDERQUEUE_ITEM, Map.of(
                 "status", "I",
@@ -197,8 +197,8 @@ public class QueueRepositoryJdbcTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = QueueRepository.FETCH_TYPE_ORDERED.class, mode = EnumSource.Mode.EXCLUDE, names = {"OUTPUT_NOT_EXISTS", "SELECT_NOT_EXISTS"})
-    public void testOrderedSelectMany_whenMultipleRowsWithErrorOnDifferentOrder_returnsFirstItem(QueueRepository.FETCH_TYPE_ORDERED fetchType) {
+    @EnumSource(value = QueueRepository.FETCH_TYPE.class, mode = EnumSource.Mode.EXCLUDE, names = {"OUTPUT_NOT_EXISTS", "SELECT_NOT_EXISTS", "OUTPUT_JOIN", "SELECT_JOIN"})
+    public void testOrderedSelectMany_whenMultipleRowsWithErrorOnDifferentOrder_returnsFirstItem(QueueRepository.FETCH_TYPE fetchType) {
         namedJdbcTemplate.update(ADD_ORDEREDQUEUE_ITEMS, Collections.emptyMap());
         // place second item in error for different order so first record will be returned
         namedJdbcTemplate.update(UPDATE_ORDERQUEUE_ITEM, Map.of(
@@ -212,8 +212,8 @@ public class QueueRepositoryJdbcTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = QueueRepository.FETCH_TYPE_ORDERED.class, mode = EnumSource.Mode.EXCLUDE, names = {"OUTPUT_NOT_EXISTS", "SELECT_NOT_EXISTS"})
-    public void testOrderedSelectMany_whenMultipleRowsWithInProgressOnDifferentOrder_returnsFirstItem(QueueRepository.FETCH_TYPE_ORDERED fetchType) {
+    @EnumSource(value = QueueRepository.FETCH_TYPE.class, mode = EnumSource.Mode.EXCLUDE, names = {"OUTPUT_NOT_EXISTS", "SELECT_NOT_EXISTS", "OUTPUT_JOIN", "SELECT_JOIN"})
+    public void testOrderedSelectMany_whenMultipleRowsWithInProgressOnDifferentOrder_returnsFirstItem(QueueRepository.FETCH_TYPE fetchType) {
         namedJdbcTemplate.update(ADD_ORDEREDQUEUE_ITEMS, Collections.emptyMap());
         // place second item in error for different order so first record will be returned
         namedJdbcTemplate.update(UPDATE_ORDERQUEUE_ITEM, Map.of(
@@ -227,8 +227,8 @@ public class QueueRepositoryJdbcTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = QueueRepository.FETCH_TYPE_ORDERED.class, mode = EnumSource.Mode.EXCLUDE, names = {"OUTPUT_NOT_EXISTS", "SELECT_NOT_EXISTS"})
-    public void testOrderedSelectMany_whenMultipleRowsExistWithDifferentOrder_returnOneItemPerOrder(QueueRepository.FETCH_TYPE_ORDERED fetchType) {
+    @EnumSource(value = QueueRepository.FETCH_TYPE.class, mode = EnumSource.Mode.EXCLUDE, names = {"OUTPUT_NOT_EXISTS", "SELECT_NOT_EXISTS", "OUTPUT_JOIN", "SELECT_JOIN"})
+    public void testOrderedSelectMany_whenMultipleRowsExistWithDifferentOrder_returnOneItemPerOrder(QueueRepository.FETCH_TYPE fetchType) {
         namedJdbcTemplate.update(ADD_ORDEREDQUEUE_ITEMS, Collections.emptyMap());
         // change second item to different order
         namedJdbcTemplate.update(UPDATE_ORDERQUEUE_ITEM, Map.of(
@@ -242,6 +242,88 @@ public class QueueRepositoryJdbcTest {
                 .containsExactlyInAnyOrder(
                         "123e4567-e89b-12d3-a456-426614174000",
                         "223e4567-e89b-12d3-a456-426614174000");
+        verifyProcessOrder();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = QueueRepository.FETCH_TYPE.class)
+    public void testOrderedSelectOne_whenMultipleRowsWithSameOrder_returnsFirstAvailableItem(QueueRepository.FETCH_TYPE fetchType) {
+        namedJdbcTemplate.update(ADD_ORDEREDQUEUE_ITEMS, Collections.emptyMap());
+        List<QueueController.OrderedWorkItem> actuals = queueRepository.orderFetchMany(1, fetchType);
+        assertThat(actuals).hasSize(1);
+        verifyFirstItemInReadyStatus(actuals.get(0), "orderedqueue");
+        verifyProcessOrder();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = QueueRepository.FETCH_TYPE.class)
+    public void testOrderedSelectOne_whenMultipleRowsWithFirstInError_returnsNoItems(QueueRepository.FETCH_TYPE fetchType) {
+        namedJdbcTemplate.update(ADD_ORDEREDQUEUE_ITEMS, Collections.emptyMap());
+        namedJdbcTemplate.update(UPDATE_ORDERQUEUE_ITEM, Map.of(
+                "status", "E",
+                "order_id", 1,
+                "wid", "123e4567-e89b-12d3-a456-426614174000"));
+        List<QueueController.OrderedWorkItem> actuals = queueRepository.orderFetchMany(1, fetchType);
+        assertThat(actuals).isEmpty();
+        verifyProcessOrder();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = QueueRepository.FETCH_TYPE.class)
+    public void testOrderedSelectOne_whenMultipleRowsWithFirstInProgress_returnsNoItems(QueueRepository.FETCH_TYPE fetchType) {
+        namedJdbcTemplate.update(ADD_ORDEREDQUEUE_ITEMS, Collections.emptyMap());
+        namedJdbcTemplate.update(UPDATE_ORDERQUEUE_ITEM, Map.of(
+                "status", "I",
+                "order_id", 1,
+                "wid", "123e4567-e89b-12d3-a456-426614174000"));
+        List<QueueController.OrderedWorkItem> actuals = queueRepository.orderFetchMany(1, fetchType);
+        assertThat(actuals).isEmpty();
+        verifyProcessOrder();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = QueueRepository.FETCH_TYPE.class)
+    public void testOrderedSelectOne_whenMultipleRowsWithErrorOnDifferentOrder_returnsFirstItem(QueueRepository.FETCH_TYPE fetchType) {
+        namedJdbcTemplate.update(ADD_ORDEREDQUEUE_ITEMS, Collections.emptyMap());
+        // place second item in error for different order so first record will be returned
+        namedJdbcTemplate.update(UPDATE_ORDERQUEUE_ITEM, Map.of(
+                "status", "E",
+                "order_id", 2,
+                "wid", "223e4567-e89b-12d3-a456-426614174000"));
+        List<QueueController.OrderedWorkItem> actuals = queueRepository.orderFetchMany(1, fetchType);
+        assertThat(actuals).hasSize(1);
+        verifyFirstItemInReadyStatus(actuals.get(0), "orderedqueue");
+        verifyProcessOrder();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = QueueRepository.FETCH_TYPE.class)
+    public void testOrderedSelectOne_whenMultipleRowsWithInProgressOnDifferentOrder_returnsFirstItem(QueueRepository.FETCH_TYPE fetchType) {
+        namedJdbcTemplate.update(ADD_ORDEREDQUEUE_ITEMS, Collections.emptyMap());
+        // place second item in error for different order so first record will be returned
+        namedJdbcTemplate.update(UPDATE_ORDERQUEUE_ITEM, Map.of(
+                "status", "I",
+                "order_id", 2,
+                "wid", "223e4567-e89b-12d3-a456-426614174000"));
+        List<QueueController.OrderedWorkItem> actuals = queueRepository.orderFetchMany(1, fetchType);
+        assertThat(actuals).hasSize(1);
+        verifyFirstItemInReadyStatus(actuals.get(0), "orderedqueue");
+        verifyProcessOrder();
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = QueueRepository.FETCH_TYPE.class)
+    public void testOrderedSelectOne_whenMultipleRowsExistWithDifferentOrder_returnOneItemPerOrder(QueueRepository.FETCH_TYPE fetchType) {
+        namedJdbcTemplate.update(ADD_ORDEREDQUEUE_ITEMS, Collections.emptyMap());
+        // change second item to different order
+        namedJdbcTemplate.update(UPDATE_ORDERQUEUE_ITEM, Map.of(
+                "status", "R",
+                "order_id", 2,
+                "wid", "223e4567-e89b-12d3-a456-426614174000"));
+        // try to grab three items, but should only get two (one per order)
+        List<QueueController.OrderedWorkItem> actuals = queueRepository.orderFetchMany(1, fetchType);
+        assertThat(actuals).hasSize(1);
+        verifyFirstItemInReadyStatus(actuals.get(0), "orderedqueue");
         verifyProcessOrder();
     }
 

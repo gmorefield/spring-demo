@@ -24,12 +24,14 @@ import java.util.stream.Collectors;
 public class QueueRepository {
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public enum FETCH_TYPE_ORDERED {
+    public enum FETCH_TYPE {
         OUTPUT_NOT_EXISTS,
+        OUTPUT_JOIN,
         OUTPUT_PARTITION,
         OUTPUT_CROSS_APPLY,
         OUTPUT_SUB_SELECT,
         SELECT_NOT_EXISTS,
+        SELECT_JOIN,
         SELECT_PARTITION,
         SELECT_CROSS_APPLY,
         SELECT_SUB_SELECT
@@ -270,41 +272,32 @@ public class QueueRepository {
     }
 
     @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "orderedFetchNext")
-    public QueueController.OrderedWorkItem orderedFetchNext() {
-        String sql = """
-                DECLARE @itemTable TABLE (
-                    wid varchar(36),
-                    id int
-                );
-                update orderedqueue
-                  with (ROWLOCK)
-                   set status='I',
-                       update_dt = getdate(),
-                       msg = :msg
-                output inserted.wid, inserted.id into @itemTable
-                 where id = (
-                    select top 1 w2.id
-                      from orderedqueue  w2
-                     where (w2.status='R')
-                       and not exists (
-                                select order_id
-                                  from orderedqueue w3
-                                 where w3.order_id = w2.order_id
-                                   and w3.status in ('I','E')
-                           )
-                     order by w2.id
-                   )
-                   and (status='R');
-                select * from orderedqueue where id = (select id from @itemTable); --@item;
-                """;
-        List<QueueController.OrderedWorkItem> stream = jdbcTemplate.query(sql, Map.of("msg", Thread.currentThread().getId()), (row, index) -> {
+    public QueueController.OrderedWorkItem orderedFetchNext(FETCH_TYPE fetchType) {
+        String sql = switch (fetchType) {
+            case OUTPUT_NOT_EXISTS -> "{ CALL OUTPUT_MANY_ORDERED_NOTEXISTS(:count, :msg) }";
+            case OUTPUT_JOIN -> "{ CALL OUTPUT_MANY_ORDERED_JOIN(:count, :msg) }";
+            case OUTPUT_PARTITION -> "{ CALL OUTPUT_MANY_ORDERED_PART(:count, :msg) }";
+            case OUTPUT_CROSS_APPLY -> "{ CALL OUTPUT_MANY_ORDERED_CROSS(:count, :msg) }";
+            case OUTPUT_SUB_SELECT -> "{ CALL OUTPUT_MANY_ORDERED_SUB(:count, :msg) }";
+            case SELECT_NOT_EXISTS -> "{ CALL SELECT_MANY_ORDERED_NOTEXISTS(:count, :msg) }";
+            case SELECT_JOIN -> "{ CALL SELECT_MANY_ORDERED_JOIN(:count, :msg) }";
+            case SELECT_PARTITION -> "{ CALL SELECT_MANY_ORDERED_PART(:count, :msg) }";
+            case SELECT_CROSS_APPLY -> "{ CALL SELECT_MANY_ORDERED_CROSS(:count, :msg) }";
+            case SELECT_SUB_SELECT -> "{ CALL SELECT_MANY_ORDERED_SUB(:count, :msg) }";
+        };
+
+        int currentFetch = fetchCounter.incrementAndGet();
+        List<QueueController.OrderedWorkItem> items = jdbcTemplate.query(sql, Map.of(
+                "msg", System.currentTimeMillis() + "-" + fetchType.name().substring(0, 4) + "-" + currentFetch,
+                "count", 1), (row, index) -> {
             QueueController.OrderedWorkItem item = new QueueController.OrderedWorkItem();
             item.setWid(row.getString("wid"));
             item.setOrderId(row.getString("order_id"));
             item.setId(row.getString("id"));
             return item;
         });
-        Optional<QueueController.OrderedWorkItem> result = stream.stream().findFirst();
+
+        Optional<QueueController.OrderedWorkItem> result = items.stream().findFirst();
         return result.orElse(new QueueController.OrderedWorkItem());
     }
 
@@ -312,13 +305,15 @@ public class QueueRepository {
 //    public final static ConcurrentLinkedQueue<String> fetchOrder = new ConcurrentLinkedQueue<>();
 
     @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "orderFetchMany")
-    public List<QueueController.OrderedWorkItem> orderFetchMany(Integer count, FETCH_TYPE_ORDERED fetchType) {
+    public List<QueueController.OrderedWorkItem> orderFetchMany(Integer count, FETCH_TYPE fetchType) {
         String sql = switch (fetchType) {
             case OUTPUT_NOT_EXISTS -> "{ CALL OUTPUT_MANY_ORDERED_NOTEXISTS(:count, :msg) }";
+            case OUTPUT_JOIN -> "{ CALL OUTPUT_MANY_ORDERED_JOIN(:count, :msg) }";
             case OUTPUT_PARTITION -> "{ CALL OUTPUT_MANY_ORDERED_PART(:count, :msg) }";
             case OUTPUT_CROSS_APPLY -> "{ CALL OUTPUT_MANY_ORDERED_CROSS(:count, :msg) }";
             case OUTPUT_SUB_SELECT -> "{ CALL OUTPUT_MANY_ORDERED_SUB(:count, :msg) }";
             case SELECT_NOT_EXISTS -> "{ CALL SELECT_MANY_ORDERED_NOTEXISTS(:count, :msg) }";
+            case SELECT_JOIN -> "{ CALL SELECT_MANY_ORDERED_JOIN(:count, :msg) }";
             case SELECT_PARTITION -> "{ CALL SELECT_MANY_ORDERED_PART(:count, :msg) }";
             case SELECT_CROSS_APPLY -> "{ CALL SELECT_MANY_ORDERED_CROSS(:count, :msg) }";
             case SELECT_SUB_SELECT -> "{ CALL SELECT_MANY_ORDERED_SUB(:count, :msg) }";

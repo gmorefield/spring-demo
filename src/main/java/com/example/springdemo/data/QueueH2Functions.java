@@ -95,6 +95,24 @@ public class QueueH2Functions {
         return selectMany(conn, query, tableName, limit, msg);
     }
 
+    public static ResultSet outputManyOrderedJoin(Connection conn, int limit, String msg) throws SQLException {
+        String tableName = "orderedqueue";
+        String query = """
+                SELECT o.id
+                  FROM %1$s o
+                  LEFT JOIN %1$s o2
+                    ON o.order_id = o2.order_id
+                   AND o2.status in ( 'I', 'E' )
+                 WHERE o.status = 'R'
+                   AND o2.id IS NULL
+                 ORDER BY o.id
+                 LIMIT ?
+                   FOR UPDATE
+                 """.formatted(tableName);
+
+        return selectMany(conn, query, tableName, limit, msg);
+    }
+
     public static ResultSet outputManyOrderedPart(Connection conn, int limit, String msg) throws SQLException {
         String tableName = "orderedqueue";
         String query = """

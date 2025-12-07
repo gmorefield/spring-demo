@@ -37,19 +37,21 @@ public class QueueController {
 
     @GetMapping("/order/manyNext")
     public Map orderManyNext(@RequestParam(value = "threads", required = false) Optional<Integer> threads,
-                             @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate) throws InterruptedException {
-        return queueService.orderManyNext(threads.orElse(10), errorRate.orElse(1));
+                             @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate,
+                             @RequestParam(value = "fetchType", required = false) Optional<QueueRepository.FETCH_TYPE> fetchType) throws InterruptedException {
+        return queueService.orderManyNext(threads.orElse(10), errorRate.orElse(1),
+                fetchType.orElse(QueueRepository.FETCH_TYPE.OUTPUT_PARTITION));
     }
 
     @GetMapping("/order/manyPrefetch")
     public Map orderManyPrefetch(@RequestParam(value = "threads", required = false) Optional<Integer> threads,
                                  @RequestParam(value = "prefetch", required = false) Optional<Integer> fetch,
                                  @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate,
-                                 @RequestParam(value = "fetchType", required = false) Optional<QueueRepository.FETCH_TYPE_ORDERED> fetchType) throws InterruptedException {
+                                 @RequestParam(value = "fetchType", required = false) Optional<QueueRepository.FETCH_TYPE> fetchType) throws InterruptedException {
         return queueService.orderManyPrefetch(threads.orElse(10),
                 fetch.orElse(20),
                 errorRate.orElse(1),
-                fetchType.orElse(QueueRepository.FETCH_TYPE_ORDERED.OUTPUT_PARTITION));
+                fetchType.orElse(QueueRepository.FETCH_TYPE.OUTPUT_PARTITION));
     }
 
     @GetMapping("/order/addSingle")

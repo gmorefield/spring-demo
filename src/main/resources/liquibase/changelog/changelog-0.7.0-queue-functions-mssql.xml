@@ -57,30 +57,42 @@
             <sql>DROP PROCEDURE OUTPUT_MANY_ORDERED_SUB</sql>
         </rollback>
     </changeSet>
+    <changeSet id="009-output-many-ordered-join" author="morefigs" dbms="mssql">
+        <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedJoin/outputManyOrderedJoin-v1.0.0.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sql>DROP PROCEDURE OUTPUT_MANY_ORDERED_JOIN</sql>
+        </rollback>
+    </changeSet>
 
     <!-- ordered queue procedures for SELECT -->
-    <changeSet id="009-select-many-ordered-notexists" author="morefigs" dbms="mssql">
+    <changeSet id="010-select-many-ordered-notexists" author="morefigs" dbms="mssql">
         <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedNotExists/selectManyOrderedNotExists-v1.0.0.sql" relativeToChangelogFile="true" />
         <rollback>
             <sql>DROP PROCEDURE SELECT_MANY_ORDERED_NOTEXISTS</sql>
         </rollback>
     </changeSet>
-    <changeSet id="010-select-many-ordered-part" author="morefigs" dbms="mssql">
+    <changeSet id="011-select-many-ordered-part" author="morefigs" dbms="mssql">
         <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedPart/selectManyOrderedPart-v1.0.0.sql" relativeToChangelogFile="true" />
         <rollback>
             <sql>DROP PROCEDURE SELECT_MANY_ORDERED_PART</sql>
         </rollback>
     </changeSet>
-    <changeSet id="011-select-ordered-cross" author="morefigs" dbms="mssql">
+    <changeSet id="012-select-ordered-cross" author="morefigs" dbms="mssql">
         <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedCross/selectManyOrderedCross-v1.0.0.sql" relativeToChangelogFile="true" />
         <rollback>
             <sql>DROP PROCEDURE SELECT_MANY_ORDERED_CROSS</sql>
         </rollback>
     </changeSet>
-    <changeSet id="012-select-ordered-sub" author="morefigs" dbms="mssql">
+    <changeSet id="013-select-ordered-sub" author="morefigs" dbms="mssql">
         <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedSub/selectManyOrderedSub-v1.0.0.sql" relativeToChangelogFile="true" />
         <rollback>
             <sql>DROP PROCEDURE SELECT_MANY_ORDERED_SUB</sql>
+        </rollback>
+    </changeSet>
+    <changeSet id="014-select-many-ordered-join" author="morefigs" dbms="mssql">
+        <sqlFile path="objects/mssql/orderedqueue/prefetchManyOrderedJoin/selectManyOrderedJoin-v1.0.0.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sql>DROP PROCEDURE SELECT_MANY_ORDERED_JOIN</sql>
         </rollback>
     </changeSet>
 

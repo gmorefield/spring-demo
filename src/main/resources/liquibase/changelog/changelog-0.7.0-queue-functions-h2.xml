@@ -73,8 +73,16 @@
             DROP ALIAS IF EXISTS OUTPUT_MANY_ORDERED_SUB;
         </rollback>
     </changeSet>
-
     <changeSet id="009" author="morefigs" dbms="h2">
+        <sql>
+            CREATE ALIAS OUTPUT_MANY_ORDERED_JOIN FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedJoin";
+        </sql>
+        <rollback>
+            DROP ALIAS IF EXISTS OUTPUT_MANY_ORDERED_JOIN;
+        </rollback>
+    </changeSet>
+
+    <changeSet id="010" author="morefigs" dbms="h2">
         <sql>
             CREATE ALIAS SELECT_MANY_ORDERED_NOTEXISTS FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedNotExists";
         </sql>
@@ -82,7 +90,7 @@
             DROP ALIAS IF EXISTS SELECT_MANY_ORDERED_NOTEXISTS;
         </rollback>
     </changeSet>
-    <changeSet id="010" author="morefigs" dbms="h2">
+    <changeSet id="011" author="morefigs" dbms="h2">
         <sql>
             CREATE ALIAS SELECT_MANY_ORDERED_PART FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedPart";
         </sql>
@@ -90,7 +98,7 @@
             DROP ALIAS IF EXISTS SELECT_MANY_ORDERED_PART;
         </rollback>
     </changeSet>
-    <changeSet id="011" author="morefigs" dbms="h2">
+    <changeSet id="012" author="morefigs" dbms="h2">
         <sql>
             CREATE ALIAS SELECT_MANY_ORDERED_CROSS FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedCross";
         </sql>
@@ -98,12 +106,20 @@
             DROP ALIAS IF EXISTS SELECT_MANY_ORDERED_CROSS;
         </rollback>
     </changeSet>
-    <changeSet id="012" author="morefigs" dbms="h2">
+    <changeSet id="013" author="morefigs" dbms="h2">
         <sql>
             CREATE ALIAS SELECT_MANY_ORDERED_SUB FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedSub";
         </sql>
         <rollback>
             DROP ALIAS IF EXISTS SELECT_MANY_ORDERED_SUB;
+        </rollback>
+    </changeSet>
+    <changeSet id="014" author="morefigs" dbms="h2">
+        <sql>
+            CREATE ALIAS SELECT_MANY_ORDERED_JOIN FOR "com.example.springdemo.data.QueueH2Functions.outputManyOrderedJoin";
+        </sql>
+        <rollback>
+            DROP ALIAS IF EXISTS SELECT_MANY_ORDERED_JOIN;
         </rollback>
     </changeSet>
 

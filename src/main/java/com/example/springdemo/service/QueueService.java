@@ -19,8 +19,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
-import static java.util.Collections.emptyMap;
-
 @Service
 @Slf4j
 public class QueueService {
@@ -33,7 +31,7 @@ public class QueueService {
 
     public QueueController.OrderedWorkItem orderNext() {
         log.info("Fetching next ordered...");
-        return queueRepository.orderedFetchNext();
+        return queueRepository.orderedFetchNext(QueueRepository.FETCH_TYPE.OUTPUT_NOT_EXISTS);
     }
 
     public Map<String, Integer> orderStatus() {
@@ -41,13 +39,14 @@ public class QueueService {
         return queueRepository.getOrderedStatusCounts();
     }
 
-    public Map orderManyNext(int threadCount, int errorRate) throws InterruptedException {
+    public Map orderManyNext(int threadCount, int errorRate, QueueRepository.FETCH_TYPE fetchType) throws InterruptedException {
         log.info("Processing order/manyNext with {} threads...", threadCount);
 
-        return processItems("order/manyNext", threadCount, errorRate, queueRepository::orderedFetchNext, queueRepository::orderedSetStatus, emptyMap());
+        return processItems("order/manyNext", threadCount, errorRate,
+                () -> queueRepository.orderedFetchNext(fetchType), queueRepository::orderedSetStatus, Map.of("fetchType", fetchType.name()));
     }
 
-    public Map orderManyPrefetch(final int threadCount, final int fetchSize, int errorRate, QueueRepository.FETCH_TYPE_ORDERED fetchType) throws InterruptedException {
+    public Map orderManyPrefetch(final int threadCount, final int fetchSize, int errorRate, QueueRepository.FETCH_TYPE fetchType) throws InterruptedException {
         log.info("Processing order/manyPrefetch [{}] with {} threads and prefetch size {}...", fetchType, threadCount, fetchSize);
 
         final PrefetchBlockingQueue<QueueController.OrderedWorkItem> blockingQueue = new PrefetchBlockingQueue<>(threadCount, fetchSize,
