@@ -9,9 +9,11 @@ import org.springframework.util.function.ThrowingSupplier;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -42,7 +44,7 @@ public class QueueService {
     public Map orderManyNext(int threadCount, int errorRate, QueueRepository.FETCH_TYPE fetchType) throws InterruptedException {
         log.info("Processing order/manyNext with {} threads...", threadCount);
 
-        return processItems("order/manyNext", threadCount, errorRate,
+        return processItems("orderedFetchNext", threadCount, errorRate,
                 () -> queueRepository.orderedFetchNext(fetchType), queueRepository::orderedSetStatus, Map.of("fetchType", fetchType.name()));
     }
 
@@ -51,7 +53,7 @@ public class QueueService {
 
         final PrefetchBlockingQueue<QueueController.OrderedWorkItem> blockingQueue = new PrefetchBlockingQueue<>(threadCount, fetchSize,
                 (limit) -> queueRepository.orderFetchMany(limit, fetchType));
-        return processItems("order/manyPrefetch", threadCount, errorRate, blockingQueue::fetch, queueRepository::orderedSetStatus, Map.of("fetchType", fetchType.name()));
+        return processItems("orderFetchMany", threadCount, errorRate, blockingQueue::fetch, queueRepository::orderedSetStatus, Map.of("fetchType", fetchType.name()));
     }
 
     public int orderMergeSingle(final UUID wid, final int orderId) {
@@ -66,8 +68,8 @@ public class QueueService {
         return queueRepository.orderedAddUniqueSingle(wid, orderId);
     }
 
-    public int orderAddMany(final int itemCount, final int uniqueOrders) {
-        return queueRepository.orderedAddMany(itemCount, uniqueOrders);
+    public int orderAddMany(final int itemCount, final int uniqueOrders, boolean dropAll) {
+        return queueRepository.orderedAddMany(itemCount, uniqueOrders, dropAll);
     }
 
     public int orderResetErrors() {
@@ -121,6 +123,26 @@ public class QueueService {
     public int resetErrors() {
         log.info("Resetting errors...");
         return queueRepository.resetErrors();
+    }
+
+    public Map<String, Measure> getMeasures() {
+        // sort measures by totalDuration
+        LinkedHashMap<String, Measure> sorted = new LinkedHashMap<>();
+        measures.entrySet().stream()
+                .sorted((e1, e2) -> Integer.compare(e2.getValue().getTotalDuration(), e1.getValue().getTotalDuration()))
+                .forEachOrdered(e -> sorted.put(e.getKey(), e.getValue()));
+        return sorted;
+    }
+
+    public void clearMeasures() {
+        measures.clear();
+    }
+
+    private static final ConcurrentHashMap<String, Measure> measures = new ConcurrentHashMap<>();
+
+    public static void addMetric(String methodName, String fetchType, int itemsProcessed, long duration, int retries) {
+        measures.computeIfAbsent(methodName + "-" + (fetchType == null ? "default" : fetchType), k -> new Measure())
+                .add(itemsProcessed, duration, retries);
     }
 
     private Map processItems(final String methodName, final int threadCount, final int errorRate, final ThrowingSupplier<QueueController.OrderedWorkItem> itemSupplier,
@@ -177,6 +199,52 @@ public class QueueService {
         stats.putAll(context);
         log.info("{} complete: {}", methodName, stats);
 
+        addMetric(methodName, (String) context.get("fetchType"),
+                itemsProcessed.intValue(), duration, 0);
+
         return stats;
+    }
+
+    public static final class Measure {
+        private final AtomicInteger itemCount = new AtomicInteger(0);
+        private final AtomicInteger totalDuration = new AtomicInteger(0);
+        private final AtomicInteger totalRetries = new AtomicInteger(0);
+        private final AtomicInteger avgDuration = new AtomicInteger(0);
+
+        public void add(int itemsProcessed, long duration, int retries) {
+            int c = itemCount.addAndGet(itemsProcessed);
+            int d = totalDuration.addAndGet((int) duration);
+            totalRetries.addAndGet(retries);
+
+            avgDuration.set(c > 0 ? Math.round(d / c) : 0);
+        }
+
+        public int getItemCount() {
+            return itemCount.get();
+        }
+
+        public int getTotalDuration() {
+            return totalDuration.get();
+        }
+
+        public int getTotalRetries() {
+            return totalRetries.get();
+        }
+
+        public int getAvgDuration() {
+            return avgDuration.get();
+        }
+
+        public void incrementItemCount(int item) {
+            itemCount.addAndGet(item);
+        }
+
+        public void incrementTotalDuration(int item) {
+            totalDuration.addAndGet(item);
+        }
+
+        public void incrementTotalRetries(int item) {
+            totalRetries.addAndGet(item);
+        }
     }
 }

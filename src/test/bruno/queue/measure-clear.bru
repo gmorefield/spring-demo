@@ -1,11 +1,11 @@
 meta {
-  name: tasks-delete-all
+  name: measure-clear
   type: http
-  seq: 6
+  seq: 3
 }
 
 delete {
-  url: {{host}}/tasks
+  url: {{host}}/queue/measures
   body: none
   auth: inherit
 }

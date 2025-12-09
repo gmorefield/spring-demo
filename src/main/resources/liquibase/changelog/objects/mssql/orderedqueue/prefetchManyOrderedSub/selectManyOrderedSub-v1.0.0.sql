@@ -9,7 +9,7 @@ BEGIN
 
     BEGIN TRY
         BEGIN TRANSACTION;
-        -- EXEC sp_getapplock @Resource = 'prefetchManyOrdered', @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = 60000;
+         EXEC sp_getapplock @Resource = 'prefetchManyOrdered', @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = 60000;
 
         INSERT INTO @itemTable (id)
         SELECT TOP (@Count) o.id

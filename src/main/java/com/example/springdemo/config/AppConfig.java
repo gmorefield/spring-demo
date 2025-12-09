@@ -1,6 +1,8 @@
 package com.example.springdemo.config;
 
+import com.example.springdemo.data.QueueRepository;
 import com.example.springdemo.filter.RequestLoggingFilter;
+import com.example.springdemo.service.QueueService;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -21,10 +23,13 @@ import org.springframework.retry.RetryCallback;
 import org.springframework.retry.RetryContext;
 import org.springframework.retry.RetryListener;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.support.Args;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableRetry
@@ -35,7 +40,7 @@ public class AppConfig implements ApplicationContextAware {
      * can also be used to register Filters with customization (e.g. url patterns)
      */
     @Bean
-    @ConditionalOnProperty(name="spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
+    @ConditionalOnProperty(name = "spring.main.web-application-type", havingValue = "!NONE", matchIfMissing = true)
     public FilterRegistrationBean<RequestLoggingFilter> filterRegistrationBean() {
         FilterRegistrationBean<RequestLoggingFilter> registrationBean = new FilterRegistrationBean<>();
         RequestLoggingFilter customFilter = new RequestLoggingFilter();
@@ -113,7 +118,19 @@ public class AppConfig implements ApplicationContextAware {
 
         @Override
         public <T, E extends Throwable> void onError(RetryContext context, RetryCallback<T, E> callback, Throwable throwable) {
-            log.info("{}: Retry {} error {}", context.getAttribute(RetryContext.NAME), context.getRetryCount(), throwable.getClass().getSimpleName());
+            Args args = (Args) context.getAttribute("ARGS");
+            String fetchType = "default";
+            if (args != null && args.getArgs() != null) {
+                fetchType = Arrays.stream(args.getArgs()).filter(a -> a instanceof QueueRepository.FETCH_TYPE).findFirst().map(Object::toString).orElse("default");
+            }
+
+            QueueService.addMetric(context.getAttribute(RetryContext.NAME).toString(),
+                    fetchType,
+                    0,
+                    0,
+                    1);
+
+            log.info("{} ({}): Retry {} error {}", context.getAttribute(RetryContext.NAME), fetchType, context.getRetryCount(), throwable.getClass().getSimpleName());
             RetryListener.super.onError(context, callback, throwable);
         }
     }

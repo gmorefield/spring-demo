@@ -210,7 +210,7 @@ public class QueueRepository {
         }
     }
 
-    public int orderedAddMany(final int itemCount, final int uniqueOrders) {
+    public int orderedAddMany(final int itemCount, final int uniqueOrders, boolean dropAll) {
         String sql = """
                 declare @numcreated int = 0, @order int = 1
                 while (@numcreated < #count#)
@@ -222,6 +222,12 @@ public class QueueRepository {
                 end;
                 select @numcreated;
                 """;
+
+        if (dropAll) {
+            String dropSql = "truncate table orderedqueue";
+            jdbcTemplate.update(dropSql, Collections.emptyMap());
+        }
+
         int count = jdbcTemplate.queryForObject(sql.replace("#count#", String.valueOf(itemCount))
                         .replace("#order#", String.valueOf(uniqueOrders)),
                 Collections.emptyMap(),

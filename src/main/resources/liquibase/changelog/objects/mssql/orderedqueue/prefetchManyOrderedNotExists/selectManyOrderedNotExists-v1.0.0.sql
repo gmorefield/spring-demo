@@ -9,11 +9,11 @@ BEGIN
 
     BEGIN TRY
         BEGIN TRANSACTION;
-        -- EXEC sp_getapplock @Resource = 'prefetchManyOrdered', @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = 60000;
+         EXEC sp_getapplock @Resource = 'prefetchManyOrdered', @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = 60000;
 
         INSERT INTO @itemTable (id)
         SELECT TOP (@Count) o.id
-          FROM orderedqueue o
+          FROM orderedqueue o WITH (UPDLOCK)
          WHERE o.status = 'R'
            AND NOT EXISTS (
                 SELECT 1

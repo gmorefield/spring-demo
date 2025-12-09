@@ -5,6 +5,7 @@ import com.example.springdemo.service.QueueService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,22 +37,21 @@ public class QueueController {
     }
 
     @GetMapping("/order/manyNext")
-    public Map orderManyNext(@RequestParam(value = "threads", required = false) Optional<Integer> threads,
-                             @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate,
-                             @RequestParam(value = "fetchType", required = false) Optional<QueueRepository.FETCH_TYPE> fetchType) throws InterruptedException {
-        return queueService.orderManyNext(threads.orElse(10), errorRate.orElse(1),
-                fetchType.orElse(QueueRepository.FETCH_TYPE.OUTPUT_PARTITION));
+    public Map orderManyNext(@RequestParam(value = "threads", required = false, defaultValue = "10") Integer threads,
+                             @RequestParam(value = "errorRate", required = false, defaultValue = "1") Integer errorRate,
+                             @RequestParam(value = "fetchType", required = false, defaultValue = "OUTPUT_PARTITION") QueueRepository.FETCH_TYPE fetchType) throws InterruptedException {
+        return queueService.orderManyNext(threads, errorRate, fetchType);
     }
 
     @GetMapping("/order/manyPrefetch")
-    public Map orderManyPrefetch(@RequestParam(value = "threads", required = false) Optional<Integer> threads,
-                                 @RequestParam(value = "prefetch", required = false) Optional<Integer> fetch,
-                                 @RequestParam(value = "errorRate", required = false) Optional<Integer> errorRate,
-                                 @RequestParam(value = "fetchType", required = false) Optional<QueueRepository.FETCH_TYPE> fetchType) throws InterruptedException {
-        return queueService.orderManyPrefetch(threads.orElse(10),
-                fetch.orElse(20),
-                errorRate.orElse(1),
-                fetchType.orElse(QueueRepository.FETCH_TYPE.OUTPUT_PARTITION));
+    public Map orderManyPrefetch(@RequestParam(value = "threads", required = false, defaultValue = "10") Integer threads,
+                                 @RequestParam(value = "prefetch", required = false, defaultValue = "20") Integer fetch,
+                                 @RequestParam(value = "errorRate", required = false, defaultValue = "1") Integer errorRate,
+                                 @RequestParam(value = "fetchType", required = false, defaultValue = "OUTPUT_PARTITION") String fetchType) throws InterruptedException {
+        return queueService.orderManyPrefetch(threads,
+                fetch,
+                errorRate,
+                QueueRepository.FETCH_TYPE.valueOf(fetchType));
     }
 
     @GetMapping("/order/addSingle")
@@ -86,10 +86,11 @@ public class QueueController {
 
     @GetMapping("/order/addMany")
     public Map orderAddMany(@RequestParam(value = "items", required = false) Optional<Integer> items,
-                            @RequestParam(value = "order", required = false) Optional<Integer> order) {
-        int countAdded = queueService.orderAddMany(items.orElse(1000), order.orElse(25));
+                            @RequestParam(value = "order", required = false) Optional<Integer> order,
+                            @RequestParam(value = "dropAll", required = false, defaultValue = "false") Boolean dropAll) {
+        int countAdded = queueService.orderAddMany(items.orElse(1000), order.orElse(25), dropAll);
 
-        Map data = Map.of("rowsAdded", countAdded);
+        Map data = Map.of("rowsAdded", countAdded, "dropAll", dropAll);
         log.info("order/addMany complete: {}", data);
         return data;
     }
@@ -153,6 +154,16 @@ public class QueueController {
 
         log.info("reset complete: {}", Map.of("count", count));
         return Map.of("rowsReset", count);
+    }
+
+    @GetMapping("/measures")
+    public Map<String, QueueService.Measure> getMeasures() {
+        return queueService.getMeasures();
+    }
+
+    @DeleteMapping("/measures")
+    public void clearMeasures() {
+        queueService.clearMeasures();
     }
 
 //    @GetMapping("/fetchOrder")
