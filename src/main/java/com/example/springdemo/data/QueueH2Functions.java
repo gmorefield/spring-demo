@@ -2,6 +2,7 @@ package com.example.springdemo.data;
 
 import org.h2.tools.SimpleResultSet;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.dao.ConcurrencyFailureException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,16 +10,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class QueueH2Functions {
+    public static final ReentrantLock fetchLock = new ReentrantLock(true);
 
-    public static ResultSet selectNext(Connection conn, String msg) throws SQLException {
+    public static ResultSet selectNext(Connection conn, String msg) throws SQLException, InterruptedException {
         String url = conn.getMetaData().getURL();
         if (url.equals("jdbc:columnlist:connection")) {
             return getMetaResultSet();
         }
 
+        ReentrantLock lock = fetchLock;
         try {
+            if (!lock.tryLock(60, java.util.concurrent.TimeUnit.SECONDS)) {
+                lock = null;
+                throw new ConcurrencyFailureException("Could not acquire lock to fetch next item from queue.");
+            }
+
             conn.setAutoCommit(false);
 
             PreparedStatement selectPs = conn.prepareStatement("""
@@ -59,23 +68,27 @@ public class QueueH2Functions {
             } catch (SQLException ignored) {
             }
             throw e;
+        } finally {
+            if (lock != null) {
+                lock.unlock();
+            }
         }
     }
 
-    public static ResultSet selectMany(Connection conn, int limit, String msg) throws SQLException {
+    public static ResultSet selectMany(Connection conn, int limit, String msg) throws SQLException, InterruptedException {
         return selectManyWork(conn, limit, msg);
     }
 
-    public static ResultSet outputNext(Connection conn, String msg) throws SQLException {
+    public static ResultSet outputNext(Connection conn, String msg) throws SQLException, InterruptedException {
         return selectNext(conn, msg);
     }
 
-    public static ResultSet outputMany(Connection conn, int limit, String msg) throws SQLException {
+    public static ResultSet outputMany(Connection conn, int limit, String msg) throws SQLException, InterruptedException {
         return selectManyWork(conn, limit, msg);
     }
 
     // NOTE: This one doesn't work properly for more limit of 1 since it can return multiple rows per order_id
-    public static ResultSet outputManyOrderedNotExists(Connection conn, int limit, String msg) throws SQLException {
+    public static ResultSet outputManyOrderedNotExists(Connection conn, int limit, String msg) throws SQLException, InterruptedException {
         String tableName = "orderedqueue";
         String query = """
                 SELECT id
@@ -95,7 +108,7 @@ public class QueueH2Functions {
         return selectMany(conn, query, tableName, limit, msg);
     }
 
-    public static ResultSet outputManyOrderedJoin(Connection conn, int limit, String msg) throws SQLException {
+    public static ResultSet outputManyOrderedJoin(Connection conn, int limit, String msg) throws SQLException, InterruptedException {
         String tableName = "orderedqueue";
         String query = """
                 SELECT o.id
@@ -113,7 +126,7 @@ public class QueueH2Functions {
         return selectMany(conn, query, tableName, limit, msg);
     }
 
-    public static ResultSet outputManyOrderedPart(Connection conn, int limit, String msg) throws SQLException {
+    public static ResultSet outputManyOrderedPart(Connection conn, int limit, String msg) throws SQLException, InterruptedException {
         String tableName = "orderedqueue";
         String query = """
                 SELECT o.id
@@ -121,6 +134,7 @@ public class QueueH2Functions {
                        SELECT row_number() OVER (PARTITION BY order_id ORDER BY id) as rn, id, status
                          FROM %1$s i
                         WHERE i.status != 'C'
+                          FOR UPDATE
                   ) AS o
                  WHERE o.rn = 1
                    AND o.status = 'R'
@@ -132,11 +146,11 @@ public class QueueH2Functions {
         return selectMany(conn, query, tableName, limit, msg);
     }
 
-    public static ResultSet outputManyOrderedCross(Connection conn, int limit, String msg) throws SQLException {
+    public static ResultSet outputManyOrderedCross(Connection conn, int limit, String msg) throws SQLException, InterruptedException {
         return outputManyOrderedSub(conn, limit, msg);
     }
 
-    public static ResultSet outputManyOrderedSub(Connection conn, int limit, String msg) throws SQLException {
+    public static ResultSet outputManyOrderedSub(Connection conn, int limit, String msg) throws SQLException, InterruptedException {
         String tableName = "orderedqueue";
         String query = """
                 SELECT o.id
@@ -156,11 +170,48 @@ public class QueueH2Functions {
         return selectMany(conn, query, tableName, limit, msg);
     }
 
+    public static ResultSet addManyOrdered(Connection conn, int limit, int order) throws SQLException {
+        String url = conn.getMetaData().getURL();
+        if (url.equals("jdbc:columnlist:connection")) {
+            SimpleResultSet rs = new SimpleResultSet();
+            rs.addColumn("count", Types.INTEGER, 10, 0);
+            return rs;
+        }
+
+        try {
+//            conn.setAutoCommit(false);
+
+            int numCreated = 0;
+            while (numCreated < limit) {
+                int ord = (int) Math.floor(Math.random() * order);
+                PreparedStatement insertPs = conn.prepareStatement("""
+                        INSERT INTO orderedqueue (wid, order_id, status)
+                        VALUES (UUID(), ?, 'R')""");
+                insertPs.setInt(1, ord);
+                insertPs.executeUpdate();
+                numCreated++;
+            }
+
+            SimpleResultSet rs = new SimpleResultSet();
+            rs.addColumn("count", Types.INTEGER, 10, 0);
+            rs.addRow(numCreated);
+            return rs;
+        } catch (SQLException e) {
+            try {
+                conn.rollback();
+            } catch (SQLException ignored) {
+            }
+            throw e;
+//        } finally {
+//            conn.setAutoCommit(true);
+        }
+    }
+
     // ------------------------------------------------------------------------
     // Helper methods
     // ------------------------------------------------------------------------
 
-    private static ResultSet selectManyWork(Connection conn, int limit, String msg) throws SQLException {
+    private static ResultSet selectManyWork(Connection conn, int limit, String msg) throws SQLException, InterruptedException {
         String tableName = "workqueue";
         String query = """
                 SELECT id
@@ -173,14 +224,19 @@ public class QueueH2Functions {
         return selectMany(conn, query, tableName, limit, msg);
     }
 
-    private static ResultSet selectMany(Connection conn, String query, String tableName, int limit, String msg) throws SQLException {
+    private static ResultSet selectMany(Connection conn, String query, String tableName, int limit, String msg) throws SQLException, InterruptedException {
         String url = conn.getMetaData().getURL();
         if (url.equals("jdbc:columnlist:connection")) {
             return getMetaResultSet();
         }
 
+        ReentrantLock lock = fetchLock;
         try {
             conn.setAutoCommit(false);
+//            if (!lock.tryLock(60, java.util.concurrent.TimeUnit.SECONDS)) {
+//                lock = null;
+//                throw new ConcurrencyFailureException("Could not acquire lock to fetch many item(s) from queue.");
+//            }
 
             PreparedStatement selectPs = conn.prepareStatement(query);
             selectPs.setInt(1, limit);
@@ -226,13 +282,19 @@ public class QueueH2Functions {
                 ps.setInt(i + 1, ids.get(i));
             }
             return ps.executeQuery();
+//        } catch (InterruptedException e) {
+//            lock = null;
+//            throw e;
         } catch (SQLException e) {
             try {
                 conn.rollback();
             } catch (SQLException ignored) {
             }
             throw e;
-//        } finally {
+        } finally {
+//            if (lock != null) {
+//                lock.unlock();
+//            }
 //            conn.setAutoCommit(true);
         }
     }

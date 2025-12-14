@@ -96,6 +96,13 @@
         </rollback>
     </changeSet>
 
+    <changeSet id="015-add-many-ordered" author="morefigs" dbms="mssql">
+        <sqlFile path="objects/mssql/orderedqueue/addManyOrdered/addManyOrdered-v1.0.0.sql" relativeToChangelogFile="true" />
+        <rollback>
+            <sql>DROP PROCEDURE ADD_MANY_ORDERED</sql>
+        </rollback>
+    </changeSet>
+
     <!-- keepTagOnRollback not available until 4.32.0 -->
     <changeSet id="version-tag" author="morefigs" dbms="mssql">
         <tagDatabase tag="v0.7.0"/>

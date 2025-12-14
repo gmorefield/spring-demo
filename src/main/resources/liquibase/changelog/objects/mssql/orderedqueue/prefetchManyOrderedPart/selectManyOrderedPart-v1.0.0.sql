@@ -9,7 +9,7 @@ BEGIN
 
     BEGIN TRY
         BEGIN TRANSACTION;
-        EXEC sp_getapplock @Resource = 'prefetchManyOrdered', @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = 60000;
+--        EXEC sp_getapplock @Resource = 'prefetchManyOrdered', @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = 60000;
 
         INSERT INTO @itemTable (id)
         SELECT TOP (@Count) s.id
@@ -21,8 +21,8 @@ BEGIN
           ) AS s
          WHERE s.rn = 1
 --           AND s.prev_status = 'C'
-           AND s.status = 'R'
-         ORDER BY s.id;
+           AND s.status = 'R';
+--         ORDER BY s.id;
 
          UPDATE orderedqueue WITH (UPDLOCK)
            SET status = 'I',

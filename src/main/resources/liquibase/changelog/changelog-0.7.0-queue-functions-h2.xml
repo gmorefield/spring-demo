@@ -123,6 +123,15 @@
         </rollback>
     </changeSet>
 
+    <changeSet id="015" author="morefigs" dbms="h2">
+        <sql>
+            CREATE ALIAS ADD_MANY_ORDERED FOR "com.example.springdemo.data.QueueH2Functions.addManyOrdered";
+        </sql>
+        <rollback>
+            DROP ALIAS IF EXISTS ADD_MANY_ORDERED;
+        </rollback>
+    </changeSet>
+
     <!-- keepTagOnRollback not available until 4.32.0 -->
     <changeSet id="version-tag" author="morefigs" dbms="h2">
         <tagDatabase tag="v0.7.0"/>

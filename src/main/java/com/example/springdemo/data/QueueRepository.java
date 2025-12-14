@@ -3,7 +3,8 @@ package com.example.springdemo.data;
 import com.example.springdemo.controller.QueueController;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -37,16 +38,24 @@ public class QueueRepository {
         SELECT_SUB_SELECT
     }
 
-    public QueueRepository(NamedParameterJdbcTemplate jdbcTemplate) {
+    private final String NO_LOCK;
+
+    public QueueRepository(NamedParameterJdbcTemplate jdbcTemplate, @Value("${spring.sql.init.platform}") String platform) {
         this.jdbcTemplate = jdbcTemplate;
+
+        if (platform.equals("h2")) {
+            NO_LOCK = "";
+        } else {
+            NO_LOCK = " WITH (nolock) ";
+        }
     }
 
     public Map<String, Integer> getStatusCounts() {
         String sql = """
                 SELECT status, COUNT(*) AS count
-                FROM workqueue with (nolock)
+                FROM workqueue %1$s
                 GROUP BY status
-                """;
+                """.formatted(NO_LOCK);
 
         return jdbcTemplate.query(sql, rs -> {
             Map<String, Integer> resultMap = new HashMap<>();
@@ -73,7 +82,7 @@ public class QueueRepository {
         return count;
     }
 
-    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "selectNext")
+    @Retryable(retryFor = {ConcurrencyFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "selectNext")
     public QueueController.OrderedWorkItem retrieveNext(int count) {
         List<QueueController.OrderedWorkItem> stream = jdbcTemplate.query("{ CALL SELECT_NEXT(:count) }",
                 Map.of("count", count), (row, index) -> {
@@ -86,12 +95,12 @@ public class QueueRepository {
         return result.orElse(new QueueController.OrderedWorkItem());
     }
 
-    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "selectNext")
+    @Retryable(retryFor = {ConcurrencyFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "selectNext")
     public QueueController.OrderedWorkItem selectNext() {
         return getOrderedWorkItem("{ CALL SELECT_NEXT(:msg) }");
     }
 
-    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "fetchNext")
+    @Retryable(retryFor = {ConcurrencyFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "fetchNext")
     public QueueController.OrderedWorkItem fetchNext() {
         return getOrderedWorkItem("{ CALL OUTPUT_NEXT(:msg) }");
     }
@@ -108,12 +117,12 @@ public class QueueRepository {
         return result.orElse(new QueueController.OrderedWorkItem());
     }
 
-    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "selectMany")
+    @Retryable(retryFor = {ConcurrencyFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "selectMany")
     public List<QueueController.OrderedWorkItem> selectMany(Integer count) {
         return getWorkItems(count, "{ CALL SELECT_MANY(:count, :msg) }");
     }
 
-    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "fetchMany")
+    @Retryable(retryFor = {ConcurrencyFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "fetchMany")
     public List<QueueController.OrderedWorkItem> fetchMany(Integer count) {
         return getWorkItems(count, "{ CALL OUTPUT_MANY(:count, :msg) }");
     }
@@ -150,9 +159,9 @@ public class QueueRepository {
     public Map<String, Integer> getOrderedStatusCounts() {
         String sql = """
                 SELECT status, COUNT(*) AS count
-                FROM orderedqueue with (nolock)
+                FROM orderedqueue %1$s
                 GROUP BY status
-                """;
+                """.formatted(NO_LOCK);
 
         return jdbcTemplate.query(sql, rs -> {
             Map<String, Integer> resultMap = new HashMap<>();
@@ -211,26 +220,12 @@ public class QueueRepository {
     }
 
     public int orderedAddMany(final int itemCount, final int uniqueOrders, boolean dropAll) {
-        String sql = """
-                declare @numcreated int = 0, @order int = 1
-                while (@numcreated < #count#)
-                begin
-                	select @order = FLOOR(RAND()*(#order#));
-                	insert into orderedqueue (wid,order_id,status) values (newid(),@order,'R');
-                	select @numcreated = @numcreated + 1, @order = @order + 1;
-                    --if (@order > 10) set @order = 1;
-                end;
-                select @numcreated;
-                """;
-
         if (dropAll) {
             String dropSql = "truncate table orderedqueue";
             jdbcTemplate.update(dropSql, Collections.emptyMap());
         }
-
-        int count = jdbcTemplate.queryForObject(sql.replace("#count#", String.valueOf(itemCount))
-                        .replace("#order#", String.valueOf(uniqueOrders)),
-                Collections.emptyMap(),
+        int count = jdbcTemplate.queryForObject("{CALL ADD_MANY_ORDERED(:count,:order) }",
+                Map.of("count", itemCount, "order", uniqueOrders),
                 Integer.class);
 
         return count;
@@ -240,7 +235,7 @@ public class QueueRepository {
         try {
             jdbcTemplate.update(
                     """
-                            update orderedqueue with (ROWLOCK)
+                            update orderedqueue
                                set status=:status
                                  , update_dt=:now
                                  , retry_cnt=%s
@@ -250,8 +245,6 @@ public class QueueRepository {
                     Map.of("wid", item.getWid(), "id", item.getId(),
                             "status", status, "now", LocalDateTime.now()));
 
-//            String now = LocalDateTime.now().toString();
-//            fetchOrder.add(item.getLongKey() + " END " + fetchCounter.get() + " " + now + " " + Thread.currentThread().getName());
         } catch (Exception e) {
             log.warn("setStatus failed {}", e.getMessage());
             throw e;
@@ -277,7 +270,7 @@ public class QueueRepository {
         }
     }
 
-    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "orderedFetchNext")
+    @Retryable(retryFor = {ConcurrencyFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "orderedFetchNext")
     public QueueController.OrderedWorkItem orderedFetchNext(FETCH_TYPE fetchType) {
         String sql = switch (fetchType) {
             case OUTPUT_NOT_EXISTS -> "{ CALL OUTPUT_MANY_ORDERED_NOTEXISTS(:count, :msg) }";
@@ -308,9 +301,8 @@ public class QueueRepository {
     }
 
     public final static AtomicInteger fetchCounter = new AtomicInteger(0);
-//    public final static ConcurrentLinkedQueue<String> fetchOrder = new ConcurrentLinkedQueue<>();
 
-    @Retryable(retryFor = {PessimisticLockingFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "orderFetchMany")
+    @Retryable(retryFor = {ConcurrencyFailureException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000L, multiplier = 2, random = true), label = "orderFetchMany")
     public List<QueueController.OrderedWorkItem> orderFetchMany(Integer count, FETCH_TYPE fetchType) {
         String sql = switch (fetchType) {
             case OUTPUT_NOT_EXISTS -> "{ CALL OUTPUT_MANY_ORDERED_NOTEXISTS(:count, :msg) }";
@@ -335,15 +327,6 @@ public class QueueRepository {
             item.setId(row.getString("id"));
             return item;
         });
-
-//        if (items.stream().map(QueueController.OrderedWorkItem::getOrderId).distinct().count() < items.size()) {
-//            log.warn("***orderFetchMany {} - items contain duplicate order IDs: {}", currentFetch, items.stream()
-//                    .map(QueueController.OrderedWorkItem::getShortKey)
-//                    .collect(Collectors.toList()));
-//        }
-//
-//        String now = LocalDateTime.now().toString();
-//        items.stream().map(i->i.getLongKey() + " BEG " + (currentFetch) + " " + now + " " + Thread.currentThread().getName()).forEach(fetchOrder::add);
 
         log.debug("Returned orders: {}", items.stream()
                 .map(QueueController.OrderedWorkItem::getOrderId)

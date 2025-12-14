@@ -9,7 +9,9 @@ BEGIN
 
     BEGIN TRY
         BEGIN TRANSACTION;
-         EXEC sp_getapplock @Resource = 'prefetchManyOrdered', @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = 60000;
+        IF (@Count = 1) BEGIN
+            EXEC sp_getapplock @Resource = 'prefetchManyOrdered', @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = 60000;
+        END
 
         UPDATE orderedqueue WITH (UPDLOCK)
            SET status = 'I',
@@ -26,7 +28,7 @@ BEGIN
                              WHERE i.order_id = o.order_id
                                AND i.status != 'C'
                           )
-                    ORDER BY o.id
+--                    ORDER BY o.id
                )
           AND status = 'R';
 
