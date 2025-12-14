@@ -5,17 +5,18 @@ meta {
 }
 
 get {
-  url: {{host}}/queue/order/manyPrefetch?threads=10&prefetch=30
+  url: {{host}}/queue/order/manyPrefetch?threads=10&prefetch=90&errorRate=0&fetchType=SELECT_SUB_SELECT
   body: none
   auth: inherit
 }
 
 params:query {
   threads: 10
-  prefetch: 30
-  ~errorRate: 0
+  prefetch: 90
+  errorRate: 0
+  fetchType: SELECT_SUB_SELECT
   ~fetchType: SELECT_PARTITION
-  ~fetchType: SELECT_SUB_SELECT
+  ~fetchType: SELECT_JOIN
 }
 
 settings {

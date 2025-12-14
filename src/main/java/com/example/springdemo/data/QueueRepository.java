@@ -246,26 +246,63 @@ public class QueueRepository {
                             "status", status, "now", LocalDateTime.now()));
 
         } catch (Exception e) {
-            log.warn("setStatus failed {}", e.getMessage());
+            log.warn("orderedSetStatus failed {}", e.getMessage());
             throw e;
         }
     }
+
+    public void orderedResetItemsToReady(List<QueueController.OrderedWorkItem> items) {
+        try {
+            jdbcTemplate.update(
+                    """
+                            update orderedqueue
+                               set status='R'
+                                 , update_dt=:now
+                             where id in (:ids)
+                               and status = 'I'
+                            """,
+                    Map.of("ids", items.stream().map(QueueController.OrderedWorkItem::getId).toList(),
+                            "now", LocalDateTime.now()));
+
+        } catch (Exception e) {
+            log.warn("orderedSetStatus failed {}", e.getMessage());
+            throw e;
+        }
+    }
+
 
     public void setStatus(QueueController.OrderedWorkItem item, String status) {
         try {
             jdbcTemplate.update(
                     """
                             update workqueue
-                              with (ROWLOCK) 
                                set status=:status
                                  , update_dt=getdate()
                                  , retry_cnt=%s
-                             --where wid=:wid
                              where id=:id
                             """.formatted(status.equals("C") ? "0" : "retry_cnt+1"),
                     Map.of("wid", item.getWid(), "id", item.getId(), "status", status));
         } catch (Exception e) {
             log.warn("setStatus failed {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    public void resetItemsToReady(List<QueueController.OrderedWorkItem> items) {
+        try {
+            jdbcTemplate.update(
+                    """
+                            update workqueue
+                               set status='R'
+                                 , update_dt=:now
+                             where id in (:ids)
+                               and status = 'I'
+                            """,
+                    Map.of("ids", items.stream().map(QueueController.OrderedWorkItem::getId).toList(),
+                            "now", LocalDateTime.now()));
+
+        } catch (Exception e) {
+            log.warn("orderedSetStatus failed {}", e.getMessage());
             throw e;
         }
     }

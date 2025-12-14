@@ -5,16 +5,18 @@ meta {
 }
 
 get {
-  url: {{host}}/queue/order/manyNext?threads=10
+  url: {{host}}/queue/order/manyNext?threads=10&errorRate=0&fetchType=SELECT_PARTITION
   body: none
   auth: inherit
 }
 
 params:query {
   threads: 10
-  ~errorRate: 0
-  ~fetchType: SELECT_PARTITION
+  errorRate: 0
+  fetchType: SELECT_PARTITION
   ~fetchType: SELECT_SUB_SELECT
+  ~fetchType: SELECT_JOIN
+  ~fetchType: SELECT_NOT_EXISTS
 }
 
 settings {

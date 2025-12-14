@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: {{host}}/queue/manyPrefetch?threads=10&prefetch=30&errorRate=1&useFetch=true
+  url: {{host}}/queue/manyPrefetch?threads=10&prefetch=90&errorRate=1&useFetch=true
   body: none
   auth: inherit
 }
 
 params:query {
   threads: 10
-  prefetch: 30
+  prefetch: 90
   errorRate: 1
   useFetch: true
 }

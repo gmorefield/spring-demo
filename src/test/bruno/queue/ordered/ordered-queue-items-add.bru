@@ -5,15 +5,15 @@ meta {
 }
 
 get {
-  url: {{host}}/queue/order/addMany?items=5000&order=3500&dropAll=false
+  url: {{host}}/queue/order/addMany?items=10000&order=3500
   body: none
   auth: inherit
 }
 
 params:query {
-  items: 5000
+  items: 10000
   order: 3500
-  dropAll: false
+  ~dropAll: true
 }
 
 settings {

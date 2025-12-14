@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -70,9 +71,9 @@ public class QueueRepositoryJdbcTest {
 
     private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
-    public QueueRepositoryJdbcTest(@Autowired NamedParameterJdbcTemplate namedJdbcTemplate) {
+    public QueueRepositoryJdbcTest(@Autowired NamedParameterJdbcTemplate namedJdbcTemplate, @Value("${spring.sql.init.platform:h2}") String platform) {
         this.namedJdbcTemplate = namedJdbcTemplate;
-        queueRepository = new QueueRepository(namedJdbcTemplate);
+        queueRepository = new QueueRepository(namedJdbcTemplate, platform);
     }
 
     @BeforeEach
