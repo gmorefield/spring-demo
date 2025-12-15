@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.SchedulingAwareRunnable;
 import org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.CronTask;
@@ -81,7 +82,7 @@ public class ScheduleController implements ApplicationContextAware, SchedulingCo
                     } else if (t instanceof CronTask) {
                         CronTask ct = (CronTask) t;
                         return Map.of("expression", ct.getExpression(),
-                                "type", "fixedRate",
+                                "type", "cron",
                                 "task", ct.toString(),
                                 "isCancelled", this.cancelledTasks.contains(st));
                     } else if (t instanceof OneTimeTask) {
@@ -130,30 +131,23 @@ public class ScheduleController implements ApplicationContextAware, SchedulingCo
 
     @DeleteMapping("/{name}")
     public ResponseEntity<?> cancelTrigger(@PathVariable String name) {
-//        List<ScheduledTask> tasks = List.of(taskRegistrar.getScheduledTasks(), this.scheduledTasks)
-//                .stream()
-//                .flatMap(Set::stream)
         List<ScheduledTask> tasks = scheduledTasks.stream()
                 .filter(t -> t.toString().equals(name) && !cancelledTasks.contains(t))
-                .collect(Collectors.toList());
+                .toList();
         if (tasks.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        tasks.stream()
-                .forEach(t -> {
-                    t.cancel(false);
-                    cancelledTasks.add(t);
-                    log.info("Cancelled trigger {}", t);
-                });
+        tasks.forEach(t -> {
+            t.cancel(false);
+            cancelledTasks.add(t);
+            log.info("Cancelled trigger {}", t);
+        });
 
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("")
     public ResponseEntity<?> cancelAllTrigger() {
-//        List.of(taskRegistrar.getScheduledTasks(), this.scheduledTasks)
-//                .stream()
-//                .flatMap(Set::stream)
         scheduledTasks.stream()
                 .filter(t -> !cancelledTasks.contains(t))
                 .forEach(t -> {
@@ -176,7 +170,6 @@ public class ScheduleController implements ApplicationContextAware, SchedulingCo
 
         // add back entries from db
         tasksRepository.findAll()
-                .stream()
                 .forEach(spec -> {
                     try {
                         this.addTrigger(spec);
@@ -204,30 +197,37 @@ public class ScheduleController implements ApplicationContextAware, SchedulingCo
         scheduledAnnotationBeanPostProcessor.getScheduledTasks()
                 .forEach(st -> {
                     Runnable r = st.getTask().getRunnable();
-                    if (r instanceof ScheduledMethodRunnable) {
-                        ScheduledMethodRunnable smr = (ScheduledMethodRunnable) r;
-
-                        String beanName = StringUtils.uncapitalize(smr.getTarget().getClass().getSimpleName());
-                        String methodName = smr.getMethod().getName();
+                    if (r instanceof SchedulingAwareRunnable sar) {
+                        String beanName, methodName;
+                        if (r instanceof ScheduledMethodRunnable smr) {
+                            beanName = StringUtils.uncapitalize(smr.getTarget().getClass().getSimpleName());
+                            methodName = smr.getMethod().getName();
+                        } else {
+                            String fullMethodName = sar.toString(); // e.g. com.example.MyClass.myMethod
+                            String[] parts = fullMethodName.split("\\.");
+                            beanName = StringUtils.uncapitalize(parts[parts.length - 2]);
+                            methodName = parts[parts.length - 1];
+                        }
+                        Object targetBean = appContext.getBean(beanName);
 
                         // if found in database, remove annotated trigger(s)
                         // NOTE: cleanest approach is to put all jobs in the database
                         if (persistedTriggers.stream().anyMatch(pt -> pt.getTargetBean().equals(beanName) && pt.getTargetMethod().equals(methodName))) {
                             log.info("Removed annotated trigger for {}.{} in favor of db trigger(s)", beanName, methodName);
-                            scheduledAnnotationBeanPostProcessor.postProcessBeforeDestruction(smr.getTarget(), beanName);
-                            if (taskRegistrar.getCronTaskList().stream().anyMatch(cronTask -> cronTask.getRunnable() == smr)) {
+                            scheduledAnnotationBeanPostProcessor.postProcessBeforeDestruction(targetBean, beanName);
+                            if (taskRegistrar.getCronTaskList().stream().anyMatch(cronTask -> cronTask.getRunnable() == sar)) {
                                 taskRegistrar.setCronTasksList(
-                                        taskRegistrar.getCronTaskList().stream().filter(cronTask -> cronTask.getRunnable() != smr).collect(Collectors.toList())
+                                        taskRegistrar.getCronTaskList().stream().filter(cronTask -> cronTask.getRunnable() != sar).collect(Collectors.toList())
                                 );
                             }
-                            if (taskRegistrar.getFixedDelayTaskList().stream().anyMatch(cronTask -> cronTask.getRunnable() == smr)) {
+                            if (taskRegistrar.getFixedDelayTaskList().stream().anyMatch(cronTask -> cronTask.getRunnable() == sar)) {
                                 taskRegistrar.setFixedDelayTasksList(
-                                        taskRegistrar.getFixedDelayTaskList().stream().filter(cronTask -> cronTask.getRunnable() != smr).collect(Collectors.toList())
+                                        taskRegistrar.getFixedDelayTaskList().stream().filter(cronTask -> cronTask.getRunnable() != sar).collect(Collectors.toList())
                                 );
                             }
-                            if (taskRegistrar.getFixedRateTaskList().stream().anyMatch(cronTask -> cronTask.getRunnable() == smr)) {
+                            if (taskRegistrar.getFixedRateTaskList().stream().anyMatch(cronTask -> cronTask.getRunnable() == sar)) {
                                 taskRegistrar.setFixedRateTasksList(
-                                        taskRegistrar.getFixedRateTaskList().stream().filter(cronTask -> cronTask.getRunnable() != smr).collect(Collectors.toList())
+                                        taskRegistrar.getFixedRateTaskList().stream().filter(cronTask -> cronTask.getRunnable() != sar).collect(Collectors.toList())
                                 );
                             }
                         } else {
@@ -268,8 +268,7 @@ public class ScheduleController implements ApplicationContextAware, SchedulingCo
                 try (MDC.MDCCloseable closeable = MDC.putCloseable("ctx", context)) {
                     super.run();
                 }
-            }
-            else {
+            } else {
                 super.run();
             }
         }

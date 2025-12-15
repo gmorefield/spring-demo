@@ -116,7 +116,8 @@ management:
     security:
         enabled: false
     endpoints:
-        enabled-by-default: false
+        access:
+            default: none
         web:
             exposure:
                 include:
@@ -128,15 +129,15 @@ management:
             #     allowed-methods: GET,POST
     endpoint:
         info:
-            enabled: true
+            access: unrestricted
         health:
-            enabled: true
+            access: unrestricted
             show-details: always
             show-components: always
             probes:
                 enabled: true
         refresh:
-            enabled: true
+            access: unrestricted
     health:
         livenessState:
             enabled: true

@@ -7,8 +7,8 @@ import com.example.springdemo.service.AvailabilityService;
 import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @Tag("integration")
@@ -25,9 +25,9 @@ public abstract class BaseControllerTest {
     @Autowired
     protected MockMvc mvc;
 
-    @MockBean
+    @MockitoBean
     protected AvailabilityService availabilityService;
 
-    @MockBean
+    @MockitoBean
     protected PersonRepository personRepository;
 }

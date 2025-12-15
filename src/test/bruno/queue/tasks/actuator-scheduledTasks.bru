@@ -1,11 +1,11 @@
 meta {
-  name: tasks-delete-all
+  name: actuator-scheduledTasks
   type: http
-  seq: 6
+  seq: 4
 }
 
-delete {
-  url: {{host}}/tasks
+get {
+  url: {{host}}/actuator/scheduledtasks
   body: none
   auth: inherit
 }
